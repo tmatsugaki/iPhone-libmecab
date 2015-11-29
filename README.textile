@@ -1,23 +1,11 @@
-h1. 形態素解析エンジンMecab on iPhone（Cocoa Static Library版）
+h1. 形態素解析エンジンMecab on iPhone（Cocoa Static Library版）のパッチリリースです。
 
-形態素解析エンジン Mecab を iPhone 上で利用するサンプルアプリケーションです。
-Mecab を Cocoa Touch Static Libaray としてビルドしています。
+形態素解析エンジン Mecab を iPhone 上で利用するサンプルアプリケーションの拡張です。
+中学生でも分かる一般的な表記での出力機能を追加しました。
 
 !/FLCLjp/iPhone-libmecab/raw/master/screenshot.png!
 
-h2. ビルド方法
-
-h3. xcode 4
-
-# LibMecabSample/LibMecabSample.xcodeproj を開きます。
-# ビルドターゲットで LibMecabSample を選びビルドします。
-
-h3. xcode 3
-
-# mecab/mecab.xcodeproj を開きます。
-# ターゲット（Device/Simulator）、構成を選びビルドします。
-# LibMecabSample/LibMecabSample.xcodeproj を開きます。
-# 先ほどビルドしたものと同じターゲット、構成でビルドします。
+h2. ビルド方法（XCode 7.1 で普通にやって下さい）
 
 h2. ライセンス
 
@@ -26,8 +14,5 @@ Mecab およびその関連ファイルについては、各ライブラリー�
 
 h2. 謝辞
 
-このアプリケーションを作成するにあたり、以下のサイトを参考にさせて頂きました。
-
-"Mecab":http://mecab.sourceforge.net/
-"Mac OS X Leopard に「標準で」インストールされている MeCabを使ってみる - きまぐれ日記":http://chasen.org/~taku/blog/archives/2008/07/mac_os_x_leropa.html
-"iPhoneからMeCabを呼びたい - pokosho!":http://pokosho.com/b/archives/1012
+このパッチ作成を思い立ったのは、オリジナル作品の出来が良かったからです。
+作者の Watanabe Toshinori 様に感謝いたします。
