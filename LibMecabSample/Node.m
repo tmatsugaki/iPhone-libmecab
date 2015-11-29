@@ -21,7 +21,7 @@
 	
 	if (value) {
 		feature = [value retain];
-		self.features = [value componentsSeparatedByString:@","];
+		self.features = [NSMutableArray arrayWithArray:[value componentsSeparatedByString:@","]];
 	} else {
 		feature = nil;
 		self.features = nil;
@@ -91,10 +91,74 @@
 	return [features objectAtIndex:8];
 }
 
+- (void)setPartOfSpeech:(NSString *)value {
+    if (!features || [features count] < 1) {
+        return;
+    }
+    [features replaceObjectAtIndex:0 withObject:value];
+}
+
+- (void)setPartOfSpeechSubtype1:(NSString *)value {
+    if (!features || [features count] < 2) {
+        return;
+    }
+    [features replaceObjectAtIndex:1 withObject:value];
+}
+
+- (void)setPartOfSpeechSubtype2:(NSString *)value {
+    if (!features || [features count] < 3) {
+        return;
+    }
+    [features replaceObjectAtIndex:2 withObject:value];
+}
+
+- (void)setPartOfSpeechSubtype3:(NSString *)value {
+    if (!features || [features count] < 4) {
+        return;
+    }
+    [features replaceObjectAtIndex:3 withObject:value];
+}
+
+- (void)setInflection:(NSString *)value {
+    if (!features || [features count] < 5) {
+        return;
+    }
+    [features replaceObjectAtIndex:4 withObject:value];
+}
+
+- (void)setUseOfType:(NSString *)value {
+    if (!features || [features count] < 6) {
+        return;
+    }
+    [features replaceObjectAtIndex:5 withObject:value];
+}
+
+- (void)setOriginalForm:(NSString *)value {
+    if (!features || [features count] < 7) {
+        return;
+    }
+    [features replaceObjectAtIndex:6 withObject:value];
+}
+
+- (void)setReading:(NSString *)value {
+    if (!features || [features count] < 8) {
+        return;
+    }
+    [features replaceObjectAtIndex:7 withObject:value];
+}
+
+- (void)setPronunciation:(NSString *)value {
+    if (!features || [features count] < 9) {
+        return;
+    }
+    [features replaceObjectAtIndex:8 withObject:value];
+}
+
 - (void)dealloc {
 	self.surface = nil;
 	self.feature = nil;
     self.features = nil;
+    self.attribute = nil;
 
 	[super dealloc];
 }

@@ -13,11 +13,13 @@
 
 @synthesize featureLabel;
 @synthesize surfaceLabel;
+@synthesize partOfSpeechLabel;
 
 
 - (void)dealloc {
 	self.featureLabel = nil;
-	self.surfaceLabel = nil;
+    self.surfaceLabel = nil;
+    self.partOfSpeechLabel = nil;
     [super dealloc];
 }
 

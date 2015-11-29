@@ -11,15 +11,18 @@
 @interface Node : NSObject {
 	
 	NSString *surface;
-	NSString *feature;
-	
-	NSArray *features;
+    NSString *feature;
 
+	NSMutableArray *features;
+    NSString *attribute;
+    BOOL visible;
 }
 
 @property (nonatomic, retain) NSString *surface;
 @property (nonatomic, retain) NSString *feature;
-@property (nonatomic, retain) NSArray *features;
+@property (nonatomic, retain) NSMutableArray *features;
+@property (nonatomic, retain) NSString *attribute;
+@property (nonatomic, assign) BOOL visible;
 
 // 品詞
 - (NSString *)partOfSpeech;
@@ -40,4 +43,13 @@
 // 発音
 - (NSString *)pronunciation;
 	
+- (void)setPartOfSpeech:(NSString *)value;
+- (void)setPartOfSpeechSubtype1:(NSString *)value;
+- (void)setPartOfSpeechSubtype2:(NSString *)value;
+- (void)setPartOfSpeechSubtype3:(NSString *)value;
+- (void)setInflection:(NSString *)value;
+- (void)setUseOfType:(NSString *)value;
+- (void)setOriginalForm:(NSString *)value;
+- (void)setReading:(NSString *)value;
+- (void)setPronunciation:(NSString *)value;
 @end

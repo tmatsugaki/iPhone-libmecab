@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		089AFE861C03353400BA5F98 /* TokenCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 089AFE851C03353400BA5F98 /* TokenCell.xib */; };
+		089AFE891C03353900BA5F98 /* TokensViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 089AFE881C03353900BA5F98 /* TokensViewController.xib */; };
+		089AFE8C1C03359000BA5F98 /* TokensViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 089AFE8B1C03359000BA5F98 /* TokensViewController.m */; };
+		089AFE8F1C03359700BA5F98 /* TokenCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 089AFE8E1C03359700BA5F98 /* TokenCell.m */; };
+		089AFE961C03F51A00BA5F98 /* folder.png in Resources */ = {isa = PBXBuildFile; fileRef = 089AFE951C03F51A00BA5F98 /* folder.png */; };
+		089AFE9C1C04092100BA5F98 /* LibMecabSample-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 089AFE9B1C04092100BA5F98 /* LibMecabSample-Info.plist */; };
+		08B0BCA11C02B19100D5A21C /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */; };
 		13C86E5B12C87B30006F2369 /* Mecab.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C86E5812C87B30006F2369 /* Mecab.m */; };
 		13C86E5C12C87B30006F2369 /* Node.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C86E5A12C87B30006F2369 /* Node.m */; };
 		13C86E5E12C87B3E006F2369 /* NodeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13C86E5D12C87B3E006F2369 /* NodeCell.xib */; };
@@ -45,6 +52,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		089AFE851C03353400BA5F98 /* TokenCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TokenCell.xib; sourceTree = "<group>"; };
+		089AFE881C03353900BA5F98 /* TokensViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TokensViewController.xib; sourceTree = "<group>"; };
+		089AFE8A1C03359000BA5F98 /* TokensViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TokensViewController.h; sourceTree = "<group>"; };
+		089AFE8B1C03359000BA5F98 /* TokensViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TokensViewController.m; sourceTree = "<group>"; };
+		089AFE8D1C03359700BA5F98 /* TokenCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TokenCell.h; sourceTree = "<group>"; };
+		089AFE8E1C03359700BA5F98 /* TokenCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TokenCell.m; sourceTree = "<group>"; };
+		089AFE951C03F51A00BA5F98 /* folder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folder.png; sourceTree = "<group>"; };
+		089AFE991C0407A500BA5F98 /* definitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = definitions.h; sourceTree = "<group>"; };
+		089AFE9B1C04092100BA5F98 /* LibMecabSample-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "LibMecabSample-Info.plist"; sourceTree = "<group>"; };
+		08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		13C86E5712C87B30006F2369 /* Mecab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mecab.h; sourceTree = "<group>"; };
 		13C86E5812C87B30006F2369 /* Mecab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Mecab.m; sourceTree = "<group>"; };
 		13C86E5912C87B30006F2369 /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Node.h; sourceTree = "<group>"; };
@@ -100,12 +117,17 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				089AFE991C0407A500BA5F98 /* definitions.h */,
 				1D3623240D0F684500981E51 /* LibMecabSampleAppDelegate.h */,
 				1D3623250D0F684500981E51 /* LibMecabSampleAppDelegate.m */,
 				28D7ACF60DDB3853001CB0EB /* LibMecabSampleViewController.h */,
 				28D7ACF70DDB3853001CB0EB /* LibMecabSampleViewController.m */,
 				13C86E6912C87B77006F2369 /* NodeCell.h */,
 				13C86E6A12C87B77006F2369 /* NodeCell.m */,
+				089AFE8A1C03359000BA5F98 /* TokensViewController.h */,
+				089AFE8B1C03359000BA5F98 /* TokensViewController.m */,
+				089AFE8D1C03359700BA5F98 /* TokenCell.h */,
+				089AFE8E1C03359700BA5F98 /* TokenCell.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -156,6 +178,9 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				089AFE9B1C04092100BA5F98 /* LibMecabSample-Info.plist */,
+				08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */,
+				089AFE951C03F51A00BA5F98 /* folder.png */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -184,6 +209,8 @@
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
 				2899E5210DE3E06400AC0155 /* LibMecabSampleViewController.xib */,
 				13C86E5D12C87B3E006F2369 /* NodeCell.xib */,
+				089AFE881C03353900BA5F98 /* TokensViewController.xib */,
+				089AFE851C03353400BA5F98 /* TokenCell.xib */,
 				8D1107310486CEB800E47090 /* LibMecabSample-Info.plist */,
 			);
 			name = Resources;
@@ -226,6 +253,8 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "LibMecabSample" */;
 			compatibilityVersion = "Xcode 3.1";
 			developmentRegion = English;
@@ -271,14 +300,19 @@
 				13C86E5E12C87B3E006F2369 /* NodeCell.xib in Resources */,
 				13C86E9512C87C9D006F2369 /* char.bin in Resources */,
 				13C86E9612C87C9D006F2369 /* dicrc in Resources */,
+				08B0BCA11C02B19100D5A21C /* Default-568h@2x.png in Resources */,
 				13C86E9712C87C9D006F2369 /* left-id.def in Resources */,
 				13C86E9812C87C9D006F2369 /* matrix.bin in Resources */,
 				13C86E9912C87C9D006F2369 /* pos-id.def in Resources */,
+				089AFE9C1C04092100BA5F98 /* LibMecabSample-Info.plist in Resources */,
 				13C86E9A12C87C9D006F2369 /* rewrite.def in Resources */,
 				13C86E9B12C87C9D006F2369 /* right-id.def in Resources */,
 				13C86E9C12C87C9D006F2369 /* sys.dic in Resources */,
+				089AFE891C03353900BA5F98 /* TokensViewController.xib in Resources */,
 				13C86E9D12C87C9D006F2369 /* unk.dic in Resources */,
+				089AFE861C03353400BA5F98 /* TokenCell.xib in Resources */,
 				13C86F6E12C8871C006F2369 /* mecabrc in Resources */,
+				089AFE961C03F51A00BA5F98 /* folder.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,12 +323,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				089AFE8C1C03359000BA5F98 /* TokensViewController.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* LibMecabSampleAppDelegate.m in Sources */,
 				28D7ACF80DDB3853001CB0EB /* LibMecabSampleViewController.m in Sources */,
 				13C86E5B12C87B30006F2369 /* Mecab.m in Sources */,
 				13C86E5C12C87B30006F2369 /* Node.m in Sources */,
 				13C86E6B12C87B77006F2369 /* NodeCell.m in Sources */,
+				089AFE8F1C03359700BA5F98 /* TokenCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,6 +373,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = ../mecab/;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PREBINDING = NO;
 				SDKROOT = iphoneos;
 			};
@@ -351,6 +388,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = ../mecab/;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PREBINDING = NO;
 				SDKROOT = iphoneos;
