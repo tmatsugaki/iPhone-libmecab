@@ -2,7 +2,8 @@
 //  NodeCell.h
 //  MecabSample
 //
-//  Created by tmatsugaki on 2015/11/24.
+//  Created by Watanabe Toshinori on 10/12/27.
+//  Copyright 2010 FLCL.jp. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
