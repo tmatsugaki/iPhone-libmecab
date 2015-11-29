@@ -2,7 +2,7 @@
 //  definitions.h
 //  LibMecabSample
 //
-//  Created by matsu on 2015/11/24.
+//  Created by tmatsugaki on 2015/11/24.
 //
 //
 
