@@ -32,15 +32,15 @@
      */
 	UILabel *featureLabel;
 	UILabel *surfaceLabel;
-    UILabel *partOfSpeechLabel;
-    UILabel *partOfSpeechSubtype1Label;
-    UILabel *partOfSpeechSubtype2Label;
-    UILabel *partOfSpeechSubtype3Label;
-    UILabel *inflectionLabel;
-    UILabel *useOfTypeLabel;
-    UILabel *originalFormLabel;
-    UILabel *readingLabel;
-    UILabel *pronunciationLabel;
+	UILabel *partOfSpeechLabel;
+	UILabel *partOfSpeechSubtype1Label;
+	UILabel *partOfSpeechSubtype2Label;
+	UILabel *partOfSpeechSubtype3Label;
+	UILabel *inflectionLabel;
+	UILabel *useOfTypeLabel;
+	UILabel *originalFormLabel;
+	UILabel *readingLabel;
+	UILabel *pronunciationLabel;
 }
 
 @property (nonatomic, retain) IBOutlet UILabel *featureLabel;
