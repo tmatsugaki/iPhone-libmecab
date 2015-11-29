@@ -16,12 +16,12 @@
 	UITextField *textField;
 	UITableView *tableView_;
 	NodeCell *nodeCell;
-    UIButton *explore;
-    UISwitch *patch;
+	UIButton *explore;
+	UISwitch *patch;
 	
 	Mecab *mecab;
-    NSMutableArray *nodes;
-    NSMutableArray *tokens;
+	NSMutableArray *nodes;
+	NSMutableArray *tokens;
 }
 
 @property (nonatomic, retain) IBOutlet UITextField *textField;

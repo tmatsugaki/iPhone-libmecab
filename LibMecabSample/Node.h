@@ -11,11 +11,11 @@
 @interface Node : NSObject {
 	
 	NSString *surface;
-    NSString *feature;
+	NSString *feature;
 
 	NSMutableArray *features;
-    NSString *attribute;
-    BOOL visible;
+	NSString *attribute;
+	BOOL visible;
 }
 
 @property (nonatomic, retain) NSString *surface;
