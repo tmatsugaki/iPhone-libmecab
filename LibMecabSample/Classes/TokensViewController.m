@@ -71,7 +71,7 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 
-    NSString *str = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsToken];
+    NSString *str = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
     
     if ([str length]) {
         NSUInteger index = [tokens indexOfObject:str];
@@ -134,7 +134,7 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 
     NSString *str = [tokens objectAtIndex:indexPath.row];
-    [[NSUserDefaults standardUserDefaults] setObject:str forKey:kDefaultsToken];
+    [[NSUserDefaults standardUserDefaults] setObject:str forKey:kDefaultsSentence];
     // 画面を閉じる
     [self performSelector:@selector(dismissMe) withObject:nil afterDelay:0.5];
 }
@@ -204,7 +204,7 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
             {
                 [tokens insertObject:token atIndex:toIndexPath.row];
             }
-            [[NSUserDefaults standardUserDefaults] setObject:token forKey:kDefaultsToken];
+            [[NSUserDefaults standardUserDefaults] setObject:token forKey:kDefaultsSentence];
 
             [token release];
         }

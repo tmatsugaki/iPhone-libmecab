@@ -14,8 +14,8 @@
 #define kTokesXMLPath   [kDocumentPath stringByAppendingPathComponent:@"Tokens.xml"]
 
 // ユーザーデフォルト
-#define kDefaultsPatch   @"Patch"
-#define kDefaultsToken   @"Token"
+#define kDefaultsPatchMode  @"PatchMode"
+#define kDefaultsSentence   @"EvaluatingSentence"
 
 #define DEBUG
 

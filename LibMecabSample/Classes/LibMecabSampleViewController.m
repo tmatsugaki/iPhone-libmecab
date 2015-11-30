@@ -101,7 +101,7 @@ NSSet *lowerSet = nil;
 
 #pragma mark - Patch (マージ)
 
-// 【複合動詞】
+// 複合動詞の連結
 - (void) patch_merge_FUKUGO_DOSHI {
     Node *lastNode = nil;
     
@@ -161,7 +161,7 @@ NSSet *lowerSet = nil;
     }
 }
 
-// 【名詞のマージ】
+// 名詞の連結
 - (void) patch_merge_MEISHI {
     Node *lastNode = nil;
     
@@ -195,8 +195,8 @@ NSSet *lowerSet = nil;
     }
 }
 
-// 【助動詞／形容動詞】
-- (void) patch_merge_FUZOKUGO {
+// 語幹の連結
+- (void) patch_merge_GOKAN {
     Node *lastNode = nil;
     
     for (NSUInteger index = 0; index < [nodes count]; index++) {
@@ -283,7 +283,8 @@ NSSet *lowerSet = nil;
 
 #pragma mark - Patch (パッチ)
 
-// 【副詞化】体言＋助詞（で）＋「、」は断定を表す助動詞「だ」の連用形。
+// 【助動詞化】体言＋助詞「で、」→助動詞「だ」（連用形）
+// ※後端の「、」が必須
 - (void) patch_TAIGEN_DA {
     Node *lastNode = nil;
     Node *nextNode = nil;
@@ -376,7 +377,7 @@ NSSet *lowerSet = nil;
     }
 }
 
-// 【補助形容詞】事前のトークンが連用形の形容詞／形容動詞の場合の「ない」は補助形容詞。
+// 【補助形容詞化】事前のトークンが連用形の形容詞／形容動詞の場合の「ない」は補助形容詞。
 //
 // ※動詞／形容詞／形容動詞に導かれる、補助形容詞「ほしい」「ない」の現状は下記。
 // ○動詞+てほしい eg.「きてほしい」
@@ -412,7 +413,7 @@ NSSet *lowerSet = nil;
     }
 }
 
-// 【形容詞化】体言＋助動詞（らしい）＋体言は連体形の形容詞。
+// 【形容詞化】体言＋助動詞「らしい」＋体言→形容詞（連体形）
 - (void) patch_TAIGEN_RASHII {
     Node *lastNode = nil;
     Node *nextNode = nil;
@@ -505,7 +506,7 @@ NSSet *lowerSet = nil;
     }
 }
 
-// 【接続助詞化】「呼んでも」の「で・も」は動詞が五段活用の場合は連結する。
+// 【接続助詞化】動詞が五段活用時の「呼んでも」の「で・も」→接続助詞「でも」
 - (void) patch_DE_MO {
     Node *lastNode = nil;
     Node *nextNode = nil;
@@ -546,7 +547,7 @@ NSSet *lowerSet = nil;
     }
 }
 
-// 【接続助詞化】「こちらでも、」の副助詞「でも」は、格助詞「で」と副助詞「も」に分割する。
+// 【副助詞の分割】「こちらでも、」の副助詞「でも」→格助詞「で」と副助詞「も」
 - (void) patch_DEMO {
     Node *lastNode = nil;
     
@@ -592,7 +593,7 @@ NSSet *lowerSet = nil;
     }
 }
 
-// 【副助詞化】「子供でも」の「でも」＋動詞の場合は、副助詞「でも」にする。
+// 【副助詞化】「子供でも」の「でも」＋動詞→副助詞「でも」
 - (BOOL) patch_DATTE {
     Node *lastNode = nil;
     Node *nextNode = nil;
@@ -781,7 +782,7 @@ NSSet *lowerSet = nil;
         [self patch_merge_FUKUGO_DOSHI];
         [self patch_merge_FUKUGO_DOSHI_SAHEN];
         [self patch_merge_MEISHI];
-        [self patch_merge_FUZOKUGO];
+        [self patch_merge_GOKAN];
         // パッチ
         [self patch_TAIGEN_DA];
         [self patch_NANODA_NO];
@@ -806,12 +807,12 @@ NSSet *lowerSet = nil;
         }
         [tokens writeToFile:kTokesXMLPath atomically:YES];
     } else {
-        [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsToken];
+        [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsSentence];
     }
 }
 
 - (IBAction) setPatchDefaults:(id)sender {
-    [[NSUserDefaults standardUserDefaults] setBool:patch.on forKey:kDefaultsPatch];
+    [[NSUserDefaults standardUserDefaults] setBool:patch.on forKey:kDefaultsPatchMode];
 }
 
 - (IBAction) openTokensView:(id)sender {
@@ -858,7 +859,7 @@ NSSet *lowerSet = nil;
 
     self.mecab = [[Mecab new] autorelease];
     explore.layer.cornerRadius = 5.0;
-    [patch setOn:[[NSUserDefaults standardUserDefaults] boolForKey:kDefaultsPatch]];
+    [patch setOn:[[NSUserDefaults standardUserDefaults] boolForKey:kDefaultsPatchMode]];
     
     textField.delegate = self;
 }
@@ -866,7 +867,7 @@ NSSet *lowerSet = nil;
 - (void) viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 
-    NSString *string = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsToken];
+    NSString *string = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
     
     if ([string length]) {
         [textField setText:string];
