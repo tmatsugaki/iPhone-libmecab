@@ -517,8 +517,8 @@ start:
             if ([[node partOfSpeech] isEqualToString:@"助動詞"] &&
                 [node.surface isEqualToString:@"ない"])
             {
-//                if ([self isYougen:[lastNode partOfSpeech]])
-                if ([[lastNode partOfSpeech] isEqualToString:@"形容詞"])
+                if ([self isYougen:[lastNode partOfSpeech]]) // 形容詞／動詞／形容動詞に連なる場合は補助形容詞。
+//                if ([[lastNode partOfSpeech] isEqualToString:@"形容詞"])
                 {// 動詞／形容詞＋形容詞（ない）
                     [node setPartOfSpeech:@"形容詞"];
                     [node setPartOfSpeechSubtype1:@"補助形容詞"];
