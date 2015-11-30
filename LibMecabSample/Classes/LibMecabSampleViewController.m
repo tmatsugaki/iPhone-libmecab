@@ -805,7 +805,7 @@ NSSet *lowerSet = nil;
         if (index == NSNotFound) {
             [tokens addObject:string];
         }
-        [tokens writeToFile:kTokesXMLPath atomically:YES];
+        [tokens writeToFile:kLibXMLPath atomically:YES];
     } else {
         [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsSentence];
     }
@@ -855,7 +855,7 @@ NSSet *lowerSet = nil;
 
     [tableView_ becomeFirstResponder];
     
-    self.tokens = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kTokesXMLPath]];
+    self.tokens = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
 
     self.mecab = [[Mecab new] autorelease];
     explore.layer.cornerRadius = 5.0;

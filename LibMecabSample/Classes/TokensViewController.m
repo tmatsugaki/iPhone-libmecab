@@ -153,7 +153,7 @@ titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
     @try {
         if (editingStyle == UITableViewCellEditingStyleDelete) {
             [tokens removeObject:[tokens objectAtIndex:indexPath.row]];
-            [tokens writeToFile:kTokesXMLPath atomically:YES];
+            [tokens writeToFile:kLibXMLPath atomically:YES];
             
             CGContextRef context = UIGraphicsGetCurrentContext();
             

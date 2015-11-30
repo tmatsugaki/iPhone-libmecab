@@ -11,11 +11,12 @@
 
 // パス
 #define kDocumentPath   [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject]
-#define kTokesXMLPath   [kDocumentPath stringByAppendingPathComponent:@"Tokens.xml"]
+// 例文ライブラリの XML ファイルのパス
+#define kLibXMLPath     [kDocumentPath stringByAppendingPathComponent:@"Sentences.xml"]
 
 // ユーザーデフォルト
-#define kDefaultsPatchMode  @"PatchMode"
-#define kDefaultsSentence   @"EvaluatingSentence"
+#define kDefaultsPatchMode  @"PatchMode"            // パッチモードを保持する。
+#define kDefaultsSentence   @"EvaluatingSentence"   // 評価中の文字列を保持する。
 
 #define DEBUG
 
