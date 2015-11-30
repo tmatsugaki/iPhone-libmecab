@@ -503,15 +503,17 @@ start:
     }
 }
 
-// 【補助形容詞】事前のトークンが形容詞の場合の「ない」は補助形容詞。
+// 【補助形容詞】事前のトークンが連用形の形容詞／形容動詞の場合の「ない」は補助形容詞。
 //
-// ※動詞・形容詞に導かれる、補助形容詞「ほしい」「ない」の現状は下記。
-// ○動詞+ほしい
-// ○形容詞+ほしい
-// ○動詞+ない（助動詞）
-// ×形容詞+ない
+// ※動詞／形容詞／形容動詞に導かれる、補助形容詞「ほしい」「ない」の現状は下記。
+// ○動詞+てほしい eg.「きてほしい」
+// -形容詞+ほしい
+// -形容動詞+ほしい
+// ○動詞+ない（助動詞） eg.「こない」
+// ×形容詞+ない eg.「かわいくない」
+// ×形容動詞+ない eg.「きれいでない」
 //
-- (void) patch_KEIYOUSHI_NAI {
+- (void) patch_HOJO_KEIYOUSHI_NAI {
     NSUInteger count = 0;
     Node *lastNode = nil;
     
@@ -520,9 +522,13 @@ start:
             if ([[node partOfSpeech] isEqualToString:@"助動詞"] &&
                 [node.surface isEqualToString:@"ない"])
             {
-                if ([self isYougen:[lastNode partOfSpeech]]) // 形容詞／動詞／形容動詞に連なる場合は補助形容詞。
-//                if ([[lastNode partOfSpeech] isEqualToString:@"形容詞"])
-                {// 動詞／形容詞＋形容詞（ない）
+                NSString *lastPartOfSpeech = [lastNode partOfSpeech];
+                NSString *lastUseOfType = [lastNode useOfType];
+
+                if (([lastPartOfSpeech isEqualToString:@"形容詞"] || [lastPartOfSpeech isEqualToString:@"形容動詞"])
+                    && [lastUseOfType length] >= 2 && [[lastUseOfType substringToIndex:2] isEqualToString:@"連用"]
+                ) // 連用形の形容詞／形容動詞に連なる場合は補助形容詞。
+                {// 形容詞／形容動詞＋補助形容詞（ない）
                     [node setPartOfSpeech:@"形容詞"];
                     [node setPartOfSpeechSubtype1:@"補助形容詞"];
                     [node setInflection:@"™○:ほしい、×:ない"];
@@ -833,7 +839,7 @@ start:
         [self patch_TAIGEN_DA];
         [self patch_NANODA_NO];
         [self patch_KANDOSHI_SOU];
-        [self patch_KEIYOUSHI_NAI];
+        [self patch_HOJO_KEIYOUSHI_NAI];
         [self patch_TAIGEN_RASHII];
         [self patch_TOMO];
         [self patch_TOMO_KUTEN];
