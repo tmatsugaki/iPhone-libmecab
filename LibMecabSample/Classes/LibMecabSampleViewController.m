@@ -88,7 +88,7 @@ NSSet *lowerSet = nil;
         if (([subType1 length] > baseTokenLength && [[subType1 substringFromIndex:[subType1 length] - baseTokenLength] isEqualToString:baseToken]) ||
             ([subType2 length] > baseTokenLength && [[subType2 substringFromIndex:[subType2 length] - baseTokenLength] isEqualToString:baseToken]) ||
             ([subType3 length] > baseTokenLength && [[subType3 substringFromIndex:[subType3 length] - baseTokenLength] isEqualToString:baseToken])) {
-            NSLog(@">>[%02d]%@:%@", ++count, node.surface, [node partOfSpeech]);
+            NSLog(@">>[%02lu]%@:%@", (unsigned long)++count, node.surface, [node partOfSpeech]);
         }
         node.attribute = @"";
         node.visible = YES;

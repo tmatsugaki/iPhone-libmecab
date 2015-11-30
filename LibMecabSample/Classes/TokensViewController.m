@@ -190,10 +190,10 @@ canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
 moveRowAtIndexPath:(NSIndexPath *)indexPath
        toIndexPath:(NSIndexPath *)toIndexPath {
     
-    NSLog(@"%s [%d]->[%d]", __func__, indexPath.row, toIndexPath.row);
+    NSLog(@"%s [%ld]->[%ld]", __func__, (long)indexPath.row, (long)toIndexPath.row);
     @try {
         if (indexPath.row != toIndexPath.row) {
-            int numRows = [self tableView:tableView numberOfRowsInSection:0];
+            NSUInteger numRows = [self tableView:tableView numberOfRowsInSection:0];
             NSString *token = [tokens[indexPath.row] retain];
 
             [tokens removeObject:token];
@@ -246,7 +246,7 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
 - (IBAction) handleLongPress:(UILongPressGestureRecognizer *)sender {
     
     if (sender.state == UIGestureRecognizerStateBegan) {
-        CGPoint location = [sender locationInView:self.view];
+//        CGPoint location = [sender locationInView:self.view];
 //        self.selectedIndexPath = [tableView_ indexPathForRowAtPoint:location];
 //        TokenCell *cell = (TokenCell *) [tableView_ cellForRowAtIndexPath:_selectedIndexPath];
         [tableView_ setEditing:tableView_.editing == NO animated:YES];

@@ -13,6 +13,8 @@
 @synthesize surface;
 @synthesize feature;
 @synthesize features;
+@synthesize attribute;
+@synthesize visible;
 
 - (void)setFeature:(NSString *)value {
 	if (feature) {
