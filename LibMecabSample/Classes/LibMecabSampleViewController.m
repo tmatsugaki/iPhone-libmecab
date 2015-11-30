@@ -413,10 +413,10 @@ start:
     Node *lastNode = nil;
     Node *nextNode = nil;
     
-    for (NSUInteger i = 0; i < [nodes count]; i++) {
+    for (NSInteger i = 0; i < [nodes count]; i++) {
         Node *node = nodes[i];
         
-        if (i < [nodes count] - 1) {
+        if (i + 1 < [nodes count]) {
             nextNode = nodes[i + 1];
         } else {
             nextNode = nil;
@@ -531,7 +531,7 @@ start:
                 {// 形容詞／形容動詞＋補助形容詞（ない）
                     [node setPartOfSpeech:@"形容詞"];
                     [node setPartOfSpeechSubtype1:@"補助形容詞"];
-                    [node setInflection:@"™○:ほしい、×:ない"];
+                    [node setInflection:@"™形容詞／形容動詞の補助動詞「ない」"];
                     count++;
                 }
             }
@@ -546,10 +546,10 @@ start:
     Node *lastNode = nil;
     Node *nextNode = nil;
     
-    for (NSUInteger i = 0; i < [nodes count]; i++) {
+    for (NSInteger i = 0; i < [nodes count]; i++) {
         Node *node = nodes[i];
         
-        if (i < [nodes count] - 1) {
+        if (i + 1 < [nodes count]) {
             nextNode = nodes[i + 1];
         } else {
             nextNode = nil;
@@ -603,10 +603,10 @@ start:
     Node *lastNode = nil;
     Node *nextNode = nil;
     
-    for (NSUInteger i = 0; i < [nodes count]; i++) {
+    for (NSInteger i = 0; i < [nodes count]; i++) {
         Node *node = nodes[i];
         
-        if (i < [nodes count] - 1) {
+        if (i + 1 < [nodes count]) {
             nextNode = nodes[i + 1];
         } else {
             nextNode = nil;
@@ -641,15 +641,15 @@ start:
     Node *nextNode = nil;
     Node *nextNextNode = nil;
     
-    for (NSUInteger i = 0; i < [nodes count]; i++) {
+    for (NSInteger i = 0; i < [nodes count]; i++) {
         Node *node = nodes[i];
         
-        if (i < [nodes count] - 1) {
+        if (i + 1 < [nodes count]) {
             nextNode = nodes[i + 1];
         } else {
             nextNode = nil;
         }
-        if (i < [nodes count] - 2) {
+        if (i + 2 < [nodes count]) {
             nextNextNode = nodes[i + 2];
         } else {
             nextNextNode = nil;
@@ -730,10 +730,10 @@ start:
     Node *nextNode = nil;
     BOOL asked = NO;
     
-    for (NSUInteger i = 0; i < [nodes count]; i++) {
+    for (NSInteger i = 0; i < [nodes count]; i++) {
         Node *node = nodes[i];
         
-        if (i < [nodes count] - 1) {
+        if (i + 1 < [nodes count]) {
             nextNode = nodes[i + 1];
         } else {
             nextNode = nil;
