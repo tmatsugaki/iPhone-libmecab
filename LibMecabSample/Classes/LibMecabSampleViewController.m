@@ -25,7 +25,29 @@ NSSet *lowerSet = nil;
 @synthesize nodes;
 @synthesize tokens;
 
-#pragma mark - Patch
+#pragma mark -
+
+// 【注意】必須の処理
+- (void) preProcess {
+    NSUInteger count = 0;
+    for (Node *node in nodes) {
+        NSString *subType1 = [node partOfSpeechSubtype1];
+        NSString *subType2 = [node partOfSpeechSubtype2];
+        NSString *subType3 = [node partOfSpeechSubtype3];
+        NSString *baseToken = @"語幹";
+        NSUInteger baseTokenLength = [baseToken length];
+        
+        if (([subType1 length] > baseTokenLength && [[subType1 substringFromIndex:[subType1 length] - baseTokenLength] isEqualToString:baseToken]) ||
+            ([subType2 length] > baseTokenLength && [[subType2 substringFromIndex:[subType2 length] - baseTokenLength] isEqualToString:baseToken]) ||
+            ([subType3 length] > baseTokenLength && [[subType3 substringFromIndex:[subType3 length] - baseTokenLength] isEqualToString:baseToken])) {
+            NSLog(@">>[%02lu]%@:%@", (unsigned long)++count, node.surface, [node partOfSpeech]);
+        }
+        node.attribute = @"";
+        node.visible = YES;
+    }
+}
+
+#pragma mark - Patch (ツール)
 
 // 用言（動詞／形容詞／形容動詞）である。
 - (BOOL) isTaigen:(NSString *)hinshi {
@@ -76,24 +98,7 @@ NSSet *lowerSet = nil;
     return str;
 }
 
-- (void) preProcess {
-    NSUInteger count = 0;
-    for (Node *node in nodes) {
-        NSString *subType1 = [node partOfSpeechSubtype1];
-        NSString *subType2 = [node partOfSpeechSubtype2];
-        NSString *subType3 = [node partOfSpeechSubtype3];
-        NSString *baseToken = @"語幹";
-        NSUInteger baseTokenLength = [baseToken length];
-
-        if (([subType1 length] > baseTokenLength && [[subType1 substringFromIndex:[subType1 length] - baseTokenLength] isEqualToString:baseToken]) ||
-            ([subType2 length] > baseTokenLength && [[subType2 substringFromIndex:[subType2 length] - baseTokenLength] isEqualToString:baseToken]) ||
-            ([subType3 length] > baseTokenLength && [[subType3 substringFromIndex:[subType3 length] - baseTokenLength] isEqualToString:baseToken])) {
-            NSLog(@">>[%02lu]%@:%@", (unsigned long)++count, node.surface, [node partOfSpeech]);
-        }
-        node.attribute = @"";
-        node.visible = YES;
-    }
-}
+#pragma mark - Patch (マージ)
 
 // 【名詞のマージ】
 - (void) patch_merge_MEISHI {
@@ -312,100 +317,7 @@ start:
     }
 }
 
-// 未使用
-// 【副詞】用言に連なる「そう」は全て副詞だが、mecab は名詞を返す。
-- (void) patchAdverbSou {
-    NSUInteger count = 0;
-    Node *lastNode = nil;
-    
-    for (Node *node in nodes) {
-        if (lastNode) {
-            if ([self isYougen:[lastNode partOfSpeech]] &&
-                [node.surface isEqualToString:@"そう"])
-            {// 用言に連なる「そう」は全て副詞。
-                [node setPartOfSpeech:@"副詞"];
-                [node setPartOfSpeechSubtype1:@""];
-                [node setPartOfSpeechSubtype2:@""];
-                [node setPartOfSpeechSubtype3:@""];
-                count++;
-            }
-        }
-        lastNode = node;
-    }
-}
-
-// 未使用
-// 【伝聞、様相の助動詞】伝聞、様相の「そうです」は助動詞だが、mecab は名詞+助動詞を返す。
-- (void) patch1b {
-    NSUInteger count = 0;
-    Node *lastNode = nil;
-    
-    for (Node *node in nodes) {
-        if (lastNode) {
-            if ([[node partOfSpeech] isEqualToString:@"助動詞"])
-            {
-                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
-                    [lastNode.surface isEqualToString:@"そう"])
-                {// 伝聞の「そうです」は助動詞
-                    lastNode.visible = NO;
-                    
-                    // マージする。
-                    [node setSurface:[[lastNode surface] stringByAppendingString:[node surface]]];
-                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                    [node setOriginalForm:@"そうだ"];
-                    [node setInflection:@"™伝聞"];
-                    count++;
-                }
-                if ([[lastNode partOfSpeech] isEqualToString:@"副詞"] &&
-                    [lastNode.surface isEqualToString:@"そう"])
-                {// 様相の「そうです」は助動詞
-                    lastNode.visible = NO;
-                    
-                    // マージする。
-                    [node setSurface:[[lastNode surface] stringByAppendingString:[node surface]]];
-                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                    [node setOriginalForm:@"そうだ"];
-                    [node setInflection:@"™様相"];
-                    count++;
-                }
-            }
-        }
-        lastNode = node;
-    }
-}
-
-// 未使用
-// 【副詞化】形容動詞＋助詞（に）で副詞化はすべきだが、mecab は名詞+助動詞を返す。
-- (void) patch2 {
-    NSUInteger count = 0;
-    Node *lastNode = nil;
-    
-    for (Node *node in nodes) {
-        if (lastNode) {
-            if ([[node partOfSpeech] isEqualToString:@"助詞"])
-            {
-                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
-                    [[lastNode partOfSpeechSubtype1] isEqualToString:@"形容動詞語幹"])
-                {// 形容動詞＋助詞（に）は形容動詞
-                    BOOL isRenyou = [node.surface isEqualToString:@"に"];
-                    lastNode.visible = NO;
-                    
-                    // マージする。
-                    [node setSurface:[[lastNode surface] stringByAppendingString:[node surface]]];
-                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                    [node setOriginalForm:[[lastNode originalForm] stringByAppendingString:@"だ"]];
-//                    [node setInflection:@"™伝聞"];
-                    [node setPartOfSpeech:@"形容動詞"];
-                    if (isRenyou) {
-                        [node setUseOfType:@"連用形"];
-                    }
-                    count++;
-                }
-            }
-        }
-        lastNode = node;
-    }
-}
+#pragma mark - Patch (パッチ)
 
 // 【副詞化】体言＋助詞（で）＋「、」は断定を表す助動詞「だ」の連用形。
 - (void) patch_TAIGEN_DA {
@@ -815,6 +727,103 @@ start:
     }
 }
 
+#pragma mark - Patch (未使用)
+
+// 未使用
+// 【副詞】用言に連なる「そう」は全て副詞だが、mecab は名詞を返す。
+- (void) patch_OLD_FUKUSHI_SO {
+    NSUInteger count = 0;
+    Node *lastNode = nil;
+    
+    for (Node *node in nodes) {
+        if (lastNode) {
+            if ([self isYougen:[lastNode partOfSpeech]] &&
+                [node.surface isEqualToString:@"そう"])
+            {// 用言に連なる「そう」は全て副詞。
+                [node setPartOfSpeech:@"副詞"];
+                [node setPartOfSpeechSubtype1:@""];
+                [node setPartOfSpeechSubtype2:@""];
+                [node setPartOfSpeechSubtype3:@""];
+                count++;
+            }
+        }
+        lastNode = node;
+    }
+}
+
+// 未使用
+// 【伝聞、様相の助動詞】伝聞、様相の「そうです」は助動詞だが、mecab は名詞+助動詞を返す。
+- (void) patch_OLD_SOU {
+    NSUInteger count = 0;
+    Node *lastNode = nil;
+    
+    for (Node *node in nodes) {
+        if (lastNode) {
+            if ([[node partOfSpeech] isEqualToString:@"助動詞"])
+            {
+                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
+                    [lastNode.surface isEqualToString:@"そう"])
+                {// 伝聞の「そうです」は助動詞
+                    lastNode.visible = NO;
+                    
+                    // マージする。
+                    [node setSurface:[[lastNode surface] stringByAppendingString:[node surface]]];
+                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                    [node setOriginalForm:@"そうだ"];
+                    [node setInflection:@"™伝聞"];
+                    count++;
+                }
+                if ([[lastNode partOfSpeech] isEqualToString:@"副詞"] &&
+                    [lastNode.surface isEqualToString:@"そう"])
+                {// 様相の「そうです」は助動詞
+                    lastNode.visible = NO;
+                    
+                    // マージする。
+                    [node setSurface:[[lastNode surface] stringByAppendingString:[node surface]]];
+                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                    [node setOriginalForm:@"そうだ"];
+                    [node setInflection:@"™様相"];
+                    count++;
+                }
+            }
+        }
+        lastNode = node;
+    }
+}
+
+// 未使用
+// 【副詞化】形容動詞＋助詞（に）で副詞化はすべきだが、mecab は名詞+助動詞を返す。
+- (void) patch_OLD_FUKUSHI_KA {
+    NSUInteger count = 0;
+    Node *lastNode = nil;
+    
+    for (Node *node in nodes) {
+        if (lastNode) {
+            if ([[node partOfSpeech] isEqualToString:@"助詞"])
+            {
+                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
+                    [[lastNode partOfSpeechSubtype1] isEqualToString:@"形容動詞語幹"])
+                {// 形容動詞＋助詞（に）は形容動詞
+                    BOOL isRenyou = [node.surface isEqualToString:@"に"];
+                    lastNode.visible = NO;
+                    
+                    // マージする。
+                    [node setSurface:[[lastNode surface] stringByAppendingString:[node surface]]];
+                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                    [node setOriginalForm:[[lastNode originalForm] stringByAppendingString:@"だ"]];
+                    //                    [node setInflection:@"™伝聞"];
+                    [node setPartOfSpeech:@"形容動詞"];
+                    if (isRenyou) {
+                        [node setUseOfType:@"連用形"];
+                    }
+                    count++;
+                }
+            }
+        }
+        lastNode = node;
+    }
+}
+
 #pragma mark - IBAction
 
 - (IBAction)parse:(id)sender {
@@ -829,13 +838,8 @@ start:
         [self patch_merge_FUKUGO_DOSHI];
         [self patch_merge_FUKUGO_DOSHI_SAHEN];
         [self patch_merge_MEISHI];
-#if 1
         [self patch_merge_FUZOKUGO];
-#else
-        [self patchAdverbSou];
-        [self patch1b];
-        [self patch2];
-#endif
+
         [self patch_TAIGEN_DA];
         [self patch_NANODA_NO];
         [self patch_KANDOSHI_SOU];
