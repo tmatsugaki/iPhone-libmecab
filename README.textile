@@ -2,8 +2,7 @@ h1. 「形態素解析エンジン Mecab on iPhone のサンプルアプリケ�
 
 出力結果を中学生でも分かる様な一般的な形式にしましたので、是非ご活用下さい。
 
-!/screenshot1.jpg!
-!/screenshot2.jpg!
+!/screenshot1.jpg! !/screenshot2.jpg!
 
 h2. ビルド方法（XCode 7.1 で普通にやって下さい）
 
