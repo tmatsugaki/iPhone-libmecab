@@ -18,7 +18,7 @@
 #define kDefaultsPatchMode  @"PatchMode"            // パッチモードを保持する。
 #define kDefaultsSentence   @"EvaluatingSentence"   // 評価中の文字列を保持する。
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 #define DEBUG_LOG(...) NSLog(__VA_ARGS__)

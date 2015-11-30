@@ -86,9 +86,9 @@
 /* Begin PBXFileReference section */
 		0851EA161C0C9675006C2932 /* HinshiMaster.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HinshiMaster.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0851EA171C0C9676006C2932 /* LibMecabSample copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "LibMecabSample copy-Info.plist"; path = "/Users/matsu/Desktop/iPhone-libmecab/LibMecabSample/LibMecabSample copy-Info.plist"; sourceTree = "<absolute>"; };
-		0851EA181C0C96BE006C2932 /* LibMecabSample copy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "LibMecabSample copy.entitlements"; sourceTree = "<group>"; };
+		0851EA181C0C96BE006C2932 /* HinshiMasterDev.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = HinshiMasterDev.entitlements; sourceTree = "<group>"; };
 		0851EA191C0C96D7006C2932 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
-		0851EA1B1C0C96DF006C2932 /* LibMecabSample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = LibMecabSample.entitlements; sourceTree = "<group>"; };
+		0851EA1B1C0C96DF006C2932 /* HinshiMaster.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = HinshiMaster.entitlements; sourceTree = "<group>"; };
 		089AFE851C03353400BA5F98 /* TokenCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TokenCell.xib; sourceTree = "<group>"; };
 		089AFE881C03353900BA5F98 /* TokensViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TokensViewController.xib; sourceTree = "<group>"; };
 		089AFE8A1C03359000BA5F98 /* TokensViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TokensViewController.h; sourceTree = "<group>"; };
@@ -97,7 +97,7 @@
 		089AFE8E1C03359700BA5F98 /* TokenCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TokenCell.m; sourceTree = "<group>"; };
 		089AFE951C03F51A00BA5F98 /* folder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folder.png; sourceTree = "<group>"; };
 		089AFE991C0407A500BA5F98 /* definitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = definitions.h; sourceTree = "<group>"; };
-		089AFE9B1C04092100BA5F98 /* LibMecabSample-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "LibMecabSample-Info.plist"; sourceTree = "<group>"; };
+		089AFE9B1C04092100BA5F98 /* HinshiMaster-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "HinshiMaster-Info.plist"; sourceTree = "<group>"; };
 		08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		13C86E5712C87B30006F2369 /* Mecab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mecab.h; sourceTree = "<group>"; };
 		13C86E5812C87B30006F2369 /* Mecab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Mecab.m; sourceTree = "<group>"; };
@@ -131,7 +131,6 @@
 		28D7ACF70DDB3853001CB0EB /* LibMecabSampleViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LibMecabSampleViewController.m; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* LibMecabSample_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LibMecabSample_Prefix.pch; sourceTree = "<group>"; };
-		8D1107310486CEB800E47090 /* LibMecabSample-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "LibMecabSample-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -231,9 +230,9 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				0851EA1B1C0C96DF006C2932 /* LibMecabSample.entitlements */,
-				0851EA181C0C96BE006C2932 /* LibMecabSample copy.entitlements */,
-				089AFE9B1C04092100BA5F98 /* LibMecabSample-Info.plist */,
+				089AFE9B1C04092100BA5F98 /* HinshiMaster-Info.plist */,
+				0851EA1B1C0C96DF006C2932 /* HinshiMaster.entitlements */,
+				0851EA181C0C96BE006C2932 /* HinshiMasterDev.entitlements */,
 				08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */,
 				089AFE951C03F51A00BA5F98 /* folder.png */,
 				080E96DDFE201D6D7F000001 /* Classes */,
@@ -267,7 +266,6 @@
 				13C86E5D12C87B3E006F2369 /* NodeCell.xib */,
 				089AFE881C03353900BA5F98 /* TokensViewController.xib */,
 				089AFE851C03353400BA5F98 /* TokenCell.xib */,
-				8D1107310486CEB800E47090 /* LibMecabSample-Info.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -473,10 +471,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_ENTITLEMENTS = "LibMecabSample copy.entitlements";
+				CODE_SIGN_ENTITLEMENTS = HinshiMasterDev.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -492,10 +491,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_ENTITLEMENTS = "LibMecabSample copy.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_ENTITLEMENTS = HinshiMasterDev.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = LibMecabSample_Prefix.pch;
 				INFOPLIST_FILE = "LibMecabSample copy-Info.plist";
@@ -510,16 +510,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_ENTITLEMENTS = LibMecabSample.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HinshiMaster.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = LibMecabSample_Prefix.pch;
-				INFOPLIST_FILE = "LibMecabSample-Info.plist";
+				INFOPLIST_FILE = "HinshiMaster-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.mydns.rikki.HinshiMaster;
 				PRODUCT_NAME = LibMecabSample;
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Debug;
 		};
@@ -527,15 +528,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_ENTITLEMENTS = LibMecabSample.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_ENTITLEMENTS = HinshiMaster.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = LibMecabSample_Prefix.pch;
-				INFOPLIST_FILE = "LibMecabSample-Info.plist";
+				INFOPLIST_FILE = "HinshiMaster-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.mydns.rikki.HinshiMaster;
 				PRODUCT_NAME = LibMecabSample;
-				VALIDATE_PRODUCT = YES;
+				VALIDATE_PRODUCT = NO;
 			};
 			name = Release;
 		};
