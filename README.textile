@@ -1,9 +1,9 @@
-h1. 形態素解析エンジン Mecab on iPhone（リッチ版）のサンプルアプリケーションのパッチリリースです。
+h1. 形態素解析エンジン Mecab on iPhoneのサンプルアプリケーションのパッチリリースです。
 
 形態素解析エンジン Mecab を iPhone 上で利用するサンプルアプリケーションの拡張です。
 中学生でも分かる一般的な表記での出力機能を追加しましたので、是非活用下さい。
 
-!/tmatsugaki/iPhone-libmecab/screenshot3.jpg!
+!/tmatsugaki/iPhone-libmecab/master/screenshot3.jpg!
 
 h2. ビルド方法（XCode 7.1 で普通にやって下さい）
 
