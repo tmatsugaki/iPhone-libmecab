@@ -312,6 +312,7 @@ start:
     }
 }
 
+// 未使用
 // 【副詞】用言に連なる「そう」は全て副詞だが、mecab は名詞を返す。
 - (void) patchAdverbSou {
     NSUInteger count = 0;
@@ -333,6 +334,7 @@ start:
     }
 }
 
+// 未使用
 // 【伝聞、様相の助動詞】伝聞、様相の「そうです」は助動詞だが、mecab は名詞+助動詞を返す。
 - (void) patch1b {
     NSUInteger count = 0;
@@ -372,6 +374,7 @@ start:
     }
 }
 
+// 未使用
 // 【副詞化】形容動詞＋助詞（に）で副詞化はすべきだが、mecab は名詞+助動詞を返す。
 - (void) patch2 {
     NSUInteger count = 0;
