@@ -17,4 +17,14 @@
 #define kDefaultsPatch   @"Patch"
 #define kDefaultsToken   @"Token"
 
+#define DEBUG
+
+#ifdef DEBUG
+#define DEBUG_LOG(...) NSLog(__VA_ARGS__)
+#define LOG_CURRENT_METHOD NSLog(NSStringFromSelector(_cmd))
+#else
+#define DEBUG_LOG(...) ;
+#define LOG_CURRENT_METHOD ;
+#endif
+
 #endif /* definitions_h */

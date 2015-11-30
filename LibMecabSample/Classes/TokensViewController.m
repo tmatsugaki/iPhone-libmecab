@@ -148,7 +148,7 @@ titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
 // 【注意】キャンセルされた場合に、layoutSubviews が呼ばれる。
 - (void) tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    NSLog(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     @try {
         if (editingStyle == UITableViewCellEditingStyleDelete) {
@@ -181,7 +181,7 @@ canEditRowAtIndexPath:(NSIndexPath *)indexPath {
 - (BOOL) tableView:(UITableView *)tableView
 canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    NSLog(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
     return tableView.editing && [tokens count] > 1;
 }
 
@@ -190,7 +190,7 @@ canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
 moveRowAtIndexPath:(NSIndexPath *)indexPath
        toIndexPath:(NSIndexPath *)toIndexPath {
     
-    NSLog(@"%s [%ld]->[%ld]", __func__, (long)indexPath.row, (long)toIndexPath.row);
+//    DEBUG_LOG(@"%s [%ld]->[%ld]", __func__, (long)indexPath.row, (long)toIndexPath.row);
     @try {
         if (indexPath.row != toIndexPath.row) {
             NSUInteger numRows = [self tableView:tableView numberOfRowsInSection:0];
@@ -216,7 +216,7 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
 - (UITableViewCellEditingStyle) tableView:(UITableView *)tableView
             editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    NSLog(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
     return self.editing ? UITableViewCellEditingStyleNone : UITableViewCellEditingStyleDelete;
 }
 
@@ -254,7 +254,7 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
         if (tableView_.editing == NO) {
 //            [tableView_ reloadData];
         }
-        NSLog(@"%s", __func__);
+//        DEBUG_LOG(@"%s", __func__);
     }
 }
 

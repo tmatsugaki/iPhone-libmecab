@@ -6,6 +6,7 @@
 //  Copyright 2010 FLCL.jp. All rights reserved.
 //
 
+#import "definitions.h"
 #import "LibMecabSampleViewController.h"
 #import "TokensViewController.h"
 #import "Mecab.h"
@@ -40,7 +41,7 @@ NSSet *lowerSet = nil;
         if (([subType1 length] > baseTokenLength && [[subType1 substringFromIndex:[subType1 length] - baseTokenLength] isEqualToString:baseToken]) ||
             ([subType2 length] > baseTokenLength && [[subType2 substringFromIndex:[subType2 length] - baseTokenLength] isEqualToString:baseToken]) ||
             ([subType3 length] > baseTokenLength && [[subType3 substringFromIndex:[subType3 length] - baseTokenLength] isEqualToString:baseToken])) {
-            NSLog(@">>[%02lu]%@:%@", (unsigned long)++count, node.surface, [node partOfSpeech]);
+            DEBUG_LOG(@">>[%02lu]%@:%@", (unsigned long)++count, node.surface, [node partOfSpeech]);
         }
         node.attribute = @"";
         node.visible = YES;
@@ -83,7 +84,7 @@ NSSet *lowerSet = nil;
     return rc;
 }
 
-- (NSString *) ichidanString:(NSString *)pronunciation {
+- (NSString *) makeIchidanString:(NSString *)pronunciation {
     
     NSString *str = @"";
     
@@ -100,9 +101,68 @@ NSSet *lowerSet = nil;
 
 #pragma mark - Patch (マージ)
 
+// 【複合動詞】
+- (void) patch_merge_FUKUGO_DOSHI {
+    Node *lastNode = nil;
+    
+    for (NSUInteger index = 0; index < [nodes count]; index++) {
+        Node *node = nodes[index];
+
+        if ([[lastNode partOfSpeech] isEqualToString:@"動詞"]) {
+            if ([[node partOfSpeech] isEqualToString:@"動詞"] && [[node partOfSpeechSubtype1] isEqualToString:@"非自立"])
+            {//
+                lastNode.visible = NO;
+                
+                // マージする。
+                [node setPartOfSpeechSubtype1:@"複合動詞"];
+
+                [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
+                [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                [node setInflection:[NSString stringWithFormat:@"%@%@&%@", @"™" , [lastNode inflection], [node inflection]]];
+                DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
+            }
+        }
+        lastNode = node;
+    }
+}
+
+// 【複合動詞（サ変接続など）】
+- (void) patch_merge_FUKUGO_DOSHI_SAHEN {
+    Node *lastNode = nil;
+    
+    for (NSUInteger index = 0; index < [nodes count]; index++) {
+        Node *node = nodes[index];
+        NSString *lastPartOfSpeechSubtype1 = [lastNode partOfSpeechSubtype1];   // サ変接続
+        NSString *inflection = [node inflection];                               // サ変・スル
+        
+        if ([lastPartOfSpeechSubtype1 length] > 2 && [inflection length] > 2) {
+            NSString *type = [lastPartOfSpeechSubtype1 substringToIndex:2];     // サ変
+            NSString *key = [lastPartOfSpeechSubtype1 substringFromIndex:2];    // 接続
+            NSString *inflectionKey = [inflection substringToIndex:2];          // サ変
+            
+            if ([type isEqualToString:inflectionKey] && [key isEqualToString:@"接続"]) {
+                if ([[node partOfSpeech] isEqualToString:@"動詞"] && [[lastNode partOfSpeech] isEqualToString:@"名詞"])
+                {//
+                    lastNode.visible = NO;
+                    
+                    // マージする。
+                    [node setPartOfSpeechSubtype1:@"複合動詞"];
+
+                    [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
+                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                    [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                    [node setInflection:[NSString stringWithFormat:@"%@%@", @"™" , [node inflection]]];
+                    DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
+                }
+            }
+        }
+        lastNode = node;
+    }
+}
+
 // 【名詞のマージ】
 - (void) patch_merge_MEISHI {
-    NSUInteger count = 0;
     Node *lastNode = nil;
     
     for (Node *node in nodes) {
@@ -113,7 +173,7 @@ NSSet *lowerSet = nil;
                 if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
                 {// 接尾辞
                     lastNode.visible = NO;
-
+                    
                     // マージする。
                     [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                     @try {
@@ -125,10 +185,9 @@ NSSet *lowerSet = nil;
                     [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
                     
                     [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
-//                    [node setPartOfSpeechSubtype2:[lastNode partOfSpeechSubtype2]]; // 元の属性を保全する。
-//                    [node setPartOfSpeechSubtype3:[lastNode partOfSpeechSubtype3]]; // 元の属性を保全する。
-                    NSLog(@"<<%@:%@", lastNode.surface, [lastNode partOfSpeech]);
-                    count++;
+                    //                    [node setPartOfSpeechSubtype2:[lastNode partOfSpeechSubtype2]]; // 元の属性を保全する。
+                    //                    [node setPartOfSpeechSubtype3:[lastNode partOfSpeechSubtype3]]; // 元の属性を保全する。
+                    DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
                 }
             }
         }
@@ -138,43 +197,14 @@ NSSet *lowerSet = nil;
 
 // 【助動詞／形容動詞】
 - (void) patch_merge_FUZOKUGO {
-    NSUInteger count = 0;
     Node *lastNode = nil;
     
     for (NSUInteger index = 0; index < [nodes count]; index++) {
         Node *node = nodes[index];
-start:
+    start:
         if (lastNode) {
             if ([self isFuzokugo:[node partOfSpeech]])
             {// 付属語（助詞、助動詞）
-#if 0
-                if ([[lastNode partOfSpeechSubtype2] isEqualToString:@"助動詞語幹"])
-                {// 助動詞語幹
-                    lastNode.visible = NO;
-                    
-                    // マージする。
-                    [node setPartOfSpeech:@"助動詞"];
-
-                    [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
-                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                    [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
-                    NSLog(@"<<%@:%@", lastNode.surface, [lastNode partOfSpeech]);
-                    count++;
-                }
-                if ([[lastNode partOfSpeechSubtype1] isEqualToString:@"形容動詞語幹"])
-                {// 形容動詞語幹
-                    lastNode.visible = NO;
-                    
-                    // マージする。
-                    [node setPartOfSpeech:@"形容動詞"];
-
-                    [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
-                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                    [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
-                    NSLog(@"<<%@:%@", lastNode.surface, [lastNode partOfSpeech]);
-                    count++;
-                }
-#else
                 NSString *subType1 = [lastNode partOfSpeechSubtype1];
                 NSString *subType2 = [lastNode partOfSpeechSubtype2];
                 NSString *subType3 = [lastNode partOfSpeechSubtype3];
@@ -201,7 +231,7 @@ start:
                     {
                         Node *newNode = [[Node alloc] init];
                         NSMutableArray *features = [[NSMutableArray alloc] initWithObjects:@"", @"", @"", @"", @"", @"", @"", @"", @"", nil];
-
+                        
                         newNode.features = features;
                         [features release];
                         
@@ -214,7 +244,7 @@ start:
                         [node setUseOfType:@"連用形"];
                         [node setInflection:@"™断定"];
                         [nodes replaceObjectAtIndex:index withObject:node];
-
+                        
                         [newNode setSurface:@"も"];
                         [newNode setPronunciation:@"モ"];
                         [newNode setOriginalForm:@"も"];
@@ -230,12 +260,12 @@ start:
                         
                         // マージする。
                         [node setPartOfSpeech:contentToken];
-
+                        
                         [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                         [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
                         [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
                         [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
-                        NSLog(@"<<%@:%@", lastNode.surface, [lastNode partOfSpeech]);
+                        DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
                         
                         // ゴミ処理
                         if ([[node partOfSpeech] isEqualToString:@"形容動詞"] &&
@@ -243,73 +273,7 @@ start:
                         {
                             [node setPartOfSpeechSubtype1:@""];
                         }
-                        count++;
                     }
-                }
-#endif
-            }
-        }
-        lastNode = node;
-    }
-}
-
-// 【複合動詞】
-- (void) patch_merge_FUKUGO_DOSHI {
-    NSUInteger count = 0;
-    Node *lastNode = nil;
-    
-    for (NSUInteger index = 0; index < [nodes count]; index++) {
-        Node *node = nodes[index];
-
-        if ([[lastNode partOfSpeech] isEqualToString:@"動詞"]) {
-            if ([[node partOfSpeech] isEqualToString:@"動詞"] && [[node partOfSpeechSubtype1] isEqualToString:@"非自立"])
-            {//
-                lastNode.visible = NO;
-                
-                // マージする。
-                [node setPartOfSpeechSubtype1:@"複合動詞"];
-
-                [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
-                [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
-                [node setInflection:[NSString stringWithFormat:@"%@%@&%@", @"™" , [lastNode inflection], [node inflection]]];
-                NSLog(@"<<%@:%@", lastNode.surface, [lastNode partOfSpeech]);
-                count++;
-            }
-        }
-        lastNode = node;
-    }
-}
-
-// 【複合動詞（サ変接続など）】
-- (void) patch_merge_FUKUGO_DOSHI_SAHEN {
-    NSUInteger count = 0;
-    Node *lastNode = nil;
-    
-    for (NSUInteger index = 0; index < [nodes count]; index++) {
-        Node *node = nodes[index];
-        NSString *lastPartOfSpeechSubtype1 = [lastNode partOfSpeechSubtype1];   // サ変接続
-        NSString *inflection = [node inflection];                               // サ変・スル
-        
-        if ([lastPartOfSpeechSubtype1 length] > 2 && [inflection length] > 2) {
-            NSString *type = [lastPartOfSpeechSubtype1 substringToIndex:2];     // サ変
-            NSString *key = [lastPartOfSpeechSubtype1 substringFromIndex:2];    // 接続
-            NSString *inflectionKey = [inflection substringToIndex:2];          // サ変
-            
-            if ([type isEqualToString:inflectionKey] && [key isEqualToString:@"接続"]) {
-                if ([[node partOfSpeech] isEqualToString:@"動詞"] && [[lastNode partOfSpeech] isEqualToString:@"名詞"])
-                {//
-                    lastNode.visible = NO;
-                    
-                    // マージする。
-                    [node setPartOfSpeechSubtype1:@"複合動詞"];
-
-                    [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
-                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                    [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
-                    [node setInflection:[NSString stringWithFormat:@"%@%@", @"™" , [node inflection]]];
-                    NSLog(@"<<%@:%@", lastNode.surface, [lastNode partOfSpeech]);
-                    count++;
                 }
             }
         }
@@ -321,7 +285,6 @@ start:
 
 // 【副詞化】体言＋助詞（で）＋「、」は断定を表す助動詞「だ」の連用形。
 - (void) patch_TAIGEN_DA {
-    NSUInteger count = 0;
     Node *lastNode = nil;
     Node *nextNode = nil;
     
@@ -334,7 +297,7 @@ start:
             nextNode = nil;
         }
         if (lastNode && [self isTaigen:[lastNode partOfSpeech]] &&
-            nextNode && [[nextNode partOfSpeechSubtype1] isEqualToString:@"読点"])
+            nextNode && [nextNode.surface isEqualToString:@"、"])
         {
             if ([[node partOfSpeech] isEqualToString:@"助詞"] &&
                 [node.surface isEqualToString:@"で"])
@@ -345,7 +308,7 @@ start:
                 [node setOriginalForm:@"だ"];
                 [node setUseOfType:@"連用形"];
                 [node setInflection:[@"™" stringByAppendingString:@"断定"]];
-                count++;
+                DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
             }
         }
         lastNode = node;
@@ -354,8 +317,7 @@ start:
 
 // 【準体助詞】「なのだ」の「の」が名詞ではおかしい。
 - (void) patch_NANODA_NO {
-    NSUInteger count = 0;
-    
+
     for (Node *node in nodes) {
         if ([node.surface isEqualToString:@"の"] &&
             [[node partOfSpeech] isEqualToString:@"名詞"])
@@ -365,7 +327,7 @@ start:
                 [node setPartOfSpeech:@"助詞"];
                 [node setPartOfSpeechSubtype1:@"準体助詞"];
                 [node setPartOfSpeechSubtype2:@""];
-                count++;
+                DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
             }
         }
     }
@@ -373,7 +335,6 @@ start:
 
 // 【感動詞】「そう」がいつも副詞ではおかしい。
 - (void) patch_KANDOSHI_SOU {
-    NSUInteger count = 0;
     
     if ([nodes count] == 1) {
         Node *node = nodes[0];
@@ -385,7 +346,7 @@ start:
             [node setPartOfSpeech:@"感動詞"];
             [node setPartOfSpeechSubtype1:@""];
             [node setPartOfSpeechSubtype2:@""];
-            count++;
+            DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
         }
     } else if ([nodes count] > 1) {
         for (NSUInteger i = 0; i < [nodes count]; i++) {
@@ -402,13 +363,13 @@ start:
                         [node setPartOfSpeech:@"感動詞"];
                         [node setPartOfSpeechSubtype1:@""];
                         [node setPartOfSpeechSubtype2:@""];
-                        count++;
+                        DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
                     }
                 } else {
                     [node setPartOfSpeech:@"感動詞"];
                     [node setPartOfSpeechSubtype1:@""];
                     [node setPartOfSpeechSubtype2:@""];
-                    count++;
+                    DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
                 }
             }
         }
@@ -426,7 +387,6 @@ start:
 // ×形容動詞+ない eg.「きれいでない」
 //
 - (void) patch_HOJO_KEIYOUSHI_NAI {
-    NSUInteger count = 0;
     Node *lastNode = nil;
     
     for (Node *node in nodes) {
@@ -444,7 +404,7 @@ start:
                     [node setPartOfSpeech:@"形容詞"];
                     [node setPartOfSpeechSubtype1:@"補助形容詞"];
                     [node setInflection:@"™形容詞／形容動詞の補助動詞「ない」"];
-                    count++;
+                    DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
                 }
             }
         }
@@ -454,7 +414,6 @@ start:
 
 // 【形容詞化】体言＋助動詞（らしい）＋体言は連体形の形容詞。
 - (void) patch_TAIGEN_RASHII {
-    NSUInteger count = 0;
     Node *lastNode = nil;
     Node *nextNode = nil;
     
@@ -485,7 +444,7 @@ start:
                 [node setPartOfSpeechSubtype2:@""];
                 [node setUseOfType:@"連体形"];
                 [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
-                count++;
+                DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
             }
         }
         lastNode = node;
@@ -504,6 +463,7 @@ start:
             if ([self isEndOfSentence:i + 1]) {
                 [node setPartOfSpeechSubtype1:@"終助詞"];
                 [node setInflection:@"™強調"];
+                DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
             }
         }
     }
@@ -511,7 +471,6 @@ start:
 
 // 【終助詞化】句点を従えた接続助詞「とも」は強調を示す終助詞。
 - (void) patch_TOMO_KUTEN {
-    NSUInteger count = 0;
     Node *lastNode = nil;
     Node *nextNode = nil;
     
@@ -539,7 +498,7 @@ start:
                 [node setPartOfSpeechSubtype2:@""];
                 [node setInflection:[@"™" stringByAppendingString:@"強調"]];
                 [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
-                count++;
+                DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
             }
         }
         lastNode = node;
@@ -548,7 +507,6 @@ start:
 
 // 【接続助詞化】「呼んでも」の「で・も」は動詞が五段活用の場合は連結する。
 - (void) patch_DE_MO {
-    NSUInteger count = 0;
     Node *lastNode = nil;
     Node *nextNode = nil;
     Node *nextNextNode = nil;
@@ -582,7 +540,7 @@ start:
             [node setPartOfSpeechSubtype2:@""];
             [node setOriginalForm:@"ても"];
             [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
-            count++;
+            DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
         }
         lastNode = node;
     }
@@ -590,7 +548,6 @@ start:
 
 // 【接続助詞化】「こちらでも、」の副助詞「でも」は、格助詞「で」と副助詞「も」に分割する。
 - (void) patch_DEMO {
-    NSUInteger count = 0;
     Node *lastNode = nil;
     
     for (NSUInteger index = 0; index < [nodes count]; index++) {
@@ -627,7 +584,7 @@ start:
                     newNode.visible = YES;
                     [nodes insertObject:newNode atIndex:index+1];
                     [newNode release];
-                    count++;
+                    DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
                 }
             }
         }
@@ -637,7 +594,6 @@ start:
 
 // 【副助詞化】「子供でも」の「でも」＋動詞の場合は、副助詞「でも」にする。
 - (BOOL) patch_DATTE {
-    NSUInteger count = 0;
     Node *lastNode = nil;
     Node *nextNode = nil;
     BOOL asked = NO;
@@ -665,18 +621,17 @@ start:
             [node setPartOfSpeechSubtype2:@""];
             [node setOriginalForm:@"でも"];
             [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
-            count++;
+            DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
         }
         lastNode = node;
     }
     return asked;
 }
 
+#pragma mark - Patch (単なる用語の置換)
 // 【終止形／連体形／連用形】
 - (void) patch_YOUGO {
-    
-    NSUInteger count = 0;
-    
+
     for (Node *node in nodes) {
         NSString *useOfType = [node useOfType];
         NSString *partOfSpeechSubtype1 = [node partOfSpeechSubtype1];
@@ -688,37 +643,31 @@ start:
             if ([partOfSpeechSubtype1 isEqualToString:@"自立"])
             {// 本動詞である。
                 [node setPartOfSpeechSubtype1:@"本動詞"];
-                count++;
             }
             if ([partOfSpeechSubtype1 isEqualToString:@"非自立"])
             {// 補助動詞である。
                 [node setPartOfSpeechSubtype1:@"補助動詞"];
-                count++;
             }
         }
         // 【係助詞→副助詞】partOfSpeechSubtype1
         if ([partOfSpeechSubtype1 isEqualToString:@"係助詞"])
         {
             [node setPartOfSpeechSubtype1:@"副助詞"];
-            count++;
         }
         // 【終止形／連体形／連用形】useOfType
         if ([useOfType isEqualToString:@"基本形"])
         {
             [node setUseOfType:@"終止形"];
-            count++;
         } else if ([useOfType isEqualToString:@"体言接続"])
         {
             [node setUseOfType:@"連体形"];
-            count++;
         } else if ([useOfType isEqualToString:@"用言接続"])
         {
             [node setUseOfType:@"連用形"];
-            count++;
         }
         // 一段
         if ([inflection isEqualToString:@"一段"]) {
-            NSString *str = [self ichidanString:[node pronunciation]];
+            NSString *str = [self makeIchidanString:[node pronunciation]];
             
             if ([str length]) {
                 [node setInflection:str];
@@ -732,7 +681,6 @@ start:
 // 未使用
 // 【副詞】用言に連なる「そう」は全て副詞だが、mecab は名詞を返す。
 - (void) patch_OLD_FUKUSHI_SO {
-    NSUInteger count = 0;
     Node *lastNode = nil;
     
     for (Node *node in nodes) {
@@ -744,7 +692,6 @@ start:
                 [node setPartOfSpeechSubtype1:@""];
                 [node setPartOfSpeechSubtype2:@""];
                 [node setPartOfSpeechSubtype3:@""];
-                count++;
             }
         }
         lastNode = node;
@@ -754,7 +701,6 @@ start:
 // 未使用
 // 【伝聞、様相の助動詞】伝聞、様相の「そうです」は助動詞だが、mecab は名詞+助動詞を返す。
 - (void) patch_OLD_SOU {
-    NSUInteger count = 0;
     Node *lastNode = nil;
     
     for (Node *node in nodes) {
@@ -771,7 +717,6 @@ start:
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
                     [node setOriginalForm:@"そうだ"];
                     [node setInflection:@"™伝聞"];
-                    count++;
                 }
                 if ([[lastNode partOfSpeech] isEqualToString:@"副詞"] &&
                     [lastNode.surface isEqualToString:@"そう"])
@@ -783,7 +728,6 @@ start:
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
                     [node setOriginalForm:@"そうだ"];
                     [node setInflection:@"™様相"];
-                    count++;
                 }
             }
         }
@@ -794,7 +738,6 @@ start:
 // 未使用
 // 【副詞化】形容動詞＋助詞（に）で副詞化はすべきだが、mecab は名詞+助動詞を返す。
 - (void) patch_OLD_FUKUSHI_KA {
-    NSUInteger count = 0;
     Node *lastNode = nil;
     
     for (Node *node in nodes) {
@@ -816,7 +759,6 @@ start:
                     if (isRenyou) {
                         [node setUseOfType:@"連用形"];
                     }
-                    count++;
                 }
             }
         }
@@ -835,11 +777,12 @@ start:
     [self preProcess];
     
     if (patch.on) {
+        // マージ
         [self patch_merge_FUKUGO_DOSHI];
         [self patch_merge_FUKUGO_DOSHI_SAHEN];
         [self patch_merge_MEISHI];
         [self patch_merge_FUZOKUGO];
-
+        // パッチ
         [self patch_TAIGEN_DA];
         [self patch_NANODA_NO];
         [self patch_KANDOSHI_SOU];
@@ -850,7 +793,7 @@ start:
         [self patch_DE_MO];
         [self patch_DEMO];
         [self patch_DATTE];
-
+        // 用語置換
         [self patch_YOUGO];
     }
     [tableView_ reloadData];
@@ -1003,25 +946,6 @@ start:
     cell.inflectionLabel.text = inflection;
     // 活用型
     cell.useOfTypeLabel.text = [node useOfType];
-/*
- - (NSString *)partOfSpeech;
- // 品詞細分類1
- - (NSString *)partOfSpeechSubtype1;
- // 品詞細分類2
- - (NSString *)partOfSpeechSubtype2;
- // 品詞細分類3
- - (NSString *)partOfSpeechSubtype3;
- // 活用形
- - (NSString *)inflection;
- // 活用型
- - (NSString *)useOfType;
- // 原形
- - (NSString *)originalForm;
- // 読み
- - (NSString *)reading;
- // 発音
- - (NSString *)pronunciation;
- */
     return cell;
 }
 

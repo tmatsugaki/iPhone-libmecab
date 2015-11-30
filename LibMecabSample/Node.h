@@ -21,8 +21,9 @@
 @property (nonatomic, retain) NSString *surface;
 @property (nonatomic, retain) NSString *feature;
 @property (nonatomic, retain) NSMutableArray *features;
-@property (nonatomic, retain) NSString *attribute;
-@property (nonatomic, assign) BOOL visible;
+
+@property (nonatomic, retain) NSString *attribute;      // 将来のバージョンで対話によってパースの補助させる際に使う文字列（今のところ、Reserved）
+@property (nonatomic, assign) BOOL visible;             // パッチの結果で非表示にするセルを示すフラグ
 
 // 品詞
 - (NSString *)partOfSpeech;

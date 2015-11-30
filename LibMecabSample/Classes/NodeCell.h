@@ -11,25 +11,6 @@
 
 @interface NodeCell : UITableViewCell {
 
-    /*
-     - (NSString *)partOfSpeech;
-     // 品詞細分類1
-     - (NSString *)partOfSpeechSubtype1;
-     // 品詞細分類2
-     - (NSString *)partOfSpeechSubtype2;
-     // 品詞細分類3
-     - (NSString *)partOfSpeechSubtype3;
-     // 活用形
-     - (NSString *)inflection;
-     // 活用型
-     - (NSString *)useOfType;
-     // 原形
-     - (NSString *)originalForm;
-     // 読み
-     - (NSString *)reading;
-     // 発音
-     - (NSString *)pronunciation;
-     */
 	UILabel *featureLabel;
 	UILabel *surfaceLabel;
 	UILabel *partOfSpeechLabel;
