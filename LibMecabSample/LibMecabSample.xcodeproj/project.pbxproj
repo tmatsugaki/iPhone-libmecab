@@ -85,7 +85,6 @@
 
 /* Begin PBXFileReference section */
 		0851EA161C0C9675006C2932 /* HinshiMaster.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HinshiMaster.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		0851EA171C0C9676006C2932 /* LibMecabSample copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "LibMecabSample copy-Info.plist"; path = "/Users/matsu/Desktop/iPhone-libmecab/LibMecabSample/LibMecabSample copy-Info.plist"; sourceTree = "<absolute>"; };
 		0851EA181C0C96BE006C2932 /* HinshiMasterDev.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = HinshiMasterDev.entitlements; sourceTree = "<group>"; };
 		0851EA191C0C96D7006C2932 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		0851EA1B1C0C96DF006C2932 /* HinshiMaster.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = HinshiMaster.entitlements; sourceTree = "<group>"; };
@@ -231,8 +230,8 @@
 			isa = PBXGroup;
 			children = (
 				089AFE9B1C04092100BA5F98 /* HinshiMaster-Info.plist */,
-				0851EA1B1C0C96DF006C2932 /* HinshiMaster.entitlements */,
 				0851EA181C0C96BE006C2932 /* HinshiMasterDev.entitlements */,
+				0851EA1B1C0C96DF006C2932 /* HinshiMaster.entitlements */,
 				08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */,
 				089AFE951C03F51A00BA5F98 /* folder.png */,
 				080E96DDFE201D6D7F000001 /* Classes */,
@@ -240,7 +239,6 @@
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
-				0851EA171C0C9676006C2932 /* LibMecabSample copy-Info.plist */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -471,7 +469,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_ENTITLEMENTS = HinshiMasterDev.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HinshiMaster.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -481,6 +479,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = LibMecabSample_Prefix.pch;
 				INFOPLIST_FILE = "LibMecabSample copy-Info.plist";
+				OTHER_CFLAGS = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.mydns.rikki.HinshiMaster;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -491,7 +490,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_ENTITLEMENTS = HinshiMasterDev.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HinshiMaster.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
@@ -510,7 +509,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_ENTITLEMENTS = HinshiMaster.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HinshiMasterDev.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -518,6 +517,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = LibMecabSample_Prefix.pch;
 				INFOPLIST_FILE = "HinshiMaster-Info.plist";
+				OTHER_CFLAGS = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.mydns.rikki.HinshiMaster;
 				PRODUCT_NAME = LibMecabSample;
 				VALIDATE_PRODUCT = YES;
@@ -528,7 +528,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_ENTITLEMENTS = HinshiMaster.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HinshiMasterDev.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
