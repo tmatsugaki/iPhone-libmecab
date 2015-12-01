@@ -47,7 +47,7 @@ class Connector {
   bool openText(const char *filename);
   bool open(const char *filename, const char *mode = "r");
 
-  bool is_valid(size_t lid, size_t rid) const {
+  bool is_valid(signed long lid, signed long rid) const {
     return (lid >= 0 && lid < rsize_ && rid >= 0 && rid < lsize_);
   }
 

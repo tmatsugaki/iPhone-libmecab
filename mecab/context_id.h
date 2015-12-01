@@ -42,7 +42,7 @@ class ContextID {
   const std::map<std::string, int>& left_ids()  const { return left_; }
   const std::map<std::string, int>& right_ids() const { return right_; }
 
-  bool is_valid(size_t lid, size_t rid) {
+  bool is_valid(signed long lid, signed long rid) {
     return (lid >= 0 && lid < left_size() &&
             rid >= 0 && rid < right_size());
   }
