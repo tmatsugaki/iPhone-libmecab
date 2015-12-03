@@ -12,6 +12,13 @@
 #import "Mecab.h"
 #import "Node.h"
 
+//#import "CloudKit/CKDefines.h"
+#import "CloudKit/CKContainer.h"
+#import "CloudKit/CKRecordID.h"
+#import "CloudKit/CKRecord.h"
+#import "CloudKit/CKFetchRecordsOperation.h"
+#import "CloudKit/CKDatabase.h"
+
 @implementation LibMecabSampleViewController
 
 NSSet *upperSet = nil;
@@ -20,6 +27,7 @@ NSSet *lowerSet = nil;
 @synthesize textField;
 @synthesize tableView_;
 @synthesize nodeCell;
+@synthesize examples;
 @synthesize explore;
 @synthesize patch;
 @synthesize mecab;
@@ -806,6 +814,27 @@ NSSet *lowerSet = nil;
             [tokens addObject:string];
         }
         [tokens writeToFile:kLibXMLPath atomically:YES];
+
+        
+        // iCloud
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:kUse_iCloudKey]) {
+            CKContainer *defaultContainer =[CKContainer defaultContainer];
+            CKDatabase *privateCloudDatabase = [defaultContainer privateCloudDatabase];
+            CKRecordID *publicSentencesID = [[CKRecordID alloc] initWithRecordName:@"46705d64-48e5-4f02-8899-083af3baed2d"];
+            CKRecord *record = [[CKRecord alloc] initWithRecordType:@"File" recordID:publicSentencesID];
+            
+            [record setObject:@"Sentences.xml" forKey:@"FileName"];
+            [record setObject:[NSArray arrayWithContentsOfFile:kLibXMLPath] forKey:@"Asset"];
+
+            [privateCloudDatabase saveRecord:record
+                           completionHandler:^(CKRecord *record, NSError *error) {
+                               DEBUG_LOG(@"erorr : %@", error);
+                               CKAsset *asset = record[@"Asset"];
+                               
+                               // asset.fileURL.pathにファイルがダウンロードされてる
+                               DEBUG_LOG(@"%@", asset.fileURL.path);
+                           }];
+        }
     } else {
         [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsSentence];
     }
@@ -847,15 +876,45 @@ NSSet *lowerSet = nil;
 
 #pragma mark - UIViewController
 
+- (void) activateControls {
+    examples.enabled = YES;
+    explore.enabled = YES;
+}
+
+- (void) deactivateControls {
+    examples.enabled = NO;
+    explore.enabled = NO;
+}
+
+- (void) initialParse {
+    NSString *string = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
+    
+    if ([string length] == 0) {
+        if ([tokens count]) {
+            string = tokens[0];
+        } else {
+            string = @"本日は晴天なり";
+        }
+    }
+    [textField setText:string];
+    [self parse:self];
+}
+
 - (void)viewDidLoad {
-	[super viewDidLoad];
-	
+
+    DEBUG_LOG(@"%s", __func__);
+
+    [super viewDidLoad];
+
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsPatchMode] == nil) {
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kDefaultsPatchMode];
+    }
+    [self setupByPreferences];
+    
     upperSet = [[NSSet setWithObjects:@"イ", @"キ", @"ギ", @"シ", @"ジ", @"チ", @"ヂ", @"ニ", @"ヒ", @"ビ", @"ミ", @"リ", nil] retain];
     lowerSet = [[NSSet setWithObjects:@"エ", @"ケ", @"ゲ", @"セ", @"ゼ", @"テ", @"デ", @"ネ", @"ヘ", @"ベ", @"メ", @"レ", nil] retain];
-
-    [tableView_ becomeFirstResponder];
     
-    self.tokens = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+    [tableView_ becomeFirstResponder];
 
     self.mecab = [[Mecab new] autorelease];
     explore.layer.cornerRadius = 5.0;
@@ -865,15 +924,62 @@ NSSet *lowerSet = nil;
 }
 
 - (void) viewWillAppear:(BOOL)animated {
+
+    DEBUG_LOG(@"%s", __func__);
+
     [super viewWillAppear:animated];
 
-    NSString *string = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
-    
-    if ([string length]) {
-        [textField setText:string];
-        
-        [self parse:self];
+#if INITIAL_DOC
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:kUse_iCloudKey] &&
+        [[NSFileManager defaultManager] fileExistsAtPath:kLibXMLPath] == NO)
+    {
+        [self deactivateControls];
+        // iCloud
+        CKContainer *defaultContainer =[CKContainer defaultContainer];
+        CKDatabase *publicDatabase = [defaultContainer publicCloudDatabase];
+        CKRecordID *publicSentencesID = [[CKRecordID alloc] initWithRecordName:@"7cc4ea03-43e9-42a4-ba32-cdf95f76c941"];
+#if 1
+        [publicDatabase fetchRecordWithID:publicSentencesID
+                        completionHandler:^(CKRecord *fetchedParty, NSError *error) {
+                            DEBUG_LOG(@"erorr : %@", error);
+                            CKAsset *asset = fetchedParty[@"Asset"];
+                            
+                            // asset.fileURL.pathにファイルがダウンロードされてる
+                            DEBUG_LOG(@"%@", asset.fileURL.path);
+                            if ([[NSFileManager defaultManager] fileExistsAtPath:kLibXMLPath] == NO) {
+                                [[NSFileManager defaultManager] moveItemAtPath:asset.fileURL.path toPath:kLibXMLPath error:nil];
+                            }
+                            self.tokens = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+                            [self activateControls];
+                            [self initialParse];
+                        }];
+#else
+        CKFetchRecordsOperation * op = [[CKFetchRecordsOperation alloc] initWithRecordIDs:@[publicSentencesID]];
+        op.queuePriority = NSOperationQueuePriorityVeryHigh;
+        op.perRecordProgressBlock = ^(CKRecordID * recordId, double progress) {
+            DEBUG_LOG(@"progress : %lf", progress);
+        };
+        op.perRecordCompletionBlock = ^(CKRecord *fetchedParty, CKRecordID * recordId,  NSError *error) {
+            DEBUG_LOG(@"erorr : %@", error);
+            CKAsset *asset = fetchedParty[@"Asset"];
+            DEBUG_LOG(@"%@", asset.fileURL.path);
+            if ([[NSFileManager defaultManager] fileExistsAtPath:kLibXMLPath] == NO) {
+                [[NSFileManager defaultManager] moveItemAtPath:asset.fileURL.path toPath:kLibXMLPath error:nil];
+            }
+            self.tokens = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+            [self activateControls];
+            [self initialParse];
+        };
+        [publicDatabase addOperation:op];
+#endif
+    } else {
+        self.tokens = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+        [self initialParse];
     }
+#else
+    self.tokens = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+    [self initialParse];
+#endif
 }
 
 - (void) viewWillDisappear:(BOOL)animated {
@@ -976,6 +1082,65 @@ NSSet *lowerSet = nil;
 - (BOOL) textFieldShouldReturn:(UITextField *)textFld {
     [textField resignFirstResponder];
     return NO;
+}
+
+#pragma mark - UITextFieldDelegate
+
+- (void) setupByPreferences {
+    
+    //    YardbirdAppDelegate *appDelegate = (YardbirdAppDelegate *) [[UIApplication sharedApplication] delegate];
+    
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:kUse_iCloudKey] == nil)
+    {
+        @try {
+            // no default values have been set, create them here based on what's in our Settings bundle info
+            //
+            NSString *settingsBundlePath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"Settings.bundle"];
+            NSString *rootFinalPath = [settingsBundlePath stringByAppendingPathComponent:@"Root.plist"];
+            NSDictionary *rootSettingsDict = [NSDictionary dictionaryWithContentsOfFile:rootFinalPath];
+            NSArray *rootPrefSpecifierArray = [rootSettingsDict objectForKey:@"PreferenceSpecifiers"];
+            
+            NSNumber *use_iCloudDefault = [NSNumber numberWithBool:YES];    // iCloud 使用する
+            
+            for (NSDictionary *prefItem in rootPrefSpecifierArray)
+            {
+                NSString *keyValueStr = [prefItem objectForKey:@"Key"];
+                id defaultValue = [prefItem objectForKey:@"DefaultValue"];
+                
+                DEBUG_LOG(@"%s %@=%@", __func__, keyValueStr, defaultValue);
+                if (keyValueStr)
+                {
+                    if ([keyValueStr isEqualToString:kUse_iCloudKey]) {
+                        use_iCloudDefault = defaultValue;
+                    }
+                }
+            }
+            // since no default values have been set (i.e. no preferences file created), create it here
+            NSDictionary *defaultsDic = [NSDictionary dictionaryWithObjectsAndKeys:use_iCloudDefault, kUse_iCloudKey, nil];
+            
+            [[NSUserDefaults standardUserDefaults] registerDefaults:defaultsDic];
+            if ([[NSUserDefaults standardUserDefaults] synchronize]) {
+                DEBUG_LOG(@"UserDefaults synchronize OK");
+            } else {
+                DEBUG_LOG(@"UserDefaults synchronize NG");
+            }
+        }
+        @catch (NSException *exception) {
+            DEBUG_LOG(@"%s デフォルト破壊（設定で例外発生）：Line#:%d %@", __func__, __LINE__, exception);
+            // 再度登録を促す。
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUse_iCloudKey];
+            return;
+        }
+    } else {
+        @try {
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+        @catch (NSException *exception) {
+            DEBUG_LOG(@"%s デフォルト破壊（シンクできない）Line#:%d %@", __func__, __LINE__, exception);
+            // 再度登録を促す。
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUse_iCloudKey];
+        }
+    }
 }
 
 @end

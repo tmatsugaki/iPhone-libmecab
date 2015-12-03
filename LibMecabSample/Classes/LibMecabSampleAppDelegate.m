@@ -6,6 +6,7 @@
 //  Copyright 2010 FLCL.jp. All rights reserved.
 //
 
+#import "definitions.h"
 #import "LibMecabSampleAppDelegate.h"
 #import "LibMecabSampleViewController.h"
 
@@ -14,9 +15,7 @@
 @synthesize window;
 @synthesize viewController;
 
-
-#pragma mark -
-#pragma mark Application lifecycle
+#pragma mark - Application lifecycle
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
     
@@ -25,7 +24,6 @@
     // Add the view controller's view to the window and display.
     [self.window addSubview:viewController.view];
     [self.window makeKeyAndVisible];
-
     return YES;
 }
 
@@ -68,8 +66,7 @@
 }
 
 
-#pragma mark -
-#pragma mark Memory management
+#pragma mark - Memory management
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
     /*
@@ -83,6 +80,5 @@
     [window release];
     [super dealloc];
 }
-
 
 @end

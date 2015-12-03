@@ -16,6 +16,7 @@
 	UITextField *textField;
 	UITableView *tableView_;
 	NodeCell *nodeCell;
+    UIButton *examples;
 	UIButton *explore;
 	UISwitch *patch;
 	
@@ -27,6 +28,7 @@
 @property (nonatomic, retain) IBOutlet UITextField *textField;
 @property (nonatomic, retain) IBOutlet UITableView *tableView_;
 @property (nonatomic, retain) IBOutlet NodeCell *nodeCell;
+@property (nonatomic, retain) IBOutlet UIButton *examples;
 @property (nonatomic, retain) IBOutlet UIButton *explore;
 @property (nonatomic, retain) IBOutlet UISwitch *patch;
 @property (nonatomic, retain) Mecab *mecab;

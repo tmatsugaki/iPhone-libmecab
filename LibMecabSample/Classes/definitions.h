@@ -9,6 +9,8 @@
 #ifndef definitions_h
 #define definitions_h
 
+#define INITIAL_DOC         0
+
 // パス
 #define kDocumentPath   [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject]
 // 例文ライブラリの XML ファイルのパス
@@ -17,6 +19,7 @@
 // ユーザーデフォルト
 #define kDefaultsPatchMode  @"PatchMode"            // パッチモードを保持する。
 #define kDefaultsSentence   @"EvaluatingSentence"   // 評価中の文字列を保持する。
+#define kUse_iCloudKey      @"iCloud"               // iCloud 使用フラグ
 
 #ifdef DEBUG
 #define DEBUG_LOG(...) NSLog(__VA_ARGS__)
