@@ -1025,8 +1025,10 @@ NSSet *lowerSet = nil;
     }
     
 	Node *node = [nodes objectAtIndex:indexPath.row];
+    NSString *reading = [node reading];
+    NSString *partOfSpeech = [node partOfSpeech];
 
-    if ([node reading] && ! [[node reading] isEqualToString:@"(null)"]) {
+    if (reading && ! [reading isEqualToString:@"(null)"]) {
         cell.surfaceLabel.text = node.surface;
     } else {
         cell.surfaceLabel.text = node.surface;
@@ -1052,6 +1054,13 @@ NSSet *lowerSet = nil;
         cell.inflectionLabel.textColor = [UIColor brownColor];
     } else {
         cell.inflectionLabel.textColor = [UIColor blackColor];
+    }
+    if ([partOfSpeech isEqualToString:@"助詞"] ||
+        [partOfSpeech isEqualToString:@"助動詞"] ||
+        [partOfSpeech isEqualToString:@"記号"]) {
+        cell.partOfSpeechLabel.textColor = [UIColor colorWithRed:255 green:0 blue:255 alpha:0.4];
+    } else {
+        cell.partOfSpeechLabel.textColor = [UIColor magentaColor];
     }
     cell.inflectionLabel.text = inflection;
     // 活用型
