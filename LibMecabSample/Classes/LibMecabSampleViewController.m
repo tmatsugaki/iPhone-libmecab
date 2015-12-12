@@ -263,23 +263,26 @@ NSSet *lowerSet = nil;
                         [nodes insertObject:newNode atIndex:index+1];
                         [newNode release];
                         goto start;
-                    } else {
-                        lastNode.visible = NO;
-                        
-                        // マージする。
-                        [node setPartOfSpeech:contentToken];
-                        
-                        [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
-                        [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                        [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
-                        [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
-                        DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
-                        
-                        // ゴミ処理
-                        if ([[node partOfSpeech] isEqualToString:@"形容動詞"] &&
-                            [[node partOfSpeechSubtype1] isEqualToString:@"格助詞"])
-                        {
-                            [node setPartOfSpeechSubtype1:@""];
+                    } else
+                    {// 語幹
+                        if ([contentToken isEqualToString:@"ナイ形容詞"] == NO || [[node pronunciation] isEqualToString:@"ナイ"]) {
+                            lastNode.visible = NO;
+                            
+                            // マージする。
+                            [node setPartOfSpeech:contentToken];
+                            
+                            [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
+                            [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                            [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                            [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
+                            DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
+                            
+                            // ゴミ処理
+                            if ([[node partOfSpeech] isEqualToString:@"形容動詞"] &&
+                                [[node partOfSpeechSubtype1] isEqualToString:@"格助詞"])
+                            {
+                                [node setPartOfSpeechSubtype1:@""];
+                            }
                         }
                     }
                 }

@@ -9,7 +9,7 @@
 #ifndef definitions_h
 #define definitions_h
 
-#define INITIAL_DOC         0
+#define INITIAL_DOC         1
 
 // パス
 #define kDocumentPath   [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject]
