@@ -32,7 +32,7 @@ NSSet *lowerSet = nil;
 @synthesize patch;
 @synthesize mecab;
 @synthesize nodes;
-@synthesize tokens;
+@synthesize sentences;
 
 #pragma mark -
 
@@ -811,12 +811,12 @@ NSSet *lowerSet = nil;
     [tableView_ reloadData];
     
     if ([string length]) {
-        NSUInteger index = [tokens indexOfObject:string];
+        NSUInteger index = [sentences indexOfObject:string];
         
         if (index == NSNotFound) {
-            [tokens addObject:string];
+            [sentences addObject:string];
         }
-        [tokens writeToFile:kLibXMLPath atomically:YES];
+        [sentences writeToFile:kLibXMLPath atomically:YES];
 
         
         // iCloud
@@ -851,11 +851,11 @@ NSSet *lowerSet = nil;
     
     [textField resignFirstResponder];
 
-    if ([tokens count])
+    if ([sentences count])
     {// トークンリストのモーダルダイアログを表示する。
         TokensViewController *viewController = [[TokensViewController alloc] initWithNibName:@"TokensViewController"
                                                                                       bundle:nil
-                                                                                 tokensArray:tokens];
+                                                                              sentencesArray:sentences];
         
         [self presentViewController:viewController animated:YES completion:nil];
         [viewController release];
@@ -893,8 +893,8 @@ NSSet *lowerSet = nil;
     NSString *string = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
     
     if ([string length] == 0) {
-        if ([tokens count]) {
-            string = tokens[0];
+        if ([sentences count]) {
+            string = sentences[0];
         } else {
             string = @"本日は晴天なり";
         }
@@ -952,7 +952,7 @@ NSSet *lowerSet = nil;
                             if ([[NSFileManager defaultManager] fileExistsAtPath:kLibXMLPath] == NO) {
                                 [[NSFileManager defaultManager] moveItemAtPath:asset.fileURL.path toPath:kLibXMLPath error:nil];
                             }
-                            self.tokens = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+                            self.sentences = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
                             [self activateControls];
                             [self initialParse];
                         }];
@@ -976,7 +976,7 @@ NSSet *lowerSet = nil;
         [publicDatabase addOperation:op];
 #endif
     } else {
-        self.tokens = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+        self.sentences = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
         [self initialParse];
     }
 #else

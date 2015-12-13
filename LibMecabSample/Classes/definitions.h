@@ -17,9 +17,10 @@
 #define kLibXMLPath     [kDocumentPath stringByAppendingPathComponent:@"Sentences.xml"]
 
 // ユーザーデフォルト
-#define kDefaultsPatchMode  @"PatchMode"            // パッチモードを保持する。
-#define kDefaultsSentence   @"EvaluatingSentence"   // 評価中の文字列を保持する。
-#define kUse_iCloudKey      @"iCloud"               // iCloud 使用フラグ
+#define kDefaultsPatchMode      @"PatchMode"            // パッチモードを保持する。
+#define kDefaultsSentence       @"EvaluatingSentence"   // 評価中の文字列を保持する。
+#define kDefaultsSearchingToken @"SearchingToken"       // 検索中の文字列を保持する。
+#define kUse_iCloudKey          @"iCloud"               // iCloud 使用フラグ
 
 #ifdef DEBUG
 #define DEBUG_LOG(...) NSLog(__VA_ARGS__)

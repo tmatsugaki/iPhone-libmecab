@@ -22,7 +22,7 @@
 	
 	Mecab *mecab;
 	NSMutableArray *nodes;
-	NSMutableArray *tokens;
+	NSMutableArray *sentences;
 }
 
 @property (nonatomic, retain) IBOutlet UITextField *textField;
@@ -33,7 +33,7 @@
 @property (nonatomic, retain) IBOutlet UISwitch *patch;
 @property (nonatomic, retain) Mecab *mecab;
 @property (nonatomic, retain) NSMutableArray *nodes;
-@property (nonatomic, retain) NSMutableArray *tokens;
+@property (nonatomic, retain) NSMutableArray *sentences;
 
 - (IBAction)parse:(id)sender;
 
