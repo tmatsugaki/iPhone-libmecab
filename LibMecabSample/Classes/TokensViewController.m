@@ -84,8 +84,20 @@
 #pragma mark - UIViewController
 
 - (void)viewDidLoad {
-	[super viewDidLoad];
+
+    DEBUG_LOG(@"%s", __func__);
+
+    [super viewDidLoad];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillShow:)
+                                                 name:UIKeyboardWillShowNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillHide:)
+                                                 name:UIKeyboardWillHideNotification
+                                               object:nil];
+
     self.listItems = _rawSentences;
     self.filteredSentences = [[[NSMutableArray alloc] init] autorelease];
 
@@ -93,20 +105,21 @@
     
 //    [self createGestureRecognizers];
     [_tableView becomeFirstResponder];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
 
     NSString *searchingToken = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSearchingToken];
-    NSString *sentence = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
-    
+
     if ([searchingToken length])
     {// 検索中の文字列がある場合は、サーチバーに設定し、フィルタリングする。
         _searchBar.text = searchingToken;
         [self filterContentForSearchText:searchingToken];
     }
-    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+
+    NSString *sentence = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
+
     if ([sentence length]) {
         NSUInteger index = [_listItems indexOfObject:sentence];
         
@@ -122,15 +135,6 @@
             }
         }
     }
-
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWillShow:)
-                                                 name:UIKeyboardWillShowNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWillHide:)
-                                                 name:UIKeyboardWillHideNotification
-                                               object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -148,7 +152,10 @@
 #pragma mark - Table view data source
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	if (_listItems) {
+
+    DEBUG_LOG(@"%s", __func__);
+
+    if (_listItems) {
 		return [_listItems count];
 	}
 	return 0;
@@ -156,6 +163,8 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
+    DEBUG_LOG(@"%s Count:%lu Row:%ld", __func__, (unsigned long)[_listItems count], (long)indexPath.row);
+
     static NSString *CellIdentifier = @"TokenCell";
     
     TokenCell *cell = (TokenCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
@@ -182,6 +191,8 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
+    DEBUG_LOG(@"%s", __func__);
+
     // 検索フィールドを非アクティブにする。
     [_searchBar resignFirstResponder];
 
@@ -202,7 +213,7 @@ titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
 // 【注意】キャンセルされた場合に、layoutSubviews が呼ばれる。
 - (void) tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
 
-//    DEBUG_LOG(@"%s", __func__);
+    DEBUG_LOG(@"%s", __func__);
 
     @try {
         if (editingStyle == UITableViewCellEditingStyleDelete) {
@@ -227,6 +238,8 @@ titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
 - (BOOL) tableView:(UITableView *)tableView
 canEditRowAtIndexPath:(NSIndexPath *)indexPath {
 
+    DEBUG_LOG(@"%s", __func__);
+
     // 最後のトークン消すと画面を終われなくなる。
     return [_listItems count] > 1;
 }
@@ -235,7 +248,8 @@ canEditRowAtIndexPath:(NSIndexPath *)indexPath {
 - (BOOL) tableView:(UITableView *)tableView
 canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     
-//    DEBUG_LOG(@"%s", __func__);
+    DEBUG_LOG(@"%s", __func__);
+
     return tableView.editing && [_listItems count] > 1;
 }
 
@@ -244,7 +258,8 @@ canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
 moveRowAtIndexPath:(NSIndexPath *)indexPath
        toIndexPath:(NSIndexPath *)toIndexPath {
     
-//    DEBUG_LOG(@"%s [%ld]->[%ld]", __func__, (long)indexPath.row, (long)toIndexPath.row);
+    DEBUG_LOG(@"%s", __func__);
+
     @try {
         if (indexPath.row != toIndexPath.row) {
             NSUInteger numRows = [self tableView:tableView numberOfRowsInSection:0];
@@ -270,7 +285,8 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
 - (UITableViewCellEditingStyle) tableView:(UITableView *)tableView
             editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-//    DEBUG_LOG(@"%s", __func__);
+    DEBUG_LOG(@"%s", __func__);
+
     return self.editing ? UITableViewCellEditingStyleNone : UITableViewCellEditingStyleDelete;
 }
 
@@ -304,30 +320,37 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
 // called when keyboard search button pressed
 - (void) searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
+    DEBUG_LOG(@"%s", __func__);
+
     // 検索中の文字列をユーザーデフォルトに保持する。
     [[NSUserDefaults standardUserDefaults] setObject:searchBar.text forKey:kDefaultsSearchingToken];
     [self filterContentForSearchText:searchBar.text];
+    [_tableView reloadData];
 
     // キーボードを閉じる（FirstResponder をキャンセルする）
     [_searchBar resignFirstResponder];
-    [_tableView reloadData];
 }
 
 // called when cancel button pressed
 - (void) searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
+    DEBUG_LOG(@"%s", __func__);
+
     if ([searchBar.text length] == 0) {
         // 空の文字列をユーザーデフォルトに保持する。
         [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsSearchingToken];
         [self filterContentForSearchText:_searchBar.text];
     }
+    [_tableView reloadData];
+
     // キーボードを閉じる（FirstResponder をキャンセルする）
     [_searchBar resignFirstResponder];
-    [_tableView reloadData];
 }
 
 - (void) filterContentForSearchText:(NSString *)searchText
 {
+    DEBUG_LOG(@"%s", __func__);
+
     if ([searchText length]) {
         [_filteredSentences removeAllObjects]; // First clear the filtered array.
         
@@ -335,30 +358,26 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
         NSStringCompareOptions opt = (NSCaseInsensitiveSearch | NSDiacriticInsensitiveSearch);
         NSRange range;
         
-        @try {
-            /*
-             Search the main list for products whose type matches the scope (if selected) and whose name matches searchText; add items that match to the filtered array.
-             */
-            for (NSString *sentence in _rawSentences)
-            {
-                BOOL match = NO;
-                
-                NSArray *tokens = [[searchText componentsSeparatedByString:@" "] retain];   // ちょっとの間 retain
-                
-                for (NSString *token in tokens) {
-                    range = [sentence length] ? [sentence rangeOfString:token options:opt] : NSMakeRange(NSNotFound, 0);
-                    if (range.length)
-                    {
-                        [_filteredSentences addObject:sentence];
-                        match = YES;
-                        break;
-                    }
+        /*
+         Search the main list for products whose type matches the scope (if selected) and whose name matches searchText; add items that match to the filtered array.
+         */
+        for (NSString *sentence in _rawSentences)
+        {
+            BOOL match = NO;
+            
+            NSArray *tokens = [searchText componentsSeparatedByString:@" "];
+            
+            for (NSString *token in tokens) {
+//                DEBUG_LOG(@"%s [%@]in[%@]", __func__, token, sentence);
+
+                range = [sentence length] ? [sentence rangeOfString:token options:opt] : NSMakeRange(NSNotFound, 0);
+                if (range.length)
+                {
+                    [_filteredSentences addObject:sentence];
+                    match = YES;
+                    break;
                 }
-                [tokens release];
             }
-        }
-        @catch (NSException *exception) {
-            DEBUG_LOG(@"%s %@", __func__, exception);
         }
         self.listItems = _filteredSentences;
     } else {
@@ -466,7 +485,7 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
 // キーボードの大きさ分、ビューを伸長する。
 - (void) keyboardWillHide:(NSNotification *)aNotification
 {
-    CGRect endFrame   = [[[aNotification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    CGRect endFrame = [[[aNotification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     NSTimeInterval duration = [[[aNotification userInfo] objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     
     [self keyboardHideAnimation:_tableView
