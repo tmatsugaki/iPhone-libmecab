@@ -189,7 +189,8 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tableView
+didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     DEBUG_LOG(@"%s", __func__);
 
@@ -211,13 +212,16 @@ titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
 }
 
 // 【注意】キャンセルされた場合に、layoutSubviews が呼ばれる。
-- (void) tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void) tableView:(UITableView *)tableView
+commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
+ forRowAtIndexPath:(NSIndexPath *)indexPath {
 
     DEBUG_LOG(@"%s", __func__);
 
     @try {
         if (editingStyle == UITableViewCellEditingStyleDelete) {
             [_listItems removeObject:[_listItems objectAtIndex:indexPath.row]];
+            // 文章を削除したので、XML ファイルに反映する。
             [_listItems writeToFile:kLibXMLPath atomically:YES];
             
             CGContextRef context = UIGraphicsGetCurrentContext();
@@ -241,7 +245,7 @@ canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     DEBUG_LOG(@"%s", __func__);
 
     // 最後のトークン消すと画面を終われなくなる。
-    return [_listItems count] > 1;
+    return (_listItems == _rawSentences) && [_listItems count] > 1;
 }
 
 // Override to support conditional editing of the table view.
@@ -273,6 +277,9 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
             {
                 [_listItems insertObject:token atIndex:toIndexPath.row];
             }
+            // 文章を移動したので、XML ファイルに反映する。
+            [_listItems writeToFile:kLibXMLPath atomically:YES];
+
             [[NSUserDefaults standardUserDefaults] setObject:token forKey:kDefaultsSentence];
 
             [token release];
@@ -380,8 +387,10 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
             }
         }
         self.listItems = _filteredSentences;
+        _editButton.enabled = NO;
     } else {
         self.listItems = _rawSentences;
+        _editButton.enabled = YES;
     }
 }
 
