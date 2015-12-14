@@ -113,15 +113,15 @@
 //    [self createGestureRecognizers];
     [_tableView becomeFirstResponder];
 
-    NSString *searchingToken = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSearchingToken];
-
-    if ([searchingToken length])
-    {// 検索中の文字列がある場合は、サーチバーに設定し、フィルタリングする。
-        _searchBar.text = searchingToken;
-        [self filterContentForSearchText:searchingToken];
-    }
-
-    // ナビゲーションアイテムの初期化
+    // ナビゲーションアイテムの初期化（閉じるボタン）
+    _myNavigationItem.leftBarButtonItem
+    = [[[UIBarButtonItem alloc] initWithTitle:@"閉じる"
+                                        style:UIBarButtonItemStylePlain
+                                       target:self
+                                       action:@selector(cancel:)] autorelease];
+    _myNavigationItem.leftBarButtonItem.possibleTitles = [NSSet setWithObjects:@"閉じる", nil];
+    _myNavigationItem.leftBarButtonItem.tintColor = [UIColor colorWithRed:0.0/256.0 green:122.0/256.0 blue:255.0/256.0 alpha:1.0];
+    // ナビゲーションアイテムの初期化（編集ボタン）
     _myNavigationItem.rightBarButtonItem
     = [[[UIBarButtonItem alloc] initWithTitle:@"編集"
                                         style:UIBarButtonItemStylePlain
@@ -130,13 +130,14 @@
     _myNavigationItem.rightBarButtonItem.possibleTitles = [NSSet setWithObjects:@"編集", @"完了", nil];
     _myNavigationItem.rightBarButtonItem.tintColor = [UIColor colorWithRed:0.0/256.0 green:122.0/256.0 blue:255.0/256.0 alpha:1.0];
 
-    _myNavigationItem.leftBarButtonItem
-    = [[[UIBarButtonItem alloc] initWithTitle:@"閉じる"
-                                        style:UIBarButtonItemStylePlain
-                                       target:self
-                                       action:@selector(cancel:)] autorelease];
-    _myNavigationItem.leftBarButtonItem.possibleTitles = [NSSet setWithObjects:@"閉じる", nil];
-    _myNavigationItem.leftBarButtonItem.tintColor = [UIColor colorWithRed:0.0/256.0 green:122.0/256.0 blue:255.0/256.0 alpha:1.0];
+    //
+    NSString *searchingToken = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSearchingToken];
+
+    if ([searchingToken length])
+    {// 検索中の文字列がある場合は、サーチバーに設定し、フィルタリングする。
+        _searchBar.text = searchingToken;
+        [self filterContentForSearchText:searchingToken];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -185,9 +186,10 @@
 	return 0;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(UITableView *)tableView
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    DEBUG_LOG(@"%s Count:%lu Row:%ld", __func__, (unsigned long)[_listItems count], (long)indexPath.row);
+//    DEBUG_LOG(@"%s Count:%lu Row:%ld", __func__, (unsigned long)[_listItems count], (long)indexPath.row);
 
     static NSString *CellIdentifier = @"TokenCell";
     
@@ -422,8 +424,6 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
             NSArray *tokens = [searchText componentsSeparatedByString:@" "];
             
             for (NSString *token in tokens) {
-//                DEBUG_LOG(@"%s [%@]in[%@]", __func__, token, sentence);
-
                 range = [sentence length] ? [sentence rangeOfString:token options:opt] : NSMakeRange(NSNotFound, 0);
                 if (range.length)
                 {
@@ -434,12 +434,10 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
             }
         }
         self.listItems = _filteredSentences;
-        ((UIBarButtonItem *) _myNavigationItem.rightBarButtonItems[0]).enabled = NO;
-//        _editButton.enabled = NO;
+        _myNavigationItem.rightBarButtonItem.enabled = NO;
     } else {
         self.listItems = _rawSentences;
-        ((UIBarButtonItem *) _myNavigationItem.rightBarButtonItems[0]).enabled = YES;
-//        _editButton.enabled = YES;
+        _myNavigationItem.rightBarButtonItem.enabled = YES;
     }
 }
 
