@@ -92,7 +92,7 @@
 
 - (void)viewDidLoad {
 
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     [super viewDidLoad];
     
@@ -141,6 +141,7 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+
     [super viewWillAppear:animated];
 
     NSString *sentence = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
@@ -178,7 +179,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     if (_listItems) {
 		return [_listItems count];
@@ -218,7 +219,7 @@
 - (void)tableView:(UITableView *)tableView
 didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     // 検索フィールドを非アクティブにする。
     [_searchBar resignFirstResponder];
@@ -272,7 +273,7 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
 - (BOOL) tableView:(UITableView *)tableView
 canEditRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     // 削除できるのは、検索中でなく複数セルがある場合
     // 【注意】最後のトークン消すと画面を終われなくなる。
@@ -283,7 +284,7 @@ canEditRowAtIndexPath:(NSIndexPath *)indexPath {
 - (BOOL) tableView:(UITableView *)tableView
 canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     // 移動できるのは、検索中でなくテーブルビューが編集中で複数セルがある場合
     return tableView.editing && (_listItems == _rawSentences) && [_listItems count] > 1;
@@ -405,7 +406,7 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
 
 - (void) filterContentForSearchText:(NSString *)searchText
 {
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     if ([searchText length]) {
         [_filteredSentences removeAllObjects]; // First clear the filtered array.

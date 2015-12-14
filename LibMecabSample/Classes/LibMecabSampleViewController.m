@@ -324,6 +324,7 @@ NSSet *lowerSet = nil;
                             }
                         } else if (inhibitRashii) {
                             [lastNode setPartOfSpeech:@"形容動詞"];
+                            [lastNode setOriginalForm:[[lastNode originalForm] stringByAppendingString:@"だ"]];
                         }
                     }
                 }
@@ -947,7 +948,7 @@ NSSet *lowerSet = nil;
 
 - (void)viewDidLoad {
 
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     [super viewDidLoad];
 
@@ -978,7 +979,7 @@ NSSet *lowerSet = nil;
 
 - (void) viewWillAppear:(BOOL)animated {
 
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     [super viewWillAppear:animated];
 
@@ -1046,7 +1047,6 @@ NSSet *lowerSet = nil;
 	if (_nodes) {
 		return [_nodes count];
 	}
-	
 	return 0;
 }
 
