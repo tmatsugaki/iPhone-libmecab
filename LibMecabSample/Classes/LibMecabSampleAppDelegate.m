@@ -24,6 +24,10 @@
     // Add the view controller's view to the window and display.
     [self.window addSubview:viewController.view];
     [self.window makeKeyAndVisible];
+
+    // 罫線を突き抜けさせる。
+    [[UITableViewCell appearance] setSeparatorInset:UIEdgeInsetsZero];
+
     return YES;
 }
 

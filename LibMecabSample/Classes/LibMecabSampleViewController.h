@@ -11,7 +11,7 @@
 
 @class Mecab;
 
-@interface LibMecabSampleViewController : UIViewController<UITextFieldDelegate> {
+@interface LibMecabSampleViewController : UIViewController <UITextFieldDelegate> {
 	
 	UITextField *_textField;
 	UITableView *_tableView;

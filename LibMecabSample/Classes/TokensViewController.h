@@ -13,7 +13,6 @@
 	
     UINavigationBar *_myNavigationBar;
     UINavigationItem *_myNavigationItem;
-    UIBarButtonItem *_editButton;
     UISearchBar *_searchBar;
     TokenCell *_tokenCell;
     NSMutableArray *_listItems;
@@ -23,7 +22,6 @@
 
 @property (nonatomic, retain) IBOutlet UINavigationBar *myNavigationBar;
 @property (nonatomic, retain) IBOutlet UINavigationItem *myNavigationItem;
-@property (nonatomic, retain) IBOutlet UIBarButtonItem *editButton;
 @property (nonatomic, retain) IBOutlet UISearchBar *searchBar;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet TokenCell *tokenCell;

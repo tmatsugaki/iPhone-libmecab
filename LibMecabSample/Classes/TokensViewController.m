@@ -11,7 +11,6 @@
 
 @synthesize myNavigationBar=_myNavigationBar;
 @synthesize myNavigationItem=_myNavigationItem;
-@synthesize editButton=_editButton;
 @synthesize searchBar=_searchBar;
 @synthesize tableView=_tableView;
 @synthesize tokenCell=_tokenCell;
@@ -25,7 +24,6 @@
     
     self.myNavigationBar = nil;
     self.myNavigationItem = nil;
-    self.editButton = nil;
     self.searchBar = nil;
     self.tokenCell = nil;
     self.listItems = nil;
@@ -37,31 +35,36 @@
 
 #pragma mark - IBAction
 
-- (IBAction) cancel:(id)sender {
+- (void) cancel:(id)sender {
     [self dismissMe];
 }
 
-- (IBAction) toggleEdit:(id)sender {
+- (void) toggleEdit:(id)sender {
     
-//    UIBarButtonItem *editButton = myNavigationItem.rightBarButtonItems[0];
+//    UIBarButtonItem *editButton = _myNavigationItem.rightBarButtonItem;
+    UIBarButtonItem *editButton = sender;
 
     [_tableView setEditing:_tableView.editing == NO animated:YES];
 
     if (_tableView.editing)
     {// ブラウズモード >> 編集モード
-        _editButton.style = UIBarButtonItemStyleDone;
-        _editButton.title = @"完了";
+        [editButton setStyle:UIBarButtonItemStyleDone];
+        [editButton setTitle:@"完了"];
+//        editButton.tintColor = [UIColor colorWithRed:0.0/256.0 green:122.0/256.0 blue:255.0/256.0 alpha:1.0];
     } else
     {// 編集モード >> ブラウズモード
-        _editButton.style = UIBarButtonItemStylePlain;
-        _editButton.title = @"編集";
-#if 1
+        [editButton setStyle:UIBarButtonItemStylePlain];
+        [editButton setTitle:@"編集"];
+//        editButton.tintColor = [UIColor grayColor];
+
+#if RELOAD_WHEN_TOGGLE_EDIT
         [_tableView reloadData];
 #else
         [self.view setNeedsLayout];
         [self.view setNeedsDisplay];
 #endif
     }
+    [_myNavigationItem setRightBarButtonItem:editButton];
 }
 
 - (id) initWithNibName:(NSString *)nibNameOrNil
@@ -117,6 +120,23 @@
         _searchBar.text = searchingToken;
         [self filterContentForSearchText:searchingToken];
     }
+
+    // ナビゲーションアイテムの初期化
+    _myNavigationItem.rightBarButtonItem
+    = [[[UIBarButtonItem alloc] initWithTitle:@"編集"
+                                        style:UIBarButtonItemStylePlain
+                                       target:self
+                                       action:@selector(toggleEdit:)] autorelease];
+    _myNavigationItem.rightBarButtonItem.possibleTitles = [NSSet setWithObjects:@"編集", @"完了", nil];
+    _myNavigationItem.rightBarButtonItem.tintColor = [UIColor colorWithRed:0.0/256.0 green:122.0/256.0 blue:255.0/256.0 alpha:1.0];
+
+    _myNavigationItem.leftBarButtonItem
+    = [[[UIBarButtonItem alloc] initWithTitle:@"閉じる"
+                                        style:UIBarButtonItemStylePlain
+                                       target:self
+                                       action:@selector(cancel:)] autorelease];
+    _myNavigationItem.leftBarButtonItem.possibleTitles = [NSSet setWithObjects:@"閉じる", nil];
+    _myNavigationItem.leftBarButtonItem.tintColor = [UIColor colorWithRed:0.0/256.0 green:122.0/256.0 blue:255.0/256.0 alpha:1.0];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -227,7 +247,8 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
             [_listItems removeObject:[_listItems objectAtIndex:indexPath.row]];
             // 文章を削除したので、XML ファイルに反映する。
             [_listItems writeToFile:kLibXMLPath atomically:YES];
-#if 1
+
+#if DELETE_ANIMATION
             CGContextRef context = UIGraphicsGetCurrentContext();
             
             [UIView beginAnimations:nil context:context];
@@ -251,7 +272,8 @@ canEditRowAtIndexPath:(NSIndexPath *)indexPath {
 
     DEBUG_LOG(@"%s", __func__);
 
-    // 最後のトークン消すと画面を終われなくなる。
+    // 削除できるのは、検索中でなく複数セルがある場合
+    // 【注意】最後のトークン消すと画面を終われなくなる。
     return (_listItems == _rawSentences) && [_listItems count] > 1;
 }
 
@@ -261,7 +283,8 @@ canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     
     DEBUG_LOG(@"%s", __func__);
 
-    return tableView.editing && [_listItems count] > 1;
+    // 移動できるのは、検索中でなくテーブルビューが編集中で複数セルがある場合
+    return tableView.editing && (_listItems == _rawSentences) && [_listItems count] > 1;
 }
 
 // Override to support conditional editing of the table view.
@@ -411,10 +434,12 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
             }
         }
         self.listItems = _filteredSentences;
-        _editButton.enabled = NO;
+        ((UIBarButtonItem *) _myNavigationItem.rightBarButtonItems[0]).enabled = NO;
+//        _editButton.enabled = NO;
     } else {
         self.listItems = _rawSentences;
-        _editButton.enabled = YES;
+        ((UIBarButtonItem *) _myNavigationItem.rightBarButtonItems[0]).enabled = YES;
+//        _editButton.enabled = YES;
     }
 }
 
