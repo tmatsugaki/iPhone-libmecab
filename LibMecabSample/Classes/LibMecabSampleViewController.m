@@ -181,12 +181,14 @@ NSSet *lowerSet = nil;
             if ([[node partOfSpeech] isEqualToString:@"名詞"])
             {
                 BOOL merge = NO;
+                BOOL retainLastSubtype = NO;
 
                 if ([[lastNode partOfSpeech] isEqualToString:@"名詞"])
                 {// 名詞が連なっている。
                     if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
                     {// 接尾辞である。
                         merge = YES;
+                        retainLastSubtype = YES;
                     }
                 } else if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
                 {// 一般名詞である。
@@ -209,7 +211,9 @@ NSSet *lowerSet = nil;
                     }
                     [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
                     
-                    [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
+                    if (retainLastSubtype) {
+                        [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
+                    }
 //                    [node setPartOfSpeechSubtype2:[lastNode partOfSpeechSubtype2]]; // 元の属性を保全する。
 //                    [node setPartOfSpeechSubtype3:[lastNode partOfSpeechSubtype3]]; // 元の属性を保全する。
                     DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
@@ -230,27 +234,27 @@ NSSet *lowerSet = nil;
         if (lastNode) {
             if ([self isFuzokugo:[node partOfSpeech]])
             {// 付属語（助詞、助動詞）
-                NSString *subType1 = [lastNode partOfSpeechSubtype1];
-                NSString *subType2 = [lastNode partOfSpeechSubtype2];
-                NSString *subType3 = [lastNode partOfSpeechSubtype3];
+                NSString *lastSubType1 = [lastNode partOfSpeechSubtype1];
+                NSString *lastSubType2 = [lastNode partOfSpeechSubtype2];
+                NSString *lastSubType3 = [lastNode partOfSpeechSubtype3];
                 NSString *baseToken = @"語幹";
-                NSString *contentToken = nil;
+                NSString *jointKey = nil;
                 NSUInteger baseTokenLength = [baseToken length];
                 
-                if ([subType1 length] > baseTokenLength &&
-                    [[subType1 substringFromIndex:[subType1 length] - baseTokenLength] isEqualToString:baseToken])
+                if ([lastSubType1 length] > baseTokenLength &&
+                    [[lastSubType1 substringFromIndex:[lastSubType1 length] - baseTokenLength] isEqualToString:baseToken])
                 {
-                    contentToken = [subType1 substringToIndex:[subType1 length] - baseTokenLength];
-                } else if ([subType2 length] > baseTokenLength &&
-                           [[subType2 substringFromIndex:[subType2 length] - baseTokenLength] isEqualToString:baseToken])
+                    jointKey = [lastSubType1 substringToIndex:[lastSubType1 length] - baseTokenLength];
+                } else if ([lastSubType2 length] > baseTokenLength &&
+                           [[lastSubType2 substringFromIndex:[lastSubType2 length] - baseTokenLength] isEqualToString:baseToken])
                 {
-                    contentToken = [subType2 substringToIndex:[subType2 length] - baseTokenLength];
-                } else if ([subType3 length] > baseTokenLength &&
-                           [[subType3 substringFromIndex:[subType3 length] - baseTokenLength] isEqualToString:baseToken])
+                    jointKey = [lastSubType2 substringToIndex:[lastSubType2 length] - baseTokenLength];
+                } else if ([lastSubType3 length] > baseTokenLength &&
+                           [[lastSubType3 substringFromIndex:[lastSubType3 length] - baseTokenLength] isEqualToString:baseToken])
                 {
-                    contentToken = [subType3 substringToIndex:[subType3 length] - baseTokenLength];
+                    jointKey = [lastSubType3 substringToIndex:[lastSubType3 length] - baseTokenLength];
                 }
-                if ([contentToken length]) {
+                if ([jointKey length]) {
                     if ([node.surface isEqualToString:@"でも"] &&
                         [[node partOfSpeechSubtype1] isEqualToString:@"副助詞"]) // 【注意】ここは絶対に「副助詞」
                     {
@@ -281,12 +285,30 @@ NSSet *lowerSet = nil;
                         [newNode release];
                         goto start;
                     } else
-                    {// 語幹
-                        if ([contentToken isEqualToString:@"ナイ形容詞"] == NO || [[node pronunciation] isEqualToString:@"ナイ"]) {
+                    {// 語幹（多少の例外がある！！）
+                        BOOL inhibitNai = NO;
+                        BOOL inhibitRashii = NO;
+
+                        if ([jointKey isEqualToString:@"ナイ形容詞"] &&
+                            [[node pronunciation] isEqualToString:@"ナイ"] == NO)
+                        {
+                            inhibitNai = YES;
+                            DEBUG_LOG(@"条件を満たさない「ナイ形容詞」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
+                        } else if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
+                                   [lastSubType1 isEqualToString:@"形容動詞語幹"] &&
+                                   [[node pronunciation] isEqualToString:@"ラシイ"])
+                        {
+                            inhibitRashii = YES;
+                            DEBUG_LOG(@"形容動詞語幹に連なる「らしい」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
+                        }
+                        
+                        // 【例外1】ナイ形容詞
+                        // 【例外2】形容動詞語幹に連なる「らしい」
+                        if (inhibitNai == NO && inhibitRashii == NO) {
                             lastNode.visible = NO;
                             
                             // マージする。
-                            [node setPartOfSpeech:contentToken];
+                            [node setPartOfSpeech:jointKey];
                             
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                             [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
@@ -300,6 +322,8 @@ NSSet *lowerSet = nil;
                             {
                                 [node setPartOfSpeechSubtype1:@""];
                             }
+                        } else if (inhibitRashii) {
+                            [lastNode setPartOfSpeech:@"形容動詞"];
                         }
                     }
                 }
@@ -442,6 +466,7 @@ NSSet *lowerSet = nil;
 }
 
 // 【形容詞化】体言＋助動詞「らしい」＋体言→形容詞（連体形）
+// eg.「人間らしい」
 - (void) patch_TAIGEN_RASHII {
     Node *lastNode = nil;
     Node *nextNode = nil;
