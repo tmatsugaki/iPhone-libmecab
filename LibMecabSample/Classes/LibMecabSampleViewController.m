@@ -51,6 +51,9 @@ NSSet *lowerSet = nil;
             ([subType3 length] > baseTokenLength && [[subType3 substringFromIndex:[subType3 length] - baseTokenLength] isEqualToString:baseToken])) {
             DEBUG_LOG(@">>[%02lu]%@:%@", (unsigned long)++count, node.surface, [node partOfSpeech]);
         }
+//        if ([node pronunciation] == nil) {
+//            [node setPronunciation:@""];
+//        }
         node.attribute = @"";
         node.visible = YES;
     }
@@ -175,26 +178,40 @@ NSSet *lowerSet = nil;
     
     for (Node *node in _nodes) {
         if (lastNode) {
-            if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
-                [[node partOfSpeech] isEqualToString:@"名詞"])
-            {// 名詞が連なっている。
-                if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
-                {// 接尾辞
+            if ([[node partOfSpeech] isEqualToString:@"名詞"])
+            {
+                BOOL merge = NO;
+
+                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"])
+                {// 名詞が連なっている。
+                    if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
+                    {// 接尾辞である。
+                        merge = YES;
+                    }
+                } else if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
+                {// 一般名詞である。
+                    if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"] &&
+                        [[lastNode partOfSpeechSubtype1] isEqualToString:@"名詞接続"])
+                    {// 直前が名詞接続の接頭詞である。
+                        merge = YES;
+                    }
+                }
+                if (merge) {
                     lastNode.visible = NO;
                     
                     // マージする。
-                    [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
+                    [node setSurface:[[lastNode surface]                 stringByAppendingString:[node surface]]];
                     @try {
                         [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
                     }
                     @catch (NSException *exception) {
                         [node setPronunciation:@"例外!!"];
                     }
-                    [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                    [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
                     
                     [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
-                    //                    [node setPartOfSpeechSubtype2:[lastNode partOfSpeechSubtype2]]; // 元の属性を保全する。
-                    //                    [node setPartOfSpeechSubtype3:[lastNode partOfSpeechSubtype3]]; // 元の属性を保全する。
+//                    [node setPartOfSpeechSubtype2:[lastNode partOfSpeechSubtype2]]; // 元の属性を保全する。
+//                    [node setPartOfSpeechSubtype3:[lastNode partOfSpeechSubtype3]]; // 元の属性を保全する。
                     DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
                 }
             }
