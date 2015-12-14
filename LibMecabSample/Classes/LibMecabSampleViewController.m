@@ -24,22 +24,22 @@
 NSSet *upperSet = nil;
 NSSet *lowerSet = nil;
 
-@synthesize textField;
-@synthesize tableView_;
-@synthesize nodeCell;
-@synthesize examples;
-@synthesize explore;
-@synthesize patch;
-@synthesize mecab;
-@synthesize nodes;
-@synthesize sentences;
+@synthesize textField=_textField;
+@synthesize tableView=_tableView;
+@synthesize nodeCell=_nodeCell;
+@synthesize examples=_examples;
+@synthesize explore=_explore;
+@synthesize patch=_patch;
+@synthesize mecab=_mecab;
+@synthesize nodes=_nodes;
+@synthesize sentences=_sentences;
 
 #pragma mark -
 
 // 【注意】必須の処理
 - (void) preProcess {
     NSUInteger count = 0;
-    for (Node *node in nodes) {
+    for (Node *node in _nodes) {
         NSString *subType1 = [node partOfSpeechSubtype1];
         NSString *subType2 = [node partOfSpeechSubtype2];
         NSString *subType3 = [node partOfSpeechSubtype3];
@@ -80,8 +80,8 @@ NSSet *lowerSet = nil;
     
     BOOL rc = NO;
     
-    if (nextIndex < [nodes count]) {
-        Node *node = nodes[nextIndex];
+    if (nextIndex < [_nodes count]) {
+        Node *node = _nodes[nextIndex];
         
         if ([node.surface isEqualToString:@"、"] || [node.surface isEqualToString:@"。"]) {
             rc = YES;
@@ -113,8 +113,8 @@ NSSet *lowerSet = nil;
 - (void) patch_merge_FUKUGO_DOSHI {
     Node *lastNode = nil;
     
-    for (NSUInteger index = 0; index < [nodes count]; index++) {
-        Node *node = nodes[index];
+    for (NSUInteger index = 0; index < [_nodes count]; index++) {
+        Node *node = _nodes[index];
 
         if ([[lastNode partOfSpeech] isEqualToString:@"動詞"]) {
             if ([[node partOfSpeech] isEqualToString:@"動詞"] && [[node partOfSpeechSubtype1] isEqualToString:@"非自立"])
@@ -139,8 +139,8 @@ NSSet *lowerSet = nil;
 - (void) patch_merge_FUKUGO_DOSHI_SAHEN {
     Node *lastNode = nil;
     
-    for (NSUInteger index = 0; index < [nodes count]; index++) {
-        Node *node = nodes[index];
+    for (NSUInteger index = 0; index < [_nodes count]; index++) {
+        Node *node = _nodes[index];
         NSString *lastPartOfSpeechSubtype1 = [lastNode partOfSpeechSubtype1];   // サ変接続
         NSString *inflection = [node inflection];                               // サ変・スル
         
@@ -173,7 +173,7 @@ NSSet *lowerSet = nil;
 - (void) patch_merge_MEISHI {
     Node *lastNode = nil;
     
-    for (Node *node in nodes) {
+    for (Node *node in _nodes) {
         if (lastNode) {
             if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
                 [[node partOfSpeech] isEqualToString:@"名詞"])
@@ -207,8 +207,8 @@ NSSet *lowerSet = nil;
 - (void) patch_merge_GOKAN {
     Node *lastNode = nil;
     
-    for (NSUInteger index = 0; index < [nodes count]; index++) {
-        Node *node = nodes[index];
+    for (NSUInteger index = 0; index < [_nodes count]; index++) {
+        Node *node = _nodes[index];
     start:
         if (lastNode) {
             if ([self isFuzokugo:[node partOfSpeech]])
@@ -251,7 +251,7 @@ NSSet *lowerSet = nil;
                         [node setPartOfSpeechSubtype1:@""];
                         [node setUseOfType:@"連用形"];
                         [node setInflection:@"™断定"];
-                        [nodes replaceObjectAtIndex:index withObject:node];
+                        [_nodes replaceObjectAtIndex:index withObject:node];
                         
                         [newNode setSurface:@"も"];
                         [newNode setPronunciation:@"モ"];
@@ -260,7 +260,7 @@ NSSet *lowerSet = nil;
                         [newNode setPartOfSpeechSubtype1:@"係助詞"];
                         [newNode setInflection:@"™"];
                         newNode.visible = YES;
-                        [nodes insertObject:newNode atIndex:index+1];
+                        [_nodes insertObject:newNode atIndex:index+1];
                         [newNode release];
                         goto start;
                     } else
@@ -300,11 +300,11 @@ NSSet *lowerSet = nil;
     Node *lastNode = nil;
     Node *nextNode = nil;
     
-    for (NSInteger i = 0; i < [nodes count]; i++) {
-        Node *node = nodes[i];
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
         
-        if (i + 1 < [nodes count]) {
-            nextNode = nodes[i + 1];
+        if (i + 1 < [_nodes count]) {
+            nextNode = _nodes[i + 1];
         } else {
             nextNode = nil;
         }
@@ -330,7 +330,7 @@ NSSet *lowerSet = nil;
 // 【準体助詞】「なのだ」の「の」が名詞ではおかしい。
 - (void) patch_NANODA_NO {
 
-    for (Node *node in nodes) {
+    for (Node *node in _nodes) {
         if ([node.surface isEqualToString:@"の"] &&
             [[node partOfSpeech] isEqualToString:@"名詞"])
         {
@@ -348,8 +348,8 @@ NSSet *lowerSet = nil;
 // 【感動詞】「そう」がいつも副詞ではおかしい。
 - (void) patch_KANDOSHI_SOU {
     
-    if ([nodes count] == 1) {
-        Node *node = nodes[0];
+    if ([_nodes count] == 1) {
+        Node *node = _nodes[0];
 
         if ([node.surface isEqualToString:@"そう"] &&
             [[node partOfSpeech] isEqualToString:@"副詞"] &&
@@ -360,16 +360,16 @@ NSSet *lowerSet = nil;
             [node setPartOfSpeechSubtype2:@""];
             DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
         }
-    } else if ([nodes count] > 1) {
-        for (NSUInteger i = 0; i < [nodes count]; i++) {
-            Node *node = nodes[i];
+    } else if ([_nodes count] > 1) {
+        for (NSUInteger i = 0; i < [_nodes count]; i++) {
+            Node *node = _nodes[i];
             
             if ([node.surface isEqualToString:@"そう"] &&
                 [[node partOfSpeech] isEqualToString:@"副詞"] &&
                 [[node partOfSpeechSubtype1] isEqualToString:@"助詞類接続"])
             {// 副詞である。
-                if (i < [nodes count] - 1) {
-                    Node *nextNode = nodes[i+1];
+                if (i < [_nodes count] - 1) {
+                    Node *nextNode = _nodes[i+1];
 
                     if ([self isYougen:[nextNode partOfSpeech]] == NO) {
                         [node setPartOfSpeech:@"感動詞"];
@@ -401,7 +401,7 @@ NSSet *lowerSet = nil;
 - (void) patch_HOJO_KEIYOUSHI_NAI {
     Node *lastNode = nil;
     
-    for (Node *node in nodes) {
+    for (Node *node in _nodes) {
         if (lastNode) {
             if ([[node partOfSpeech] isEqualToString:@"助動詞"] &&
                 [node.surface isEqualToString:@"ない"])
@@ -429,11 +429,11 @@ NSSet *lowerSet = nil;
     Node *lastNode = nil;
     Node *nextNode = nil;
     
-    for (NSInteger i = 0; i < [nodes count]; i++) {
-        Node *node = nodes[i];
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
         
-        if (i + 1 < [nodes count]) {
-            nextNode = nodes[i + 1];
+        if (i + 1 < [_nodes count]) {
+            nextNode = _nodes[i + 1];
         } else {
             nextNode = nil;
         }
@@ -466,8 +466,8 @@ NSSet *lowerSet = nil;
 // 【終助詞化】末端の接続助詞「とも」は強調を示す終助詞。
 - (void) patch_TOMO {
     
-    for (NSUInteger i = 0; i < [nodes count]; i++) {
-        Node *node = nodes[i];
+    for (NSUInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
 
         if ([[node partOfSpeechSubtype1] isEqualToString:@"接続助詞"] &&
             [node.surface isEqualToString:@"とも"])
@@ -486,11 +486,11 @@ NSSet *lowerSet = nil;
     Node *lastNode = nil;
     Node *nextNode = nil;
     
-    for (NSInteger i = 0; i < [nodes count]; i++) {
-        Node *node = nodes[i];
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
         
-        if (i + 1 < [nodes count]) {
-            nextNode = nodes[i + 1];
+        if (i + 1 < [_nodes count]) {
+            nextNode = _nodes[i + 1];
         } else {
             nextNode = nil;
         }
@@ -523,16 +523,16 @@ NSSet *lowerSet = nil;
     Node *nextNode = nil;
     Node *nextNextNode = nil;
     
-    for (NSInteger i = 0; i < [nodes count]; i++) {
-        Node *node = nodes[i];
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
         
-        if (i + 1 < [nodes count]) {
-            nextNode = nodes[i + 1];
+        if (i + 1 < [_nodes count]) {
+            nextNode = _nodes[i + 1];
         } else {
             nextNode = nil;
         }
-        if (i + 2 < [nodes count]) {
-            nextNextNode = nodes[i + 2];
+        if (i + 2 < [_nodes count]) {
+            nextNextNode = _nodes[i + 2];
         } else {
             nextNextNode = nil;
         }
@@ -562,12 +562,12 @@ NSSet *lowerSet = nil;
 - (void) patch_DEMO {
     Node *lastNode = nil;
     
-    for (NSUInteger index = 0; index < [nodes count]; index++) {
-        Node *node = nodes[index];
+    for (NSUInteger index = 0; index < [_nodes count]; index++) {
+        Node *node = _nodes[index];
 
         if (lastNode) {
-            if (index < [nodes count] - 1) {
-                Node *nextNode = nodes[index + 1];
+            if (index < [_nodes count] - 1) {
+                Node *nextNode = _nodes[index + 1];
 
                 if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
                     [node.surface isEqualToString:@"でも"] && [[node partOfSpeechSubtype1] isEqualToString:@"副助詞"] && // 【注意】ここは絶対に「副助詞」
@@ -585,7 +585,7 @@ NSSet *lowerSet = nil;
                     [node setOriginalForm:@"で"];
                     [node setPartOfSpeech:@"助詞"];
                     [node setPartOfSpeechSubtype1:@"格助詞"];
-                    [nodes replaceObjectAtIndex:index withObject:node];
+                    [_nodes replaceObjectAtIndex:index withObject:node];
                     
                     [newNode setSurface:@"も"];
                     [newNode setPronunciation:@"モ"];
@@ -594,7 +594,7 @@ NSSet *lowerSet = nil;
                     [newNode setPartOfSpeechSubtype1:@"係助詞"];
                     [newNode setInflection:@"™"];
                     newNode.visible = YES;
-                    [nodes insertObject:newNode atIndex:index+1];
+                    [_nodes insertObject:newNode atIndex:index+1];
                     [newNode release];
                     DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
                 }
@@ -610,11 +610,11 @@ NSSet *lowerSet = nil;
     Node *nextNode = nil;
     BOOL asked = NO;
     
-    for (NSInteger i = 0; i < [nodes count]; i++) {
-        Node *node = nodes[i];
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
         
-        if (i + 1 < [nodes count]) {
-            nextNode = nodes[i + 1];
+        if (i + 1 < [_nodes count]) {
+            nextNode = _nodes[i + 1];
         } else {
             nextNode = nil;
         }
@@ -644,7 +644,7 @@ NSSet *lowerSet = nil;
 // 【終止形／連体形／連用形】
 - (void) patch_YOUGO {
 
-    for (Node *node in nodes) {
+    for (Node *node in _nodes) {
         NSString *useOfType = [node useOfType];
         NSString *partOfSpeechSubtype1 = [node partOfSpeechSubtype1];
         NSString *inflection = [node inflection];
@@ -695,7 +695,7 @@ NSSet *lowerSet = nil;
 - (void) patch_OLD_FUKUSHI_SO {
     Node *lastNode = nil;
     
-    for (Node *node in nodes) {
+    for (Node *node in _nodes) {
         if (lastNode) {
             if ([self isYougen:[lastNode partOfSpeech]] &&
                 [node.surface isEqualToString:@"そう"])
@@ -715,7 +715,7 @@ NSSet *lowerSet = nil;
 - (void) patch_OLD_SOU {
     Node *lastNode = nil;
     
-    for (Node *node in nodes) {
+    for (Node *node in _nodes) {
         if (lastNode) {
             if ([[node partOfSpeech] isEqualToString:@"助動詞"])
             {
@@ -752,7 +752,7 @@ NSSet *lowerSet = nil;
 - (void) patch_OLD_FUKUSHI_KA {
     Node *lastNode = nil;
     
-    for (Node *node in nodes) {
+    for (Node *node in _nodes) {
         if (lastNode) {
             if ([[node partOfSpeech] isEqualToString:@"助詞"])
             {
@@ -781,14 +781,14 @@ NSSet *lowerSet = nil;
 #pragma mark - IBAction
 
 - (IBAction)parse:(id)sender {
-    [textField resignFirstResponder];
+    [_textField resignFirstResponder];
     
-    NSString *string = textField.text;
+    NSString *string = _textField.text;
     
-    self.nodes = [NSMutableArray arrayWithArray:[mecab parseToNodeWithString:string]];
+    self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:string]];
     [self preProcess];
     
-    if (patch.on) {
+    if (_patch.on) {
         // マージ
         [self patch_merge_FUKUGO_DOSHI];
         [self patch_merge_FUKUGO_DOSHI_SAHEN];
@@ -808,15 +808,15 @@ NSSet *lowerSet = nil;
         // 用語置換
         [self patch_YOUGO];
     }
-    [tableView_ reloadData];
+    [_tableView reloadData];
     
     if ([string length]) {
-        NSUInteger index = [sentences indexOfObject:string];
+        NSUInteger index = [_sentences indexOfObject:string];
         
         if (index == NSNotFound) {
-            [sentences addObject:string];
+            [_sentences addObject:string];
         }
-        [sentences writeToFile:kLibXMLPath atomically:YES];
+        [_sentences writeToFile:kLibXMLPath atomically:YES];
 
         
         // iCloud
@@ -844,18 +844,18 @@ NSSet *lowerSet = nil;
 }
 
 - (IBAction) setPatchDefaults:(id)sender {
-    [[NSUserDefaults standardUserDefaults] setBool:patch.on forKey:kDefaultsPatchMode];
+    [[NSUserDefaults standardUserDefaults] setBool:_patch.on forKey:kDefaultsPatchMode];
 }
 
 - (IBAction) openTokensView:(id)sender {
     
-    [textField resignFirstResponder];
+    [_textField resignFirstResponder];
 
-    if ([sentences count])
+    if ([_sentences count])
     {// トークンリストのモーダルダイアログを表示する。
         TokensViewController *viewController = [[TokensViewController alloc] initWithNibName:@"TokensViewController"
                                                                                       bundle:nil
-                                                                              sentencesArray:sentences];
+                                                                              sentencesArray:_sentences];
         
         [self presentViewController:viewController animated:YES completion:nil];
         [viewController release];
@@ -874,32 +874,32 @@ NSSet *lowerSet = nil;
 
 #pragma mark - UIScrollView
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    [textField resignFirstResponder];
+    [_textField resignFirstResponder];
 }
 
 #pragma mark - UIViewController
 
 - (void) activateControls {
-    examples.enabled = YES;
-    explore.enabled = YES;
+    _examples.enabled = YES;
+    _explore.enabled = YES;
 }
 
 - (void) deactivateControls {
-    examples.enabled = NO;
-    explore.enabled = NO;
+    _examples.enabled = NO;
+    _explore.enabled = NO;
 }
 
 - (void) initialParse {
     NSString *string = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
     
     if ([string length] == 0) {
-        if ([sentences count]) {
-            string = sentences[0];
+        if ([_sentences count]) {
+            string = _sentences[0];
         } else {
             string = @"本日は晴天なり";
         }
     }
-    [textField setText:string];
+    [_textField setText:string];
     [self parse:self];
 }
 
@@ -917,13 +917,21 @@ NSSet *lowerSet = nil;
     upperSet = [[NSSet setWithObjects:@"イ", @"キ", @"ギ", @"シ", @"ジ", @"チ", @"ヂ", @"ニ", @"ヒ", @"ビ", @"ミ", @"リ", nil] retain];
     lowerSet = [[NSSet setWithObjects:@"エ", @"ケ", @"ゲ", @"セ", @"ゼ", @"テ", @"デ", @"ネ", @"ヘ", @"ベ", @"メ", @"レ", nil] retain];
     
-    [tableView_ becomeFirstResponder];
+    [_tableView becomeFirstResponder];
 
     self.mecab = [[Mecab new] autorelease];
-    explore.layer.cornerRadius = 5.0;
-    [patch setOn:[[NSUserDefaults standardUserDefaults] boolForKey:kDefaultsPatchMode]];
+    _explore.layer.cornerRadius = 5.0;
+    [_patch setOn:[[NSUserDefaults standardUserDefaults] boolForKey:kDefaultsPatchMode]];
     
-    textField.delegate = self;
+    _textField.delegate = self;
+
+    // 罫線を突き抜けさせる。
+    if ([_tableView respondsToSelector:@selector(separatorInset)]) {
+        _tableView.separatorInset = UIEdgeInsetsZero;
+    }
+    if ([_tableView respondsToSelector:@selector(layoutMargins)]) {
+        _tableView.layoutMargins = UIEdgeInsetsZero;
+    }
 }
 
 - (void) viewWillAppear:(BOOL)animated {
@@ -991,16 +999,19 @@ NSSet *lowerSet = nil;
 
 #pragma mark - Table view data source
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	if (nodes) {
-		return [nodes count];
+- (NSInteger)tableView:(UITableView *)tableView
+ numberOfRowsInSection:(NSInteger)section {
+	if (_nodes) {
+		return [_nodes count];
 	}
 	
 	return 0;
 }
 
-// セパレータの設定
--(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{
+// セパレータ（罫線）の設定
+-(void)tableView:(UITableView *)tableView
+ willDisplayCell:(UITableViewCell *)cell
+forRowAtIndexPath:(NSIndexPath *)indexPath{
     
     // Prevent the cell from inheriting the Table View's margin settings
     if ([cell respondsToSelector:@selector(setPreservesSuperviewLayoutMargins:)]) {
@@ -1013,18 +1024,19 @@ NSSet *lowerSet = nil;
     }
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(UITableView *)tableView
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     static NSString *CellIdentifier = @"NodeCell";
     
     NodeCell *cell = (NodeCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
 		[[NSBundle mainBundle] loadNibNamed:@"NodeCell" owner:self options:nil];
-		cell = nodeCell;
+		cell = _nodeCell;
 		self.nodeCell = nil;
     }
     
-	Node *node = [nodes objectAtIndex:indexPath.row];
+	Node *node = [_nodes objectAtIndex:indexPath.row];
     NSString *reading = [node reading];
     NSString *partOfSpeech = [node partOfSpeech];
 
@@ -1068,31 +1080,38 @@ NSSet *lowerSet = nil;
     return cell;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (CGFloat)tableView:(UITableView *)tableView
+heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    Node *node = [nodes objectAtIndex:indexPath.row];
+    Node *node = [_nodes objectAtIndex:indexPath.row];
 
     if (node.visible) {
-        return 82.0;
+        return 74.0;
     } else {
         return 0.0;
     }
 }
 
 - (void)dealloc {
-	self.mecab = nil;
+
+    self.textField = nil;
+    self.tableView = nil;
+    self.nodeCell = nil;
+    self.examples = nil;
+    self.explore = nil;
+    self.patch = nil;
+
+    self.mecab = nil;
 	self.nodes = nil;
+    self.sentences = nil;
 	
-	self.textField = nil;
-	self.tableView_ = nil;
-	self.nodeCell = nil;
     [super dealloc];
 }
 
 #pragma mark - UITextFieldDelegate
 
 - (BOOL) textFieldShouldReturn:(UITextField *)textFld {
-    [textField resignFirstResponder];
+    [_textField resignFirstResponder];
     return NO;
 }
 

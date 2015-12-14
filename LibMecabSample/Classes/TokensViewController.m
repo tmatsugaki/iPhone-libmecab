@@ -55,8 +55,12 @@
     {// 編集モード >> ブラウズモード
         _editButton.style = UIBarButtonItemStylePlain;
         _editButton.title = @"編集";
-
+#if 1
         [_tableView reloadData];
+#else
+        [self.view setNeedsLayout];
+        [self.view setNeedsDisplay];
+#endif
     }
 }
 
@@ -223,7 +227,7 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
             [_listItems removeObject:[_listItems objectAtIndex:indexPath.row]];
             // 文章を削除したので、XML ファイルに反映する。
             [_listItems writeToFile:kLibXMLPath atomically:YES];
-            
+#if 1
             CGContextRef context = UIGraphicsGetCurrentContext();
             
             [UIView beginAnimations:nil context:context];
@@ -233,6 +237,9 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
                                      cache:NO];
             [tableView reloadData];
             [UIView commitAnimations];
+#else
+            [tableView reloadData];
+#endif
         }
     }
     @catch (NSException *exception) {
@@ -343,13 +350,30 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
 {
     DEBUG_LOG(@"%s", __func__);
 
+    NSString *sentence = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
+
     if ([searchBar.text length] == 0) {
         // 空の文字列をユーザーデフォルトに保持する。
         [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsSearchingToken];
         [self filterContentForSearchText:_searchBar.text];
     }
     [_tableView reloadData];
-
+    
+    if ([sentence length]) {
+        NSUInteger index = [_listItems indexOfObject:sentence];
+        
+        if (index != NSNotFound) {
+            @try {
+                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
+                
+                [_tableView selectRowAtIndexPath:indexPath
+                                        animated:NO
+                                  scrollPosition:UITableViewScrollPositionTop];
+            }
+            @catch (NSException *exception) {
+            }
+        }
+    }
     // キーボードを閉じる（FirstResponder をキャンセルする）
     [_searchBar resignFirstResponder];
 }

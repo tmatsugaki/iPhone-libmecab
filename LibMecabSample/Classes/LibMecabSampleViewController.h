@@ -13,20 +13,20 @@
 
 @interface LibMecabSampleViewController : UIViewController<UITextFieldDelegate> {
 	
-	UITextField *textField;
-	UITableView *tableView_;
-	NodeCell *nodeCell;
-    UIButton *examples;
-	UIButton *explore;
-	UISwitch *patch;
+	UITextField *_textField;
+	UITableView *_tableView;
+	NodeCell *_nodeCell;
+    UIButton *_examples;
+	UIButton *_explore;
+	UISwitch *_patch;
 	
-	Mecab *mecab;
-	NSMutableArray *nodes;
-	NSMutableArray *sentences;
+	Mecab *_mecab;
+	NSMutableArray *_nodes;
+	NSMutableArray *_sentences;
 }
 
 @property (nonatomic, retain) IBOutlet UITextField *textField;
-@property (nonatomic, retain) IBOutlet UITableView *tableView_;
+@property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet NodeCell *nodeCell;
 @property (nonatomic, retain) IBOutlet UIButton *examples;
 @property (nonatomic, retain) IBOutlet UIButton *explore;
