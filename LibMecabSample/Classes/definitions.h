@@ -9,10 +9,14 @@
 #ifndef definitions_h
 #define definitions_h
 
-#define INITIAL_DOC                 1
+// 0
+#define INITIAL_DOC                 0
+#define GIVEUP_EDIT_WHEN_SCROLL     0
+
+// 1
 #define DELETE_ANIMATION            1
 #define RELOAD_WHEN_TOGGLE_EDIT     1
-#define GIVEUP_EDIT_WHEN_SCROLL     0
+#define USE_PATCHER_SINGLETON       1
 
 // パス
 #define kDocumentPath   [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject]

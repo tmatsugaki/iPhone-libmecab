@@ -11,6 +11,8 @@
 		0820F5DA1C0D565900E17DD1 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 0820F5D81C0D565900E17DD1 /* Settings.bundle */; };
 		084A465C1C205EA1005C73F0 /* Utility.m in Sources */ = {isa = PBXBuildFile; fileRef = 084A465B1C205EA1005C73F0 /* Utility.m */; };
 		084A465D1C205EA1005C73F0 /* Utility.m in Sources */ = {isa = PBXBuildFile; fileRef = 084A465B1C205EA1005C73F0 /* Utility.m */; };
+		084A46611C206682005C73F0 /* MecabPatch.m in Sources */ = {isa = PBXBuildFile; fileRef = 084A46601C206682005C73F0 /* MecabPatch.m */; };
+		084A46621C206682005C73F0 /* MecabPatch.m in Sources */ = {isa = PBXBuildFile; fileRef = 084A46601C206682005C73F0 /* MecabPatch.m */; };
 		0851E9F21C0C9675006C2932 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		0851E9F31C0C9675006C2932 /* LibMecabSampleViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2899E5210DE3E06400AC0155 /* LibMecabSampleViewController.xib */; };
 		0851E9F41C0C9675006C2932 /* NodeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13C86E5D12C87B3E006F2369 /* NodeCell.xib */; };
@@ -91,6 +93,8 @@
 		0820F5D81C0D565900E17DD1 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		084A465A1C205EA1005C73F0 /* Utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utility.h; sourceTree = "<group>"; };
 		084A465B1C205EA1005C73F0 /* Utility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Utility.m; sourceTree = "<group>"; };
+		084A465F1C206682005C73F0 /* MecabPatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MecabPatch.h; sourceTree = "<group>"; };
+		084A46601C206682005C73F0 /* MecabPatch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MecabPatch.m; sourceTree = "<group>"; };
 		0851EA161C0C9675006C2932 /* HinshiMaster.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HinshiMaster.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0851EA181C0C96BE006C2932 /* HinshiMasterDev.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = HinshiMasterDev.entitlements; sourceTree = "<group>"; };
 		0851EA191C0C96D7006C2932 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
@@ -187,6 +191,8 @@
 				089AFE8E1C03359700BA5F98 /* TokenCell.m */,
 				084A465A1C205EA1005C73F0 /* Utility.h */,
 				084A465B1C205EA1005C73F0 /* Utility.m */,
+				084A465F1C206682005C73F0 /* MecabPatch.h */,
+				084A46601C206682005C73F0 /* MecabPatch.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -447,6 +453,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0851EA041C0C9675006C2932 /* TokensViewController.m in Sources */,
+				084A46621C206682005C73F0 /* MecabPatch.m in Sources */,
 				0851EA051C0C9675006C2932 /* main.m in Sources */,
 				0851EA061C0C9675006C2932 /* LibMecabSampleAppDelegate.m in Sources */,
 				0851EA071C0C9675006C2932 /* LibMecabSampleViewController.m in Sources */,
@@ -463,6 +470,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				089AFE8C1C03359000BA5F98 /* TokensViewController.m in Sources */,
+				084A46611C206682005C73F0 /* MecabPatch.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* LibMecabSampleAppDelegate.m in Sources */,
 				28D7ACF80DDB3853001CB0EB /* LibMecabSampleViewController.m in Sources */,
