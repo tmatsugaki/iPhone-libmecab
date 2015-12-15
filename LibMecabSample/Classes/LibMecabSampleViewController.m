@@ -11,6 +11,7 @@
 #import "TokensViewController.h"
 #import "Mecab.h"
 #import "Node.h"
+#import "Utility.h"
 
 //#import "CloudKit/CKDefines.h"
 #import "CloudKit/CKContainer.h"
@@ -913,9 +914,12 @@ NSSet *lowerSet = nil;
 }
 
 #pragma mark - UIScrollView
+
+#if (GIVEUP_EDIT_WHEN_SCROLL == 1)
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [_textField resignFirstResponder];
 }
+#endif
 
 #pragma mark - UIViewController
 
@@ -1031,10 +1035,34 @@ NSSet *lowerSet = nil;
     self.tokens = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
     [self initialParse];
 #endif
+
+#if (GIVEUP_EDIT_WHEN_SCROLL == 0)
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillShow:)
+                                                 name:UIKeyboardWillShowNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillHide:)
+                                                 name:UIKeyboardWillHideNotification
+                                               object:nil];
+#endif
 }
 
 - (void) viewWillDisappear:(BOOL)animated {
+
     [super viewWillDisappear:animated];
+
+    // キーボードフォーカスを破棄する。
+    [_textField resignFirstResponder];
+    
+#if (GIVEUP_EDIT_WHEN_SCROLL == 0)
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIKeyboardWillShowNotification
+                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIKeyboardWillHideNotification
+                                                  object:nil];
+#endif
 }
 
 #pragma mark - Table view data source
@@ -1211,6 +1239,38 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
             [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUse_iCloudKey];
         }
     }
+}
+
+#pragma mark - UIKeyboard
+
+// キーボードの大きさ分、ビューを縮小する。
+// 【注意】UIKeyboardWillShowNotification　はビューがインスタンス化されていないと発生しない。
+// 【注意】キーボード切り換えでも、UIKeyboardWillShowNotification が発生することに注意する。
+- (void) keyboardWillShow:(NSNotification *)aNotification
+{
+    CGRect endFrame = [[[aNotification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    NSTimeInterval duration = [[[aNotification userInfo] objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    
+    // 【注意】keyboardWillShow では、リサイズ対象のビューはキーボード無しの状態のビューにしておく必要がある。
+    CGRect tableFrame = _tableView.frame;
+    CGFloat maxHeight = self.view.frame.size.height - tableFrame.origin.y;
+    tableFrame.size.height = maxHeight;
+    _tableView.frame = tableFrame;
+    
+    (void) [Utility keyboardShowAnimation:_tableView
+                             keyboardRect:endFrame
+                                 duration:duration];
+}
+
+// キーボードの大きさ分、ビューを伸長する。
+- (void) keyboardWillHide:(NSNotification *)aNotification
+{
+    CGRect endFrame = [[[aNotification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    NSTimeInterval duration = [[[aNotification userInfo] objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    
+    [Utility keyboardHideAnimation:_tableView
+                      keyboardRect:endFrame
+                          duration:duration];
 }
 
 @end

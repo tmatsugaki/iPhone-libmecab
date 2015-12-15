@@ -6,6 +6,7 @@
 //
 
 #import "TokensViewController.h"
+#import "Utility.h"
 
 @implementation TokensViewController
 
@@ -95,15 +96,6 @@
 //    DEBUG_LOG(@"%s", __func__);
 
     [super viewDidLoad];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWillShow:)
-                                                 name:UIKeyboardWillShowNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWillHide:)
-                                                 name:UIKeyboardWillHideNotification
-                                               object:nil];
 
     self.listItems = _rawSentences;
     self.filteredSentences = [[[NSMutableArray alloc] init] autorelease];
@@ -161,6 +153,14 @@
             }
         }
     }
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillShow:)
+                                                 name:UIKeyboardWillShowNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillHide:)
+                                                 name:UIKeyboardWillHideNotification
+                                               object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -170,9 +170,16 @@
 - (void) viewWillDisappear:(BOOL)animated {
 
     [super viewWillDisappear:animated];
-    
+
     // キーボードフォーカスを破棄する。
     [_searchBar resignFirstResponder];
+
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIKeyboardWillShowNotification
+                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIKeyboardWillHideNotification
+                                                  object:nil];
 }
 
 #pragma mark - Table view data source
@@ -447,82 +454,6 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
     }
 }
 
-#pragma mark - UIKeyboard用ツール
-
-// 【注意】ローテーションで width/height を入れ替えること！！
-- (CGFloat) keyboardHeight:(CGRect)keyboardRect {
-    
-    CGFloat height;
-    
-    //    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
-    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    
-    switch ((int) orientation) {
-        case UIDeviceOrientationLandscapeRight:     // 90度
-        case UIDeviceOrientationLandscapeLeft:      // 270度
-            height = keyboardRect.size.width;
-            break;
-        case UIDeviceOrientationPortrait:           // 0度
-        case UIDeviceOrientationPortraitUpsideDown: // 180度
-        default:
-            height = keyboardRect.size.height;
-            break;
-    }
-    return height;
-}
-
-- (void) ViewHeightChangeAnimation:(UIView *)view
-                             delta:(CGFloat)delta
-                          duration:(NSTimeInterval)duration {
-    
-    CGRect frame = view.frame;
-    
-    frame.size.height += delta;
-    [UIView animateWithDuration:duration
-                     animations:^{
-                         [view setFrame:frame];
-                     }
-                     completion:^(BOOL finished) {
-                     }];
-}
-
-/*******************************************************************************
- * 基本的にキーボードは遠くから来て、遠くに去って行く！！
- * ビューの管理はキーボードレクタングルに頼るのではなく、ビューのバウンダリを自前できちんと管理すること。
- *******************************************************************************/
-// キーボードを表示する余地がない場合は、キーボードを表示しない。
-// キーボード表示の可否は、ビューにキーボードを表示後も44ピクセルの余地の有無で決める。
-- (BOOL) keyboardShowAnimation:(UIView *)view
-                  keyboardRect:(CGRect)keyboardRect
-                      duration:(NSTimeInterval)duration {
-    
-    CGFloat viewHeight = view.bounds.size.height;
-    CGFloat keyboardHeight = [self keyboardHeight:keyboardRect];
-    BOOL result = NO;
-    
-    if (viewHeight > keyboardHeight)
-    {
-        [self ViewHeightChangeAnimation:view
-                                  delta:-keyboardHeight
-                               duration:duration];
-        result = YES;
-    } else {
-#ifdef DEBUG
-        NSAssert(viewHeight > keyboardHeight, @"キーボード出せない！！");
-#endif
-    }
-    return result;
-}
-
-- (void) keyboardHideAnimation:(UIView *)view
-                  keyboardRect:(CGRect)keyboardRect
-                      duration:(NSTimeInterval)duration {
-    
-    [self ViewHeightChangeAnimation:view
-                              delta:[self keyboardHeight:keyboardRect]
-                           duration:duration];
-}
-
 #pragma mark - UIKeyboard
 
 // キーボードの大きさ分、ビューを縮小する。
@@ -539,9 +470,9 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
     tableFrame.size.height = maxHeight;
     _tableView.frame = tableFrame;
     
-    (void) [self keyboardShowAnimation:_tableView
-                          keyboardRect:endFrame
-                              duration:duration];
+    (void) [Utility keyboardShowAnimation:_tableView
+                             keyboardRect:endFrame
+                                 duration:duration];
 }
 
 // キーボードの大きさ分、ビューを伸長する。
@@ -550,11 +481,9 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
     CGRect endFrame = [[[aNotification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     NSTimeInterval duration = [[[aNotification userInfo] objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     
-    [self keyboardHideAnimation:_tableView
-                   keyboardRect:endFrame
-                       duration:duration];
-    
-    _tableView.hidden = NO;
+    [Utility keyboardHideAnimation:_tableView
+                      keyboardRect:endFrame
+                          duration:duration];
 }
 
 #pragma mark - Gesture Recognizers
