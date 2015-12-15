@@ -23,6 +23,7 @@
 #define kDefaultsSentence       @"EvaluatingSentence"   // 評価中の文字列を保持する。
 #define kDefaultsSearchingToken @"SearchingToken"       // 検索中の文字列を保持する。
 #define kUse_iCloudKey          @"iCloud"               // iCloud 使用フラグ
+#define kIncrementalSearchKey   @"IncrementalSearch"
 
 #ifdef DEBUG
 #define DEBUG_LOG(...) NSLog(__VA_ARGS__)

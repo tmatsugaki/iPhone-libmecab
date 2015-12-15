@@ -51,9 +51,6 @@ NSSet *lowerSet = nil;
             ([subType3 length] > baseTokenLength && [[subType3 substringFromIndex:[subType3 length] - baseTokenLength] isEqualToString:baseToken])) {
             DEBUG_LOG(@">>[%02lu]%@:%@", (unsigned long)++count, node.surface, [node partOfSpeech]);
         }
-//        if ([node pronunciation] == nil) {
-//            [node setPronunciation:@""];
-//        }
         node.attribute = @"";
         node.visible = YES;
     }

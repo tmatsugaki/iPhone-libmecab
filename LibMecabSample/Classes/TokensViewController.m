@@ -243,7 +243,7 @@ titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
 commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
  forRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     @try {
         if (editingStyle == UITableViewCellEditingStyleDelete) {
@@ -295,7 +295,7 @@ canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
 moveRowAtIndexPath:(NSIndexPath *)indexPath
        toIndexPath:(NSIndexPath *)toIndexPath {
     
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     @try {
         if (indexPath.row != toIndexPath.row) {
@@ -325,7 +325,7 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
 - (UITableViewCellEditingStyle) tableView:(UITableView *)tableView
             editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     return self.editing ? UITableViewCellEditingStyleNone : UITableViewCellEditingStyleDelete;
 }
@@ -352,15 +352,20 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
     }
 }
 
+// インクリメンタルサーチ
 - (void) searchBar:(UISearchBar *)searchBar
      textDidChange:(NSString *)searchText
 {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:kIncrementalSearchKey]) {
+        [self filterContentForSearchText:searchBar.text];
+        [_tableView reloadData];
+    }
 }
 
 // called when keyboard search button pressed
 - (void) searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     // 検索中の文字列をユーザーデフォルトに保持する。
     [[NSUserDefaults standardUserDefaults] setObject:searchBar.text forKey:kDefaultsSearchingToken];
