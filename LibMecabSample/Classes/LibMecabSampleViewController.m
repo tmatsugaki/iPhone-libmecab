@@ -866,8 +866,8 @@ NSSet *lowerSet = nil;
         // マージ
         [mecabPatcher patch_merge_FUKUGO_DOSHI];
         [mecabPatcher patch_merge_FUKUGO_DOSHI_SAHEN];
-        [mecabPatcher patch_merge_MEISHI];
         [mecabPatcher patch_merge_GOKAN];
+        [mecabPatcher patch_merge_MEISHI];  // 名詞の連結は、語幹連結の後にしないとダメ！！
         // パッチ
         [mecabPatcher patch_TAIGEN_DA];
         [mecabPatcher patch_NANODA_NO];

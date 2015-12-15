@@ -203,15 +203,21 @@ static MecabPatch *sharedManager = nil;
                 
                 if ([[lastNode partOfSpeech] isEqualToString:@"名詞"])
                 {// 名詞に連なっている。
+#if 1
                     if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
                     {// 接尾辞である。
                         merge = YES;
                         retainLastSubtype = YES;
-                    } else if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
-                    {// 一般名詞が連なっている。
+                    } else if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"] ||
+                               [[node partOfSpeechSubtype1] isEqualToString:@"サ変接続"])
+                    {// 一般名詞やサ変接続が連なっている。
                         merge = YES;
                         retainLastSubtype = YES;
                     }
+#else
+                    merge = YES;
+                    retainLastSubtype = YES;
+#endif
                 } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"] &&
                            [[lastNode partOfSpeechSubtype1] isEqualToString:@"名詞接続"])
                 {// 接頭詞・名詞接続に連なった一般名詞である。
