@@ -202,16 +202,20 @@ static MecabPatch *sharedManager = nil;
                 BOOL retainLastSubtype = NO;
                 
                 if ([[lastNode partOfSpeech] isEqualToString:@"名詞"])
-                {// 名詞が連なっている。
+                {// 名詞に連なっている。
                     if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
                     {// 接尾辞である。
                         merge = YES;
                         retainLastSubtype = YES;
+                    } else if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
+                    {// 一般名詞が連なっている。
+                        merge = YES;
+                        retainLastSubtype = YES;
                     }
-                } else if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
-                {// 一般名詞である。
-                    if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"] &&
-                        [[lastNode partOfSpeechSubtype1] isEqualToString:@"名詞接続"])
+                } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"] &&
+                           [[lastNode partOfSpeechSubtype1] isEqualToString:@"名詞接続"])
+                {// 接頭詞・名詞接続に連なった一般名詞である。
+                    if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
                     {// 直前が名詞接続の接頭詞である。
                         merge = YES;
                     }

@@ -29,7 +29,7 @@
                         <outlet property="delegate" destination="-1" id="SeG-dC-TLI"/>
                     </connections>
                 </navigationBar>
-                <searchBar contentMode="redraw" id="fug-7N-gtN">
+                <searchBar contentMode="redraw" placeholder="検索する文字列を入力して下さい。" id="fug-7N-gtN">
                     <rect key="frame" x="0.0" y="66" width="320" height="44"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <textInputTraits key="textInputTraits"/>
