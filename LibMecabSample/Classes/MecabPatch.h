@@ -23,8 +23,8 @@
 - (void) preProcess;
 - (void) patch_merge_FUKUGO_DOSHI;
 - (void) patch_merge_FUKUGO_DOSHI_SAHEN;
-- (void) patch_merge_MEISHI;
 - (void) patch_merge_GOKAN;
+- (void) patch_merge_MEISHI;
 - (void) patch_TAIGEN_DA;
 - (void) patch_NANODA_NO;
 - (void) patch_KANDOSHI_SOU;

@@ -190,68 +190,6 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
-// 名詞の連結
-- (void) patch_merge_MEISHI {
-    Node *lastNode = nil;
-    
-    for (Node *node in _nodes) {
-        if (lastNode) {
-            if ([[node partOfSpeech] isEqualToString:@"名詞"])
-            {
-                BOOL merge = NO;
-                BOOL retainLastSubtype = NO;
-                
-                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"])
-                {// 名詞に連なっている。
-#if 1
-                    if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
-                    {// 接尾辞である。
-                        merge = YES;
-                        retainLastSubtype = YES;
-                    } else if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"] ||
-                               [[node partOfSpeechSubtype1] isEqualToString:@"サ変接続"])
-                    {// 一般名詞やサ変接続が連なっている。
-                        merge = YES;
-                        retainLastSubtype = YES;
-                    }
-#else
-                    merge = YES;
-                    retainLastSubtype = YES;
-#endif
-                } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"] &&
-                           [[lastNode partOfSpeechSubtype1] isEqualToString:@"名詞接続"])
-                {// 接頭詞・名詞接続に連なった一般名詞である。
-                    if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
-                    {// 直前が名詞接続の接頭詞である。
-                        merge = YES;
-                    }
-                }
-                if (merge) {
-                    lastNode.visible = NO;
-                    
-                    // マージする。
-                    [node setSurface:[[lastNode surface]                 stringByAppendingString:[node surface]]];
-                    @try {
-                        [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                    }
-                    @catch (NSException *exception) {
-                        [node setPronunciation:@"例外!!"];
-                    }
-                    [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
-                    
-                    if (retainLastSubtype) {
-                        [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
-                    }
-                    //                    [node setPartOfSpeechSubtype2:[lastNode partOfSpeechSubtype2]]; // 元の属性を保全する。
-                    //                    [node setPartOfSpeechSubtype3:[lastNode partOfSpeechSubtype3]]; // 元の属性を保全する。
-                    DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
-                }
-            }
-        }
-        lastNode = node;
-    }
-}
-
 // 語幹の連結
 - (void) patch_merge_GOKAN {
     Node *lastNode = nil;
@@ -355,6 +293,69 @@ static MecabPatch *sharedManager = nil;
                             [lastNode setOriginalForm:[[lastNode originalForm] stringByAppendingString:@"だ"]];
                         }
                     }
+                }
+            }
+        }
+        lastNode = node;
+    }
+}
+
+// 名詞の連結
+// 【注意】語幹の連結後に実行すること！！
+- (void) patch_merge_MEISHI {
+    Node *lastNode = nil;
+    
+    for (Node *node in _nodes) {
+        if (lastNode) {
+            if ([[node partOfSpeech] isEqualToString:@"名詞"])
+            {
+                BOOL merge = NO;
+                BOOL retainLastSubtype = NO;
+                
+                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"])
+                {// 名詞に連なっている。
+#if 1
+                    if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
+                    {// 接尾辞である。
+                        merge = YES;
+                        retainLastSubtype = YES;
+                    } else if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"] ||
+                               [[node partOfSpeechSubtype1] isEqualToString:@"サ変接続"])
+                    {// 一般名詞やサ変接続が連なっている。
+                        merge = YES;
+                        retainLastSubtype = YES;
+                    }
+#else
+                    merge = YES;
+                    retainLastSubtype = YES;
+#endif
+                } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"] &&
+                           [[lastNode partOfSpeechSubtype1] isEqualToString:@"名詞接続"])
+                {// 接頭詞・名詞接続に連なった一般名詞である。
+                    if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
+                    {// 直前が名詞接続の接頭詞である。
+                        merge = YES;
+                    }
+                }
+                if (merge) {
+                    lastNode.visible = NO;
+                    
+                    // マージする。
+                    [node setSurface:[[lastNode surface]                 stringByAppendingString:[node surface]]];
+                    @try {
+                        [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                    }
+                    @catch (NSException *exception) {
+                        [node setPronunciation:@"例外!!"];
+                    }
+                    [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
+                    
+                    if (retainLastSubtype) {
+                        [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
+                    }
+                    //                    [node setPartOfSpeechSubtype2:[lastNode partOfSpeechSubtype2]]; // 元の属性を保全する。
+                    //                    [node setPartOfSpeechSubtype3:[lastNode partOfSpeechSubtype3]]; // 元の属性を保全する。
+                    DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
                 }
             }
         }
