@@ -57,19 +57,35 @@ static MecabPatch *sharedManager = nil;
 
 #pragma mark -
 
+- (NSString *) gokanString:(Node *)node {
+    NSString *lastSubType1 = [node partOfSpeechSubtype1];
+    NSString *lastSubType2 = [node partOfSpeechSubtype2];
+    NSString *lastSubType3 = [node partOfSpeechSubtype3];
+    NSString *baseToken = @"語幹";
+    NSString *gokanStr = nil;
+    NSUInteger baseTokenLength = [baseToken length];
+    
+    if ([lastSubType1 length] > baseTokenLength &&
+        [[lastSubType1 substringFromIndex:[lastSubType1 length] - baseTokenLength] isEqualToString:baseToken])
+    {
+        gokanStr = [lastSubType1 substringToIndex:[lastSubType1 length] - baseTokenLength];
+    } else if ([lastSubType2 length] > baseTokenLength &&
+               [[lastSubType2 substringFromIndex:[lastSubType2 length] - baseTokenLength] isEqualToString:baseToken])
+    {
+        gokanStr = [lastSubType2 substringToIndex:[lastSubType2 length] - baseTokenLength];
+    } else if ([lastSubType3 length] > baseTokenLength &&
+               [[lastSubType3 substringFromIndex:[lastSubType3 length] - baseTokenLength] isEqualToString:baseToken])
+    {
+        gokanStr = [lastSubType3 substringToIndex:[lastSubType3 length] - baseTokenLength];
+    }
+    return gokanStr;
+}
+
 // 【注意】必須の処理
 - (void) preProcess {
     NSUInteger count = 0;
     for (Node *node in _nodes) {
-        NSString *subType1 = [node partOfSpeechSubtype1];
-        NSString *subType2 = [node partOfSpeechSubtype2];
-        NSString *subType3 = [node partOfSpeechSubtype3];
-        NSString *baseToken = @"語幹";
-        NSUInteger baseTokenLength = [baseToken length];
-        
-        if (([subType1 length] > baseTokenLength && [[subType1 substringFromIndex:[subType1 length] - baseTokenLength] isEqualToString:baseToken]) ||
-            ([subType2 length] > baseTokenLength && [[subType2 substringFromIndex:[subType2 length] - baseTokenLength] isEqualToString:baseToken]) ||
-            ([subType3 length] > baseTokenLength && [[subType3 substringFromIndex:[subType3 length] - baseTokenLength] isEqualToString:baseToken])) {
+        if ([[self gokanString:node] length]) {
             DEBUG_LOG(@">>[%02lu]%@:%@", (unsigned long)++count, node.surface, [node partOfSpeech]);
         }
         node.attribute = @"";
@@ -90,6 +106,10 @@ static MecabPatch *sharedManager = nil;
     return ([hinshi isEqualToString:@"動詞"] ||
             [hinshi isEqualToString:@"形容詞"] ||
             [hinshi isEqualToString:@"形容動詞"]);
+}
+
+- (BOOL) isKeiyoushi:(NSString *)hinshi {
+    return ([hinshi isEqualToString:@"形容詞"]);
 }
 
 - (BOOL) isFuzokugo:(NSString *)hinshi {
@@ -190,6 +210,45 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
+// 語幹の連結の前処理
+- (void) patch_prepare_for_merge_GOKAN {
+    Node *lastNode = nil;
+    Node *nextNode = nil;
+    
+    for (NSUInteger index = 0; index < [_nodes count]; index++) {
+        Node *node = _nodes[index];
+
+        if (index + 1 < [_nodes count]) {
+            nextNode = _nodes[index + 1];
+        } else {
+            nextNode = nil;
+        }
+        if (lastNode && nextNode) {
+            if ([[node pronunciation] isEqualToString:@"ガ"])
+            {// 格助詞「が」
+                NSString *gokanStr = [self gokanString:lastNode];
+                
+                if ([gokanStr length]) {
+                    if ([gokanStr isEqualToString:@"ナイ形容詞"] &&
+                        [[nextNode pronunciation] isEqualToString:@"ナイ"])
+                    {
+                        // マージする。
+                        [lastNode setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
+                        [lastNode setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                        [lastNode setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                        [lastNode setInflection:[@"™" stringByAppendingString:[node inflection]]];
+                        DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
+
+                        [_nodes removeObject:node];
+                        node = lastNode;
+                    }
+                }
+            }
+        }
+        lastNode = node;
+    }
+}
+
 // 語幹の連結
 - (void) patch_merge_GOKAN {
     Node *lastNode = nil;
@@ -198,29 +257,14 @@ static MecabPatch *sharedManager = nil;
         Node *node = _nodes[index];
     start:
         if (lastNode) {
-            if ([self isFuzokugo:[node partOfSpeech]])
+            NSString *gokanStr = [self gokanString:lastNode];
+
+            if (([gokanStr isEqualToString:@"ナイ形容詞"] && [self isKeiyoushi:[node partOfSpeech]]) ||
+                [self isFuzokugo:[node partOfSpeech]])
             {// 付属語（助詞、助動詞）
                 NSString *lastSubType1 = [lastNode partOfSpeechSubtype1];
-                NSString *lastSubType2 = [lastNode partOfSpeechSubtype2];
-                NSString *lastSubType3 = [lastNode partOfSpeechSubtype3];
-                NSString *baseToken = @"語幹";
-                NSString *jointKey = nil;
-                NSUInteger baseTokenLength = [baseToken length];
-                
-                if ([lastSubType1 length] > baseTokenLength &&
-                    [[lastSubType1 substringFromIndex:[lastSubType1 length] - baseTokenLength] isEqualToString:baseToken])
-                {
-                    jointKey = [lastSubType1 substringToIndex:[lastSubType1 length] - baseTokenLength];
-                } else if ([lastSubType2 length] > baseTokenLength &&
-                           [[lastSubType2 substringFromIndex:[lastSubType2 length] - baseTokenLength] isEqualToString:baseToken])
-                {
-                    jointKey = [lastSubType2 substringToIndex:[lastSubType2 length] - baseTokenLength];
-                } else if ([lastSubType3 length] > baseTokenLength &&
-                           [[lastSubType3 substringFromIndex:[lastSubType3 length] - baseTokenLength] isEqualToString:baseToken])
-                {
-                    jointKey = [lastSubType3 substringToIndex:[lastSubType3 length] - baseTokenLength];
-                }
-                if ([jointKey length]) {
+
+                if ([gokanStr length]) {
                     if ([node.surface isEqualToString:@"でも"] &&
                         [[node partOfSpeechSubtype1] isEqualToString:@"副助詞"]) // 【注意】ここは絶対に「副助詞」
                     {
@@ -254,18 +298,27 @@ static MecabPatch *sharedManager = nil;
                     {// 語幹（多少の例外がある！！）
                         BOOL inhibitNai = NO;
                         BOOL inhibitRashii = NO;
+                        BOOL changeIntoAdverb = NO;
                         
-                        if ([jointKey isEqualToString:@"ナイ形容詞"] &&
+                        if ([gokanStr isEqualToString:@"ナイ形容詞"] &&
                             [[node pronunciation] isEqualToString:@"ナイ"] == NO)
                         {
                             inhibitNai = YES;
                             DEBUG_LOG(@"条件を満たさない「ナイ形容詞」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
                         } else if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
-                                   [lastSubType1 isEqualToString:@"形容動詞語幹"] &&
-                                   [[node pronunciation] isEqualToString:@"ラシイ"])
+                                   [lastSubType1 isEqualToString:@"形容動詞語幹"])
                         {
-                            inhibitRashii = YES;
-                            DEBUG_LOG(@"形容動詞語幹に連なる「らしい」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
+                            if ([[node pronunciation] isEqualToString:@"ラシイ"]) {
+                                inhibitRashii = YES;
+                                DEBUG_LOG(@"形容動詞語幹に連なる「らしい」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
+                            } else if ([[node pronunciation] isEqualToString:@"ニ"])
+                            {// 形容動詞語幹に「に」が連なると副詞になる。
+                                changeIntoAdverb = YES;
+                            }
+                        } else if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
+                                   [lastSubType1 isEqualToString:@"助動詞語幹"])
+                        {
+                            DEBUG_LOG(@"");
                         }
                         
                         // 【例外1】ナイ形容詞
@@ -274,12 +327,16 @@ static MecabPatch *sharedManager = nil;
                             lastNode.visible = NO;
                             
                             // マージする。
-                            [node setPartOfSpeech:jointKey];
+                            [node setPartOfSpeech:gokanStr];
                             
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                             [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
                             [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
                             [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
+                            if (changeIntoAdverb) {
+                                [node setPartOfSpeech:@"副詞"];
+                                [node setPartOfSpeechSubtype1:@"助詞副詞化"];
+                            }
                             DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
                             
                             // ゴミ処理
@@ -311,24 +368,18 @@ static MecabPatch *sharedManager = nil;
             {
                 BOOL merge = NO;
                 BOOL retainLastSubtype = NO;
-                
+
                 if ([[lastNode partOfSpeech] isEqualToString:@"名詞"])
                 {// 名詞に連なっている。
-#if 1
                     if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
                     {// 接尾辞である。
                         merge = YES;
                         retainLastSubtype = YES;
-                    } else if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"] ||
-                               [[node partOfSpeechSubtype1] isEqualToString:@"サ変接続"])
-                    {// 一般名詞やサ変接続が連なっている。
+                    } else if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
+                    {// 一般名詞が連なっている。
                         merge = YES;
                         retainLastSubtype = YES;
                     }
-#else
-                    merge = YES;
-                    retainLastSubtype = YES;
-#endif
                 } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"] &&
                            [[lastNode partOfSpeechSubtype1] isEqualToString:@"名詞接続"])
                 {// 接頭詞・名詞接続に連なった一般名詞である。
@@ -346,15 +397,15 @@ static MecabPatch *sharedManager = nil;
                         [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
                     }
                     @catch (NSException *exception) {
-                        [node setPronunciation:@"例外!!"];
+                        [node setPronunciation:@"?"];
                     }
                     [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
                     
                     if (retainLastSubtype) {
                         [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
                     }
-                    //                    [node setPartOfSpeechSubtype2:[lastNode partOfSpeechSubtype2]]; // 元の属性を保全する。
-                    //                    [node setPartOfSpeechSubtype3:[lastNode partOfSpeechSubtype3]]; // 元の属性を保全する。
+//                    [node setPartOfSpeechSubtype2:[lastNode partOfSpeechSubtype2]]; // 元の属性を保全する。
+//                    [node setPartOfSpeechSubtype3:[lastNode partOfSpeechSubtype3]]; // 元の属性を保全する。
                     DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
                 }
             }
@@ -721,6 +772,19 @@ static MecabPatch *sharedManager = nil;
         NSString *partOfSpeechSubtype1 = [node partOfSpeechSubtype1];
         NSString *inflection = [node inflection];
         
+        // 【名詞（XXX語幹）】partOfSpeech
+        if ([[node partOfSpeech] isEqualToString:@"名詞"]) {
+            if (node.visible && [self gokanString:node])
+            {// 語幹であると見なされたが未だ名詞であるダメな奴。
+                if ([[node pronunciation] isEqualToString:@"ヨー"]) {
+                    [node setPartOfSpeech:@"助詞"];
+                    [node setPartOfSpeechSubtype1:@"終助詞"];
+                    [node setPartOfSpeechSubtype2:@""];
+                } else {
+                    DEBUG_LOG(@"！！ 対処が必要：「%@」（%@）", node.surface, [node pronunciation]);
+                }
+            }
+        }
         // 【補助動詞】partOfSpeech
         if ([[node partOfSpeech] isEqualToString:@"動詞"])
         {
