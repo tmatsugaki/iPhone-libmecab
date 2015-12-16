@@ -16,7 +16,6 @@
 // 1
 #define DELETE_ANIMATION            1
 #define RELOAD_WHEN_TOGGLE_EDIT     1
-#define USE_PATCHER_SINGLETON       1
 
 // パス
 #define kDocumentPath   [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject]
