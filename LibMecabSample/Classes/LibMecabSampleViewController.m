@@ -59,7 +59,7 @@ NSSet *lowerSet = nil;
             // マージ
             [mecabPatcher patch_merge_FUKUGO_DOSHI];
             [mecabPatcher patch_merge_FUKUGO_DOSHI_SAHEN];
-            [mecabPatcher patch_prepare_for_merge_GOKAN];   // new
+            [mecabPatcher patch_before_merge_GOKAN];
             [mecabPatcher patch_merge_GOKAN];
             [mecabPatcher patch_merge_MEISHI];  // 名詞の連結は、語幹連結の後にしないとダメ！！
             // パッチ
@@ -90,7 +90,7 @@ NSSet *lowerSet = nil;
             // マージ
             [mecabPatcher patch_merge_FUKUGO_DOSHI];
             [mecabPatcher patch_merge_FUKUGO_DOSHI_SAHEN];
-            [mecabPatcher patch_prepare_for_merge_GOKAN];   // new
+            [mecabPatcher patch_before_merge_GOKAN];
             [mecabPatcher patch_merge_GOKAN];
             [mecabPatcher patch_merge_MEISHI];  // 名詞の連結は、語幹連結の後にしないとダメ！！
             // パッチ

@@ -12,7 +12,7 @@
 // 0
 #define INITIAL_DOC                 0
 #define GIVEUP_EDIT_WHEN_SCROLL     0
-#define LOG_PATCH                   0
+#define LOG_PATCH                   1
 
 // 1
 #define DELETE_ANIMATION            1
