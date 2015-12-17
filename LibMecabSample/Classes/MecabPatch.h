@@ -13,10 +13,12 @@
     NSSet *_upperSet;
     NSSet *_lowerSet;
     NSMutableArray *_nodes;
+    BOOL _modified;
 }
 @property (nonatomic, retain) NSSet *upperSet;
 @property (nonatomic, retain) NSSet *lowerSet;
 @property (nonatomic, retain) NSMutableArray *nodes;
+@property (nonatomic, assign) BOOL modified;
 
 + (MecabPatch *) sharedManager;
 
@@ -36,7 +38,8 @@
 - (void) patch_DE_MO;
 - (void) patch_DEMO;
 - (BOOL) patch_DATTE;
-- (void) patch_YOUGO;
+- (void) postProcess;
+// 以下は未使用
 - (void) patch_OLD_FUKUSHI_SO;
 - (void) patch_OLD_SOU;
 - (void) patch_OLD_FUKUSHI_KA;

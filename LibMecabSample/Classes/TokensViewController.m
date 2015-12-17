@@ -214,7 +214,14 @@
     }
     
 	NSString *str = [_listItems objectAtIndex:indexPath.row];
-    cell.textLabel.text = str;
+    NSArray *items = [str componentsSeparatedByString:@","];
+
+    if ([items count] > 1 && [items[1] isEqualToString:@"™"]) {
+        cell.textLabel.textColor = [UIColor redColor];
+    } else {
+        cell.textLabel.textColor = [UIColor blackColor];
+    }
+    cell.textLabel.text = items[0];
     return cell;
 }
 

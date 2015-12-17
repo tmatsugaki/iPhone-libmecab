@@ -17,6 +17,7 @@ static MecabPatch *sharedManager = nil;
 @synthesize upperSet=_upperSet;
 @synthesize lowerSet=_lowerSet;
 @synthesize nodes=_nodes;
+@synthesize modified=_modified;
 
 - (id) init {
 
@@ -83,13 +84,13 @@ static MecabPatch *sharedManager = nil;
 
 // 【注意】必須の処理
 - (void) preProcess {
-    NSUInteger count = 0;
+
     for (Node *node in _nodes) {
         NSString *gokanStr = [self gokanString:node];
 
         if ([gokanStr length]) {
 #if LOG_PATCH
-            DEBUG_LOG(@"語幹[%02lu]%@:[%@語幹の%@]", (unsigned long)++count, node.surface, gokanStr, [node partOfSpeech]);
+            DEBUG_LOG(@"語幹[%@]（%@語幹の%@）", node.surface, gokanStr, [node partOfSpeech]);
 #endif
         }
         node.attribute = @"";
@@ -170,6 +171,7 @@ static MecabPatch *sharedManager = nil;
                 lastNode.visible = NO;
                 
                 // マージする。
+                _modified = YES;
 #if LOG_PATCH
                 DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
@@ -208,6 +210,7 @@ static MecabPatch *sharedManager = nil;
                     lastNode.visible = NO;
                     
                     // マージする。
+                    _modified = YES;
 #if LOG_PATCH
                     DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
@@ -256,6 +259,7 @@ static MecabPatch *sharedManager = nil;
                             node.visible = NO;
                             
                             // マージする。
+                            _modified = YES;
 #if LOG_PATCH
                             DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
@@ -291,9 +295,10 @@ static MecabPatch *sharedManager = nil;
                 [self isFuzokugo:[node partOfSpeech]])
             {// 付属語（助詞、助動詞）
                 NSString *lastSubType1 = [lastNode partOfSpeechSubtype1];
+                NSString *surface = node.surface;
 
                 if ([gokanStr length]) {
-                    if ([node.surface isEqualToString:@"でも"] &&
+                    if ([surface isEqualToString:@"でも"] &&
                         [[node partOfSpeechSubtype1] isEqualToString:@"副助詞"]) // 【注意】ここは絶対に「副助詞」
                     {
                         Node *newNode = [[Node alloc] init];
@@ -321,6 +326,8 @@ static MecabPatch *sharedManager = nil;
                         newNode.visible = YES;
                         [_nodes insertObject:newNode atIndex:index+1];
                         [newNode release];
+
+                        DEBUG_LOG(@"分割：[%@]->[%@][%@]", surface, node.surface, newNode.surface);
                         goto start;
                     } else
                     {// 語幹（多少の例外がある！！）
@@ -351,20 +358,19 @@ static MecabPatch *sharedManager = nil;
                             lastNode.visible = NO;
                             
                             // マージする。
+                            _modified = YES;
 #if LOG_PATCH
                             DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
-                            if ([gokanStr isEqualToString:@"ナイ形容詞"]) {
-                                [node setPartOfSpeech:@"形容詞"];
-                            } else {
-                                [node setPartOfSpeech:gokanStr];
-                            }
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                             [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
                             [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
                             if ([gokanStr isEqualToString:@"ナイ形容詞"]) {
-                                [node setInflection:@"™"];
+                                [node setPartOfSpeech:@"形容詞"];
+                                [node setPartOfSpeechSubtype1:@"自立"];
+                                [node setInflection:@"™形容詞・アウオ段"];
                             } else {
+                                [node setPartOfSpeech:gokanStr];
                                 [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
                             }
                             if (changeIntoAdverb) {
@@ -427,6 +433,7 @@ static MecabPatch *sharedManager = nil;
                     lastNode.visible = NO;
                     
                     // マージする。
+                    _modified = YES;
 #if LOG_PATCH
                     DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
@@ -481,6 +488,9 @@ static MecabPatch *sharedManager = nil;
                 [node setOriginalForm:@"だ"];
                 [node setUseOfType:@"連用形"];
                 [node setInflection:[@"™" stringByAppendingString:@"断定"]];
+
+                // 修正された。
+                _modified = YES;
 #if LOG_PATCH
                 DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
 #endif
@@ -506,6 +516,9 @@ static MecabPatch *sharedManager = nil;
                 [node setPartOfSpeech:@"助詞"];
                 [node setPartOfSpeechSubtype1:@"準体助詞"];
                 [node setPartOfSpeechSubtype2:@""];
+
+                // 修正された。
+                _modified = YES;
 #if LOG_PATCH
                 DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
 #endif
@@ -527,6 +540,9 @@ static MecabPatch *sharedManager = nil;
                 [node setPartOfSpeech:@"感動詞"];
                 [node setPartOfSpeechSubtype1:@""];
                 [node setPartOfSpeechSubtype2:@""];
+
+                // 修正された。
+                _modified = YES;
 #if LOG_PATCH
                 DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
 #endif
@@ -549,6 +565,9 @@ static MecabPatch *sharedManager = nil;
                         [node setPartOfSpeech:@"感動詞"];
                         [node setPartOfSpeechSubtype1:@""];
                         [node setPartOfSpeechSubtype2:@""];
+
+                        // 修正された。
+                        _modified = YES;
 #if LOG_PATCH
                         DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
 #endif
@@ -557,6 +576,9 @@ static MecabPatch *sharedManager = nil;
                     [node setPartOfSpeech:@"感動詞"];
                     [node setPartOfSpeechSubtype1:@""];
                     [node setPartOfSpeechSubtype2:@""];
+
+                    // 修正された。
+                    _modified = YES;
 #if LOG_PATCH
                     DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
 #endif
@@ -597,6 +619,9 @@ static MecabPatch *sharedManager = nil;
                     [node setPartOfSpeech:@"形容詞"];
                     [node setPartOfSpeechSubtype1:@"補助形容詞"];
                     [node setInflection:@"™形容詞／形容動詞の補助動詞「ない」"];
+
+                    // 修正された。
+                    _modified = YES;
 #if LOG_PATCH
                     DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
 #endif
@@ -633,6 +658,7 @@ static MecabPatch *sharedManager = nil;
                 lastNode.visible = NO;
                 
                 // マージする。
+                _modified = YES;
 #if LOG_PATCH
                 DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
@@ -665,6 +691,9 @@ static MecabPatch *sharedManager = nil;
             if ([self isEndOfSentence:i + 1]) {
                 [node setPartOfSpeechSubtype1:@"終助詞"];
                 [node setInflection:@"™強調"];
+
+                // 修正された。
+                _modified = YES;
 #if LOG_PATCH
                 DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
 #endif
@@ -696,6 +725,7 @@ static MecabPatch *sharedManager = nil;
                 lastNode.visible = NO;
                 
                 // マージする。
+                _modified = YES;
 #if LOG_PATCH
                 DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
@@ -742,6 +772,7 @@ static MecabPatch *sharedManager = nil;
             nextNode.visible = NO;
             
             // マージする。
+            _modified = YES;
 #if LOG_PATCH
             DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, node.surface, [node partOfSpeech], nextNode.surface, [nextNode partOfSpeech]);
 #endif
@@ -798,6 +829,9 @@ static MecabPatch *sharedManager = nil;
                     newNode.visible = YES;
                     [_nodes insertObject:newNode atIndex:index+1];
                     [newNode release];
+
+                    // 修正された。
+                    _modified = YES;
 #if LOG_PATCH
                     DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
 #endif
@@ -831,6 +865,7 @@ static MecabPatch *sharedManager = nil;
             lastNode.visible = NO;
             
             // マージする。
+            _modified = YES;
 #if LOG_PATCH
             DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
@@ -850,7 +885,7 @@ static MecabPatch *sharedManager = nil;
 
 #pragma mark - Patch (単なる用語の置換)
 // 【終止形／連体形／連用形】
-- (void) patch_YOUGO {
+- (void) postProcess {
     
     for (Node *node in _nodes) {
         if (node.visible == NO) {
@@ -871,7 +906,7 @@ static MecabPatch *sharedManager = nil;
                     [node setPartOfSpeechSubtype1:@"終助詞"];
                     [node setPartOfSpeechSubtype2:@""];
                 } else {
-                    DEBUG_LOG(@"***対処が必要か？：「%@」（%@）", node.surface, pronunciation);
+                    DEBUG_LOG(@"!!!対処が必要か？：「%@」（%@）", node.surface, pronunciation);
                 }
             }
         }
@@ -959,6 +994,7 @@ static MecabPatch *sharedManager = nil;
                     lastNode.visible = NO;
                     
                     // マージする。
+                    _modified = YES;
                     [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
                     [node setOriginalForm:@"そうだ"];
@@ -970,6 +1006,7 @@ static MecabPatch *sharedManager = nil;
                     lastNode.visible = NO;
                     
                     // マージする。
+                    _modified = YES;
                     [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
                     [node setOriginalForm:@"そうだ"];
@@ -1000,6 +1037,7 @@ static MecabPatch *sharedManager = nil;
                     lastNode.visible = NO;
                     
                     // マージする。
+                    _modified = YES;
                     [node setSurface:[[lastNode surface] stringByAppendingString:[node surface]]];
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
                     [node setOriginalForm:[[lastNode originalForm] stringByAppendingString:@"だ"]];

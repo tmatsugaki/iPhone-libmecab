@@ -18,6 +18,8 @@
 #define DELETE_ANIMATION            1
 #define RELOAD_WHEN_TOGGLE_EDIT     1
 
+#define REPLACE_OBJECCT             0
+
 // パス
 #define kDocumentPath   [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject]
 // 例文ライブラリの XML ファイルのパス

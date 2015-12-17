@@ -46,14 +46,22 @@ NSSet *lowerSet = nil;
     
     if ([string isEqualToString:@"*"])
     {// ダイアグノシス
-        for (NSString *sentence in _sentences) {
-            DEBUG_LOG(@"文章[%@]", sentence);
-            self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:sentence]];
+        NSUInteger i;
+
+        for (i = 0; i < [_sentences count]; i++) {
+            NSString *sentence = _sentences[i];
+            NSArray *items = [sentence componentsSeparatedByString:@","];
+            NSString *core = items[0];
+
+            DEBUG_LOG(@"**********************************************************************\n");
+            DEBUG_LOG(@"文章「%@」", sentence);
+            self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:core]];
 
             // 和布蕪パッチシングルトンを取得する。
             MecabPatch *mecabPatcher = [MecabPatch sharedManager];
             // 和布蕪パッチシングルトンに解析結果アレイを設定する。
             [mecabPatcher setNodes:_nodes];
+            [mecabPatcher setModified:NO];
             // 【注意】必須！！
             [mecabPatcher preProcess];
             // マージ
@@ -74,8 +82,19 @@ NSSet *lowerSet = nil;
             [mecabPatcher patch_DEMO];
             [mecabPatcher patch_DATTE];
             // 用語置換
-            [mecabPatcher patch_YOUGO];
+            [mecabPatcher postProcess];
+
+#if REPLACE_OBJECCT
+            if (mecabPatcher.modified) {
+                [_sentences replaceObjectAtIndex:i withObject:[NSString stringWithFormat:@"%@,™", core]];
+            } else {
+                [_sentences replaceObjectAtIndex:i withObject:[NSString stringWithFormat:@"%@,", core]];
+            }
+#endif
         }
+#if REPLACE_OBJECCT
+        [_sentences writeToFile:kLibXMLPath atomically:YES];
+#endif
     } else {
         self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:string]];
         
@@ -83,6 +102,7 @@ NSSet *lowerSet = nil;
         MecabPatch *mecabPatcher = [MecabPatch sharedManager];
         // 和布蕪パッチシングルトンに解析結果アレイを設定する。
         [mecabPatcher setNodes:_nodes];
+        [mecabPatcher setModified:NO];
         // 【注意】必須！！
         [mecabPatcher preProcess];
         
@@ -105,19 +125,42 @@ NSSet *lowerSet = nil;
             [mecabPatcher patch_DEMO];
             [mecabPatcher patch_DATTE];
             // 用語置換
-            [mecabPatcher patch_YOUGO];
+            [mecabPatcher postProcess];
         }
         [_tableView reloadData];
         
         if ([string length]) {
+#if REPLACE_OBJECCT
+            NSUInteger raw_index = [_sentences indexOfObject:[NSString stringWithFormat:@"%@,™", string]];
+            NSUInteger core_index = [_sentences indexOfObject:string];
+            NSUInteger index = NSNotFound;
+            
+            if (raw_index == NSNotFound && core_index == NSNotFound) {
+                [_sentences addObject:string];
+                index = [_sentences count] - 1;
+            } else {
+                if (raw_index != NSNotFound) {
+                    index = raw_index;
+                } else {
+                    index = core_index;
+                }
+            }
+            if (_patch.on) {
+                if (mecabPatcher.modified) {
+                    [_sentences replaceObjectAtIndex:index withObject:[NSString stringWithFormat:@"%@,™", string]];
+                } else {
+                    [_sentences replaceObjectAtIndex:index withObject:[NSString stringWithFormat:@"%@,", string]];
+                }
+            }
+#else
             NSUInteger index = [_sentences indexOfObject:string];
             
             if (index == NSNotFound) {
                 [_sentences addObject:string];
             }
+#endif
             [_sentences writeToFile:kLibXMLPath atomically:YES];
-            
-            
+
             // iCloud
             if ([[NSUserDefaults standardUserDefaults] boolForKey:kUse_iCloudKey]) {
                 CKContainer *defaultContainer =[CKContainer defaultContainer];
@@ -193,14 +236,14 @@ NSSet *lowerSet = nil;
 }
 
 - (void) initialParse {
-    NSString *string = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
-    
-    if ([string length] == 0) {
-        if ([_sentences count]) {
-            string = _sentences[0];
-        } else {
-            string = @"本日は晴天なり";
-        }
+
+    NSArray *items = [[[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence] componentsSeparatedByString:@","];
+    NSString *string = @"";
+
+    if ([items count]) {
+        string = items[0];
+    } else if ([_sentences count]) {
+        string = _sentences[0];
     }
     [_textField setText:string];
     [self parse:self];
