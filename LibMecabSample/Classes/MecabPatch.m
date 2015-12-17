@@ -156,6 +156,9 @@ static MecabPatch *sharedManager = nil;
     
     for (NSUInteger index = 0; index < [_nodes count]; index++) {
         Node *node = _nodes[index];
+        if (node.visible == NO) {
+            continue;
+        }
         
         if ([[lastNode partOfSpeech] isEqualToString:@"動詞"]) {
             if ([[node partOfSpeech] isEqualToString:@"動詞"] && [[node partOfSpeechSubtype1] isEqualToString:@"非自立"])
@@ -182,6 +185,9 @@ static MecabPatch *sharedManager = nil;
     
     for (NSUInteger index = 0; index < [_nodes count]; index++) {
         Node *node = _nodes[index];
+        if (node.visible == NO) {
+            continue;
+        }
         NSString *lastPartOfSpeechSubtype1 = [lastNode partOfSpeechSubtype1];   // サ変接続
         NSString *inflection = [node inflection];                               // サ変・スル
         
@@ -217,7 +223,9 @@ static MecabPatch *sharedManager = nil;
     
     for (NSUInteger index = 0; index < [_nodes count]; index++) {
         Node *node = _nodes[index];
-
+        if (node.visible == NO) {
+            continue;
+        }
         if (index + 1 < [_nodes count]) {
             nextNode = _nodes[index + 1];
         } else {
@@ -232,14 +240,14 @@ static MecabPatch *sharedManager = nil;
                     if ([gokanStr isEqualToString:@"ナイ形容詞"] &&
                         [[nextNode pronunciation] isEqualToString:@"ナイ"])
                     {
+                        node.visible = NO;
+
                         // マージする。
                         [lastNode setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                         [lastNode setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
                         [lastNode setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
                         [lastNode setInflection:[@"™" stringByAppendingString:[node inflection]]];
                         DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
-
-                        [_nodes removeObject:node];
                         node = lastNode;
                     }
                 }
@@ -255,6 +263,9 @@ static MecabPatch *sharedManager = nil;
     
     for (NSUInteger index = 0; index < [_nodes count]; index++) {
         Node *node = _nodes[index];
+        if (node.visible == NO) {
+            continue;
+        }
     start:
         if (lastNode) {
             NSString *gokanStr = [self gokanString:lastNode];
@@ -363,6 +374,9 @@ static MecabPatch *sharedManager = nil;
     Node *lastNode = nil;
     
     for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
         if (lastNode) {
             if ([[node partOfSpeech] isEqualToString:@"名詞"])
             {
@@ -424,7 +438,9 @@ static MecabPatch *sharedManager = nil;
     
     for (NSInteger i = 0; i < [_nodes count]; i++) {
         Node *node = _nodes[i];
-        
+        if (node.visible == NO) {
+            continue;
+        }
         if (i + 1 < [_nodes count]) {
             nextNode = _nodes[i + 1];
         } else {
@@ -453,6 +469,9 @@ static MecabPatch *sharedManager = nil;
 - (void) patch_NANODA_NO {
     
     for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
         if ([node.surface isEqualToString:@"の"] &&
             [[node partOfSpeech] isEqualToString:@"名詞"])
         {
@@ -472,20 +491,23 @@ static MecabPatch *sharedManager = nil;
     
     if ([_nodes count] == 1) {
         Node *node = _nodes[0];
-        
-        if ([node.surface isEqualToString:@"そう"] &&
-            [[node partOfSpeech] isEqualToString:@"副詞"] &&
-            [[node partOfSpeechSubtype1] isEqualToString:@"助詞類接続"])
-        {
-            [node setPartOfSpeech:@"感動詞"];
-            [node setPartOfSpeechSubtype1:@""];
-            [node setPartOfSpeechSubtype2:@""];
-            DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
+        if (node.visible) {
+            if ([node.surface isEqualToString:@"そう"] &&
+                [[node partOfSpeech] isEqualToString:@"副詞"] &&
+                [[node partOfSpeechSubtype1] isEqualToString:@"助詞類接続"])
+            {
+                [node setPartOfSpeech:@"感動詞"];
+                [node setPartOfSpeechSubtype1:@""];
+                [node setPartOfSpeechSubtype2:@""];
+                DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
+            }
         }
     } else if ([_nodes count] > 1) {
         for (NSUInteger i = 0; i < [_nodes count]; i++) {
             Node *node = _nodes[i];
-            
+            if (node.visible == NO) {
+                continue;
+            }
             if ([node.surface isEqualToString:@"そう"] &&
                 [[node partOfSpeech] isEqualToString:@"副詞"] &&
                 [[node partOfSpeechSubtype1] isEqualToString:@"助詞類接続"])
@@ -524,6 +546,9 @@ static MecabPatch *sharedManager = nil;
     Node *lastNode = nil;
     
     for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
         if (lastNode) {
             if ([[node partOfSpeech] isEqualToString:@"助動詞"] &&
                 [node.surface isEqualToString:@"ない"])
@@ -554,7 +579,9 @@ static MecabPatch *sharedManager = nil;
     
     for (NSInteger i = 0; i < [_nodes count]; i++) {
         Node *node = _nodes[i];
-        
+        if (node.visible == NO) {
+            continue;
+        }
         if (i + 1 < [_nodes count]) {
             nextNode = _nodes[i + 1];
         } else {
@@ -591,7 +618,9 @@ static MecabPatch *sharedManager = nil;
     
     for (NSUInteger i = 0; i < [_nodes count]; i++) {
         Node *node = _nodes[i];
-        
+        if (node.visible == NO) {
+            continue;
+        }
         if ([[node partOfSpeechSubtype1] isEqualToString:@"接続助詞"] &&
             [node.surface isEqualToString:@"とも"])
         {
@@ -611,7 +640,9 @@ static MecabPatch *sharedManager = nil;
     
     for (NSInteger i = 0; i < [_nodes count]; i++) {
         Node *node = _nodes[i];
-        
+        if (node.visible == NO) {
+            continue;
+        }
         if (i + 1 < [_nodes count]) {
             nextNode = _nodes[i + 1];
         } else {
@@ -648,7 +679,9 @@ static MecabPatch *sharedManager = nil;
     
     for (NSInteger i = 0; i < [_nodes count]; i++) {
         Node *node = _nodes[i];
-        
+        if (node.visible == NO) {
+            continue;
+        }
         if (i + 1 < [_nodes count]) {
             nextNode = _nodes[i + 1];
         } else {
@@ -687,7 +720,9 @@ static MecabPatch *sharedManager = nil;
     
     for (NSUInteger index = 0; index < [_nodes count]; index++) {
         Node *node = _nodes[index];
-        
+        if (node.visible == NO) {
+            continue;
+        }
         if (lastNode) {
             if (index < [_nodes count] - 1) {
                 Node *nextNode = _nodes[index + 1];
@@ -735,7 +770,9 @@ static MecabPatch *sharedManager = nil;
     
     for (NSInteger i = 0; i < [_nodes count]; i++) {
         Node *node = _nodes[i];
-        
+        if (node.visible == NO) {
+            continue;
+        }
         if (i + 1 < [_nodes count]) {
             nextNode = _nodes[i + 1];
         } else {
@@ -768,6 +805,9 @@ static MecabPatch *sharedManager = nil;
 - (void) patch_YOUGO {
     
     for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
         NSString *useOfType = [node useOfType];
         NSString *partOfSpeechSubtype1 = [node partOfSpeechSubtype1];
         NSString *inflection = [node inflection];
@@ -832,6 +872,9 @@ static MecabPatch *sharedManager = nil;
     Node *lastNode = nil;
     
     for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
         if (lastNode) {
             if ([self isYougen:[lastNode partOfSpeech]] &&
                 [node.surface isEqualToString:@"そう"])
@@ -852,6 +895,9 @@ static MecabPatch *sharedManager = nil;
     Node *lastNode = nil;
     
     for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
         if (lastNode) {
             if ([[node partOfSpeech] isEqualToString:@"助動詞"])
             {
@@ -889,6 +935,9 @@ static MecabPatch *sharedManager = nil;
     Node *lastNode = nil;
     
     for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
         if (lastNode) {
             if ([[node partOfSpeech] isEqualToString:@"助詞"])
             {
