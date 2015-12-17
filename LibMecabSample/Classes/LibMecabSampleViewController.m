@@ -43,68 +43,103 @@ NSSet *lowerSet = nil;
     [_textField resignFirstResponder];
 
     NSString *string = _textField.text;
-    self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:string]];
-
-    // 和布蕪パッチシングルトンを取得する。
-    MecabPatch *mecabPatcher = [MecabPatch sharedManager];
-    // 和布蕪パッチシングルトンに解析結果アレイを設定する。
-    [mecabPatcher setNodes:_nodes];
-    // 【注意】必須！！
-    [mecabPatcher preProcess];
     
-    if (_patch.on) {
-        // マージ
-        [mecabPatcher patch_merge_FUKUGO_DOSHI];
-        [mecabPatcher patch_merge_FUKUGO_DOSHI_SAHEN];
-        [mecabPatcher patch_prepare_for_merge_GOKAN];   // new
-        [mecabPatcher patch_merge_GOKAN];
-        [mecabPatcher patch_merge_MEISHI];  // 名詞の連結は、語幹連結の後にしないとダメ！！
-        // パッチ
-        [mecabPatcher patch_TAIGEN_DA];
-        [mecabPatcher patch_NANODA_NO];
-        [mecabPatcher patch_KANDOSHI_SOU];
-        [mecabPatcher patch_HOJO_KEIYOUSHI_NAI];
-        [mecabPatcher patch_TAIGEN_RASHII];
-        [mecabPatcher patch_TOMO];
-        [mecabPatcher patch_TOMO_KUTEN];
-        [mecabPatcher patch_DE_MO];
-        [mecabPatcher patch_DEMO];
-        [mecabPatcher patch_DATTE];
-        // 用語置換
-        [mecabPatcher patch_YOUGO];
-    }
-    [_tableView reloadData];
-    
-    if ([string length]) {
-        NSUInteger index = [_sentences indexOfObject:string];
-        
-        if (index == NSNotFound) {
-            [_sentences addObject:string];
-        }
-        [_sentences writeToFile:kLibXMLPath atomically:YES];
+    if ([string isEqualToString:@"*"])
+    {// ダイアグノシス
+        for (NSString *sentence in _sentences) {
+            DEBUG_LOG(@"文章[%@]", sentence);
+            self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:sentence]];
 
-        
-        // iCloud
-        if ([[NSUserDefaults standardUserDefaults] boolForKey:kUse_iCloudKey]) {
-            CKContainer *defaultContainer =[CKContainer defaultContainer];
-            CKDatabase *privateCloudDatabase = [defaultContainer privateCloudDatabase];
-            CKRecordID *publicSentencesID = [[CKRecordID alloc] initWithRecordName:@"46705d64-48e5-4f02-8899-083af3baed2d"];
-            CKRecord *record = [[CKRecord alloc] initWithRecordType:@"File" recordID:publicSentencesID];
-            
-            [record setObject:@"Sentences.xml" forKey:@"FileName"];
-            [record setObject:[NSArray arrayWithContentsOfFile:kLibXMLPath] forKey:@"Asset"];
-
-            [privateCloudDatabase saveRecord:record
-                           completionHandler:^(CKRecord *record, NSError *error) {
-                               DEBUG_LOG(@"erorr : %@", error);
-                               CKAsset *asset = record[@"Asset"];
-                               
-                               // asset.fileURL.pathにファイルがダウンロードされてる
-                               DEBUG_LOG(@"%@", asset.fileURL.path);
-                           }];
+            // 和布蕪パッチシングルトンを取得する。
+            MecabPatch *mecabPatcher = [MecabPatch sharedManager];
+            // 和布蕪パッチシングルトンに解析結果アレイを設定する。
+            [mecabPatcher setNodes:_nodes];
+            // 【注意】必須！！
+            [mecabPatcher preProcess];
+            // マージ
+            [mecabPatcher patch_merge_FUKUGO_DOSHI];
+            [mecabPatcher patch_merge_FUKUGO_DOSHI_SAHEN];
+            [mecabPatcher patch_prepare_for_merge_GOKAN];   // new
+            [mecabPatcher patch_merge_GOKAN];
+            [mecabPatcher patch_merge_MEISHI];  // 名詞の連結は、語幹連結の後にしないとダメ！！
+            // パッチ
+            [mecabPatcher patch_TAIGEN_DA];
+            [mecabPatcher patch_NANODA_NO];
+            [mecabPatcher patch_KANDOSHI_SOU];
+            [mecabPatcher patch_HOJO_KEIYOUSHI_NAI];
+            [mecabPatcher patch_TAIGEN_RASHII];
+            [mecabPatcher patch_TOMO];
+            [mecabPatcher patch_TOMO_KUTEN];
+            [mecabPatcher patch_DE_MO];
+            [mecabPatcher patch_DEMO];
+            [mecabPatcher patch_DATTE];
+            // 用語置換
+            [mecabPatcher patch_YOUGO];
         }
     } else {
-        [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsSentence];
+        self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:string]];
+        
+        // 和布蕪パッチシングルトンを取得する。
+        MecabPatch *mecabPatcher = [MecabPatch sharedManager];
+        // 和布蕪パッチシングルトンに解析結果アレイを設定する。
+        [mecabPatcher setNodes:_nodes];
+        // 【注意】必須！！
+        [mecabPatcher preProcess];
+        
+        if (_patch.on) {
+            // マージ
+            [mecabPatcher patch_merge_FUKUGO_DOSHI];
+            [mecabPatcher patch_merge_FUKUGO_DOSHI_SAHEN];
+            [mecabPatcher patch_prepare_for_merge_GOKAN];   // new
+            [mecabPatcher patch_merge_GOKAN];
+            [mecabPatcher patch_merge_MEISHI];  // 名詞の連結は、語幹連結の後にしないとダメ！！
+            // パッチ
+            [mecabPatcher patch_TAIGEN_DA];
+            [mecabPatcher patch_NANODA_NO];
+            [mecabPatcher patch_KANDOSHI_SOU];
+            [mecabPatcher patch_HOJO_KEIYOUSHI_NAI];
+            [mecabPatcher patch_TAIGEN_RASHII];
+            [mecabPatcher patch_TOMO];
+            [mecabPatcher patch_TOMO_KUTEN];
+            [mecabPatcher patch_DE_MO];
+            [mecabPatcher patch_DEMO];
+            [mecabPatcher patch_DATTE];
+            // 用語置換
+            [mecabPatcher patch_YOUGO];
+        }
+        [_tableView reloadData];
+        
+        if ([string length]) {
+            NSUInteger index = [_sentences indexOfObject:string];
+            
+            if (index == NSNotFound) {
+                [_sentences addObject:string];
+            }
+            [_sentences writeToFile:kLibXMLPath atomically:YES];
+            
+            
+            // iCloud
+            if ([[NSUserDefaults standardUserDefaults] boolForKey:kUse_iCloudKey]) {
+                CKContainer *defaultContainer =[CKContainer defaultContainer];
+                CKDatabase *privateCloudDatabase = [defaultContainer privateCloudDatabase];
+                CKRecordID *publicSentencesID = [[CKRecordID alloc] initWithRecordName:@"46705d64-48e5-4f02-8899-083af3baed2d"];
+                CKRecord *record = [[CKRecord alloc] initWithRecordType:@"File" recordID:publicSentencesID];
+                
+                [record setObject:@"Sentences.xml" forKey:@"FileName"];
+                [record setObject:[NSArray arrayWithContentsOfFile:kLibXMLPath] forKey:@"Asset"];
+                
+                [privateCloudDatabase saveRecord:record
+                               completionHandler:^(CKRecord *record, NSError *error) {
+                                   DEBUG_LOG(@"erorr : %@", error);
+                                   CKAsset *asset = record[@"Asset"];
+                                   
+                                   // asset.fileURL.pathにファイルがダウンロードされてる
+                                   DEBUG_LOG(@"%@", asset.fileURL.path);
+                               }];
+            }
+        } else {
+            [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsSentence];
+        }
     }
 }
 
