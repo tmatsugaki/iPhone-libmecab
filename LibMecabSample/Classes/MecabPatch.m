@@ -153,6 +153,42 @@ static MecabPatch *sharedManager = nil;
     return str;
 }
 
+- (Node *) nextNode:(NSUInteger)index {
+    
+    Node *nextNode = nil;
+
+    for (NSUInteger i = index + 1; i < [_nodes count]; i++) {
+        if (((Node *) _nodes[i]).visible) {
+            nextNode = _nodes[i];
+            break;
+        }
+    }
+    return nextNode;
+}
+
+- (Node *) nextNextNode:(NSUInteger)index {
+    
+    Node *nextNode = nil;
+    Node *nextNextNode = nil;
+    NSUInteger i = 0;
+    
+    for (i = index + 1; i < [_nodes count]; i++) {
+        if (((Node *) _nodes[i]).visible) {
+            nextNode = _nodes[i];
+            break;
+        }
+    }
+    if (nextNode) {
+        for (++i; i < [_nodes count]; i++) {
+            if (((Node *) _nodes[i]).visible) {
+                nextNextNode = _nodes[i];
+                break;
+            }
+        }
+    }
+    return nextNextNode;
+}
+
 #pragma mark - Patch (マージ)
 
 // 複合動詞の連結
@@ -238,11 +274,8 @@ static MecabPatch *sharedManager = nil;
         if (node.visible == NO) {
             continue;
         }
-        if (index + 1 < [_nodes count]) {
-            nextNode = _nodes[index + 1];
-        } else {
-            nextNode = nil;
-        }
+        nextNode = [self nextNode:index];
+
         if (lastNode && nextNode) {
             if ([[node partOfSpeech] isEqualToString:@"助詞"])
             {// 和布蕪は「の」を格助詞として返さないので、partOfSpeechSubtype1 で判断できない。
@@ -472,11 +505,8 @@ static MecabPatch *sharedManager = nil;
         if (node.visible == NO) {
             continue;
         }
-        if (i + 1 < [_nodes count]) {
-            nextNode = _nodes[i + 1];
-        } else {
-            nextNode = nil;
-        }
+        nextNode = [self nextNode:i];
+
         if (lastNode && [self isTaigen:[lastNode partOfSpeech]] &&
             nextNode && [nextNode.surface isEqualToString:@"、"])
         {
@@ -560,7 +590,7 @@ static MecabPatch *sharedManager = nil;
                 [[node partOfSpeechSubtype1] isEqualToString:@"助詞類接続"])
             {// 副詞である。
                 if (i < [_nodes count] - 1) {
-                    Node *nextNode = _nodes[i+1];
+                    Node *nextNode = [self nextNode:i];
                     
                     if ([self isYougen:[nextNode partOfSpeech]] == NO) {
                         [node setPartOfSpeech:@"感動詞"];
@@ -638,42 +668,45 @@ static MecabPatch *sharedManager = nil;
 // eg.「人間らしい」
 - (void) patch_TAIGEN_RASHII {
     Node *lastNode = nil;
-//    Node *nextNode = nil;
     
     for (NSInteger i = 0; i < [_nodes count]; i++) {
         Node *node = _nodes[i];
         if (node.visible == NO) {
             continue;
         }
-//        if (i + 1 < [_nodes count]) {
-//            nextNode = _nodes[i + 1];
-//        } else {
-//            nextNode = nil;
-//        }
-        if (lastNode && [self isTaigen:[lastNode partOfSpeech]]
-//            && nextNode && [self isTaigen:[nextNode partOfSpeech]]
-            )
+        if (lastNode && [self isTaigen:[lastNode partOfSpeech]])
         {
             if ([[node partOfSpeech] isEqualToString:@"助動詞"] &&
                 [[node originalForm] isEqualToString:@"らしい"] &&
                 [[[node inflection] substringToIndex:3] isEqualToString:@"形容詞"])
             {
-                lastNode.visible = NO;
-                
-                // マージする。
-                _modified = YES;
+                Node *nextNode = [self nextNode:i];
+                BOOL rentai = [node.surface isEqualToString:@"らしい"] && [self isTaigen:[nextNode partOfSpeech]];
+                BOOL renyou = [node.surface isEqualToString:@"らしく"] && [self isYougen:[nextNode partOfSpeech]];
+
+                if (rentai || renyou)
+                {
+                    lastNode.visible = NO;
+                    
+                    // マージする。
+                    _modified = YES;
 #if LOG_PATCH
-                DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+                    DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
-                [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
-                [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
-                
-                [node setPartOfSpeech:@"形容詞"];
-                [node setPartOfSpeechSubtype1:@""];
-                [node setPartOfSpeechSubtype2:@""];
-                [node setUseOfType:@"連体形"];
-                [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
+                    [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
+                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                    [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                    
+                    [node setPartOfSpeech:@"形容詞"];
+                    [node setPartOfSpeechSubtype1:@""];
+                    [node setPartOfSpeechSubtype2:@""];
+                    if (rentai) {
+                        [node setUseOfType:@"連体形"];
+                    } else if (renyou) {
+                        [node setUseOfType:@"連用形"];
+                    }
+                    [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
+                }
             }
         }
         lastNode = node;
@@ -715,11 +748,8 @@ static MecabPatch *sharedManager = nil;
         if (node.visible == NO) {
             continue;
         }
-        if (i + 1 < [_nodes count]) {
-            nextNode = _nodes[i + 1];
-        } else {
-            nextNode = nil;
-        }
+        nextNode = [self nextNode:i];
+
         if (lastNode && [lastNode.surface isEqualToString:@"と"] && [[lastNode partOfSpeechSubtype1] isEqualToString:@"格助詞"] &&
             nextNode && [nextNode.surface isEqualToString:@"。"])
         {
@@ -757,16 +787,9 @@ static MecabPatch *sharedManager = nil;
         if (node.visible == NO) {
             continue;
         }
-        if (i + 1 < [_nodes count]) {
-            nextNode = _nodes[i + 1];
-        } else {
-            nextNode = nil;
-        }
-        if (i + 2 < [_nodes count]) {
-            nextNextNode = _nodes[i + 2];
-        } else {
-            nextNextNode = nil;
-        }
+        nextNode     = [self nextNode:i];
+        nextNextNode = [self nextNextNode:i];
+
         if (lastNode && [[lastNode inflection] length] >= 2 && [[[lastNode inflection] substringToIndex:2] isEqualToString:@"五段"] &&
             [node.surface isEqualToString:@"で"] && [[node partOfSpeechSubtype1] isEqualToString:@"接続助詞"] &&
             nextNode && [nextNode.surface isEqualToString:@"も"] && [[nextNode partOfSpeechSubtype1] isEqualToString:@"係助詞"] &&
@@ -803,7 +826,7 @@ static MecabPatch *sharedManager = nil;
         }
         if (lastNode) {
             if (index < [_nodes count] - 1) {
-                Node *nextNode = _nodes[index + 1];
+                Node *nextNode = [self nextNode:index];
                 
                 if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
                     [node.surface isEqualToString:@"でも"] && [[node partOfSpeechSubtype1] isEqualToString:@"副助詞"] && // 【注意】ここは絶対に「副助詞」
@@ -856,11 +879,7 @@ static MecabPatch *sharedManager = nil;
         if (node.visible == NO) {
             continue;
         }
-        if (i + 1 < [_nodes count]) {
-            nextNode = _nodes[i + 1];
-        } else {
-            nextNode = nil;
-        }
+        nextNode = [self nextNode:i];
         if (lastNode && [lastNode.surface isEqualToString:@"で"] && [[lastNode partOfSpeechSubtype1] isEqualToString:@"格助詞"] &&
             node && [node.surface isEqualToString:@"も"] && [[node partOfSpeechSubtype1] isEqualToString:@"係助詞"] &&
             nextNode && [[nextNode partOfSpeech] isEqualToString:@"動詞"])
