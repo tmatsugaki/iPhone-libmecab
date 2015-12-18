@@ -254,7 +254,7 @@ static MecabPatch *sharedManager = nil;
                     
                     if ([gokanStr length]) {
                         if ([gokanStr isEqualToString:@"ナイ形容詞"] &&
-                            [[nextNode pronunciation] isEqualToString:@"ナイ"])
+                            [[nextNode originalForm] isEqualToString:@"ない"])
                         {
                             node.visible = NO;
                             
@@ -335,9 +335,10 @@ static MecabPatch *sharedManager = nil;
                         BOOL inhibitRashii = NO;
                         BOOL changeIntoAdverb = NO;
                         NSString *pronunciation = [node pronunciation];
+                        NSString *originalForm = [node originalForm];
                         
                         if ([gokanStr isEqualToString:@"ナイ形容詞"] &&
-                            [pronunciation isEqualToString:@"ナイ"] == NO)
+                            [originalForm isEqualToString:@"ない"] == NO)
                         {// ただし、「だらしがない」などは patch_before_merge_GOKAN にて前処理ずみ。
                             inhibitNai = YES;
                             DEBUG_LOG(@"条件を満たさない「ナイ形容詞」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
@@ -607,7 +608,7 @@ static MecabPatch *sharedManager = nil;
         }
         if (lastNode) {
             if ([[node partOfSpeech] isEqualToString:@"助動詞"] &&
-                [node.surface isEqualToString:@"ない"])
+                [[node originalForm] isEqualToString:@"ない"])
             {
                 NSString *lastPartOfSpeech = [lastNode partOfSpeech];
                 NSString *lastUseOfType = [lastNode useOfType];
