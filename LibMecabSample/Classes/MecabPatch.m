@@ -345,7 +345,7 @@ static MecabPatch *sharedManager = nil;
                         } else if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
                                    [lastSubType1 isEqualToString:@"形容動詞語幹"])
                         {
-                            if ([pronunciation isEqualToString:@"ラシイ"]) {
+                            if ([originalForm isEqualToString:@"らしい"]) {
                                 inhibitRashii = YES;
                                 DEBUG_LOG(@"形容動詞語幹に連なる「らしい」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
                             } else if ([pronunciation isEqualToString:@"ニ"])
@@ -634,26 +634,28 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 【形容詞化】体言＋助動詞「らしい」＋体言→形容詞（連体形）
+// 【形容詞化】体言＋助動詞「らしく」＋用言→形容詞（連用形）
 // eg.「人間らしい」
 - (void) patch_TAIGEN_RASHII {
     Node *lastNode = nil;
-    Node *nextNode = nil;
+//    Node *nextNode = nil;
     
     for (NSInteger i = 0; i < [_nodes count]; i++) {
         Node *node = _nodes[i];
         if (node.visible == NO) {
             continue;
         }
-        if (i + 1 < [_nodes count]) {
-            nextNode = _nodes[i + 1];
-        } else {
-            nextNode = nil;
-        }
-        if (lastNode && [self isTaigen:[lastNode partOfSpeech]] &&
-            nextNode && [self isTaigen:[nextNode partOfSpeech]])
+//        if (i + 1 < [_nodes count]) {
+//            nextNode = _nodes[i + 1];
+//        } else {
+//            nextNode = nil;
+//        }
+        if (lastNode && [self isTaigen:[lastNode partOfSpeech]]
+//            && nextNode && [self isTaigen:[nextNode partOfSpeech]]
+            )
         {
             if ([[node partOfSpeech] isEqualToString:@"助動詞"] &&
-                [node.surface isEqualToString:@"らしい"] &&
+                [[node originalForm] isEqualToString:@"らしい"] &&
                 [[[node inflection] substringToIndex:3] isEqualToString:@"形容詞"])
             {
                 lastNode.visible = NO;
