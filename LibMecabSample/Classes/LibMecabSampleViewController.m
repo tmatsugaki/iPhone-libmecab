@@ -136,7 +136,11 @@ NSSet *lowerSet = nil;
                     break;
                 }
             }
-            if (foundIndex == NSNotFound) {
+            if (foundIndex != NSNotFound) {
+                NSMutableDictionary *dic = _sentenceDics[foundIndex];
+
+                dic[@"modified"] = [NSNumber numberWithBool:mecabPatcher.modified];
+            } else {
                 NSMutableDictionary *newDic = [[[NSMutableDictionary alloc] init] autorelease];
 
                 newDic[@"sentence"] = string;

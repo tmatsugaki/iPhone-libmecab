@@ -334,6 +334,9 @@ static MecabPatch *sharedManager = nil;
                     if ([surface isEqualToString:@"でも"] &&
                         [[node partOfSpeechSubtype1] isEqualToString:@"副助詞"]) // 【注意】ここは絶対に「副助詞」
                     {
+                        // 分割する。
+                        _modified = YES;
+
                         Node *newNode = [[Node alloc] init];
                         NSMutableArray *features = [[NSMutableArray alloc] initWithObjects:@"", @"", @"", @"", @"", @"", @"", @"", @"", nil];
                         
@@ -418,6 +421,7 @@ static MecabPatch *sharedManager = nil;
                                 [node setPartOfSpeechSubtype1:@""];
                             }
                         } else if (inhibitRashii) {
+                            _modified = YES;
                             [lastNode setPartOfSpeech:@"形容動詞"];
                             [lastNode setOriginalForm:[[lastNode originalForm] stringByAppendingString:@"だ"]];
                         }
