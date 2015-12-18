@@ -702,10 +702,12 @@ static MecabPatch *sharedManager = nil;
                     [node setPartOfSpeechSubtype2:@""];
                     if (rentai) {
                         [node setUseOfType:@"連体形"];
+                        [node setInflection:@"™形容詞・イ段"];
                     } else if (renyou) {
                         [node setUseOfType:@"連用形"];
+                        [node setInflection:@"™形容詞・ウ段"];
                     }
-                    [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
+//                    [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
                 }
             }
         }
