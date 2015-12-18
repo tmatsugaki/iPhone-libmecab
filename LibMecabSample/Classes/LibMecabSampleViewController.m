@@ -34,7 +34,8 @@ NSSet *lowerSet = nil;
 @synthesize patch=_patch;
 @synthesize mecab=_mecab;
 @synthesize nodes=_nodes;
-@synthesize sentences=_sentences;
+//@synthesize sentences=_sentences;
+@synthesize sentenceDics=_sentenceDics;
 
 #pragma mark - IBAction
 
@@ -48,14 +49,13 @@ NSSet *lowerSet = nil;
     {// ダイアグノシス
         NSUInteger i;
 
-        for (i = 0; i < [_sentences count]; i++) {
-            NSString *sentence = _sentences[i];
-            NSArray *items = [sentence componentsSeparatedByString:@","];
-            NSString *core = items[0];
+        for (i = 0; i < [_sentenceDics count]; i++) {
+            NSMutableDictionary *sentenceDic = _sentenceDics[i];
+            NSString *sentence = sentenceDic[@"sentence"];
 
             DEBUG_LOG(@"**********************************************************************\n");
             DEBUG_LOG(@"文章「%@」", sentence);
-            self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:core]];
+            self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:sentence]];
 
             // 和布蕪パッチシングルトンを取得する。
             MecabPatch *mecabPatcher = [MecabPatch sharedManager];
@@ -84,16 +84,13 @@ NSSet *lowerSet = nil;
             // 用語置換
             [mecabPatcher postProcess];
 
-#if REPLACE_OBJECCT
-            if (mecabPatcher.modified) {
-                [_sentences replaceObjectAtIndex:i withObject:[NSString stringWithFormat:@"%@,™", core]];
-            } else {
-                [_sentences replaceObjectAtIndex:i withObject:[NSString stringWithFormat:@"%@,", core]];
-            }
+#if REPLACE_OBJECT
+            sentenceDic[@"modified"] = [NSNumber numberWithBool:mecabPatcher.modified];
+            [_sentenceDics replaceObjectAtIndex:i withObject:sentenceDic];
 #endif
         }
-#if REPLACE_OBJECCT
-        [_sentences writeToFile:kLibXMLPath atomically:YES];
+#if REPLACE_OBJECT
+        [_sentenceDics writeToFile:kLibPath atomically:YES];
 #endif
     } else {
         self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:string]];
@@ -130,38 +127,27 @@ NSSet *lowerSet = nil;
         [_tableView reloadData];
         
         if ([string length]) {
-#if REPLACE_OBJECCT
-            NSUInteger raw_index = [_sentences indexOfObject:[NSString stringWithFormat:@"%@,™", string]];
-            NSUInteger core_index = [_sentences indexOfObject:string];
-            NSUInteger index = NSNotFound;
+            NSUInteger foundIndex = NSNotFound;
             
-            if (raw_index == NSNotFound && core_index == NSNotFound) {
-                [_sentences addObject:string];
-                index = [_sentences count] - 1;
-            } else {
-                if (raw_index != NSNotFound) {
-                    index = raw_index;
-                } else {
-                    index = core_index;
+            for (NSUInteger i = 0; i < [_sentenceDics count]; i++) {
+                NSDictionary *dic = _sentenceDics[i];
+                if ([dic[@"sentence"] isEqualToString:string]) {
+                    foundIndex = i;
+                    break;
                 }
             }
-            if (_patch.on) {
-                if (mecabPatcher.modified) {
-                    [_sentences replaceObjectAtIndex:index withObject:[NSString stringWithFormat:@"%@,™", string]];
-                } else {
-                    [_sentences replaceObjectAtIndex:index withObject:[NSString stringWithFormat:@"%@,", string]];
-                }
+            if (foundIndex == NSNotFound) {
+                NSMutableDictionary *newDic = [[[NSMutableDictionary alloc] init] autorelease];
+
+                newDic[@"sentence"] = string;
+                newDic[@"tag"]      = @"";
+                newDic[@"modified"] = [NSNumber numberWithBool:mecabPatcher.modified];
+                [_sentenceDics addObject:newDic];
             }
-#else
-            NSUInteger index = [_sentences indexOfObject:string];
-            
-            if (index == NSNotFound) {
-                [_sentences addObject:string];
-            }
-#endif
-            [_sentences writeToFile:kLibXMLPath atomically:YES];
+            [_sentenceDics writeToFile:kLibPath atomically:YES];
 
             // iCloud
+#if 0
             if ([[NSUserDefaults standardUserDefaults] boolForKey:kUse_iCloudKey]) {
                 CKContainer *defaultContainer =[CKContainer defaultContainer];
                 CKDatabase *privateCloudDatabase = [defaultContainer privateCloudDatabase];
@@ -169,7 +155,7 @@ NSSet *lowerSet = nil;
                 CKRecord *record = [[CKRecord alloc] initWithRecordType:@"File" recordID:publicSentencesID];
                 
                 [record setObject:@"Sentences.xml" forKey:@"FileName"];
-                [record setObject:[NSArray arrayWithContentsOfFile:kLibXMLPath] forKey:@"Asset"];
+                [record setObject:[NSArray arrayWithContentsOfFile:kLibPath] forKey:@"Asset"];
                 
                 [privateCloudDatabase saveRecord:record
                                completionHandler:^(CKRecord *record, NSError *error) {
@@ -180,6 +166,7 @@ NSSet *lowerSet = nil;
                                    DEBUG_LOG(@"%@", asset.fileURL.path);
                                }];
             }
+#endif
         } else {
             [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsSentence];
         }
@@ -194,11 +181,11 @@ NSSet *lowerSet = nil;
     
     [_textField resignFirstResponder];
 
-    if ([_sentences count])
+    if ([_sentenceDics count])
     {// トークンリストのモーダルダイアログを表示する。
         TokensViewController *viewController = [[TokensViewController alloc] initWithNibName:@"TokensViewController"
                                                                                       bundle:nil
-                                                                              sentencesArray:_sentences];
+                                                                              sentencesArray:_sentenceDics];
         
         [self presentViewController:viewController animated:YES completion:nil];
         [viewController release];
@@ -237,15 +224,12 @@ NSSet *lowerSet = nil;
 
 - (void) initialParse {
 
-    NSArray *items = [[[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence] componentsSeparatedByString:@","];
-    NSString *string = @"";
+    NSString *string = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
 
-    if ([items count]) {
-        string = items[0];
-    } else if ([_sentences count]) {
-        string = _sentences[0];
+    if ([string length] == 0 && [_sentenceDics count]) {
+        string = ((NSDictionary *) _sentenceDics[0])[@"sentence"];
     }
-    [_textField setText:string];
+    [_textField setText:[string length] ? string : @""];
     [self parse:self];
 }
 
@@ -334,7 +318,7 @@ NSSet *lowerSet = nil;
         [self initialParse];
     }
 #else
-    self.sentences = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+    self.sentenceDics = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibPath]];
     [self initialParse];
 #endif
 
@@ -472,7 +456,8 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 
     self.mecab = nil;
 	self.nodes = nil;
-    self.sentences = nil;
+//    self.sentences = nil;
+    self.sentenceDics = nil;
 	
     [super dealloc];
 }

@@ -18,12 +18,13 @@
 #define DELETE_ANIMATION            1
 #define RELOAD_WHEN_TOGGLE_EDIT     1
 
-#define REPLACE_OBJECCT             0
+#define REPLACE_OBJECT              1
 
 // パス
-#define kDocumentPath   [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject]
+#define kDocumentPath           [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject]
 // 例文ライブラリの XML ファイルのパス
-#define kLibXMLPath     [kDocumentPath stringByAppendingPathComponent:@"Sentences.xml"]
+//#define kLibXMLPath             [kDocumentPath stringByAppendingPathComponent:@"Sentences.xml"]
+#define kLibPath                [kDocumentPath stringByAppendingPathComponent:@"Library.xml"]
 
 // ユーザーデフォルト
 #define kDefaultsPatchMode      @"PatchMode"            // パッチモードを保持する。
