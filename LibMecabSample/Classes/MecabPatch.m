@@ -457,6 +457,7 @@ static MecabPatch *sharedManager = nil;
             {
                 BOOL merge = NO;
                 BOOL retainLastSubtype = NO;
+                BOOL adverb = NO;
 
                 if ([[lastNode partOfSpeech] isEqualToString:@"名詞"])
                 {// 名詞に連なっている。
@@ -468,6 +469,11 @@ static MecabPatch *sharedManager = nil;
                     {// 一般名詞が連なっている。
                         merge = YES;
                         retainLastSubtype = YES;
+                    } else if ([[lastNode partOfSpeechSubtype1] isEqualToString:@"副詞可能"] &&
+                               [[node partOfSpeechSubtype2] isEqualToString:@"副詞可能"])
+                    {
+                        merge = YES;
+                        adverb = YES;
                     }
                 } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"] &&
                            [[lastNode partOfSpeechSubtype1] isEqualToString:@"名詞接続"])
@@ -496,6 +502,9 @@ static MecabPatch *sharedManager = nil;
                     
                     if (retainLastSubtype) {
                         [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
+                    } else if (adverb) {
+                        [node setPartOfSpeechSubtype1:@"副詞"];
+                        [node setPartOfSpeechSubtype2:@""];
                     }
 //                    [node setPartOfSpeechSubtype2:[lastNode partOfSpeechSubtype2]]; // 元の属性を保全する。
 //                    [node setPartOfSpeechSubtype3:[lastNode partOfSpeechSubtype3]]; // 元の属性を保全する。
