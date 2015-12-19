@@ -369,6 +369,7 @@ static MecabPatch *sharedManager = nil;
                     {// 語幹（多少の例外がある！！）
                         BOOL inhibitNai = NO;
                         BOOL inhibitRashii = NO;
+                        BOOL inhibitWo = NO;
                         BOOL changeIntoAdverb = NO;
                         NSString *pronunciation = [node pronunciation];
                         NSString *originalForm = [node originalForm];
@@ -387,17 +388,26 @@ static MecabPatch *sharedManager = nil;
                             } else if ([pronunciation isEqualToString:@"ニ"])
                             {// 形容動詞語幹に「に」が連なると副詞になる。
                                 changeIntoAdverb = YES;
+                            } else if ([pronunciation isEqualToString:@"ヲ"])
+                            {// 形容動詞になりえない。
+                                inhibitWo = YES;
+                                DEBUG_LOG(@"形容動詞になりえない。[%@] -> [%@]", lastNode.surface, node.surface);
                             }
                         }
                         // 【例外1】ナイ形容詞
                         // 【例外2】形容動詞語幹に連なる「らしい」
-                        if (inhibitNai == NO && inhibitRashii == NO) {
+                        if (inhibitNai == NO && inhibitRashii == NO && inhibitWo == NO) {
                             lastNode.visible = NO;
                             
                             // マージする。
                             _modified = YES;
 #if LOG_PATCH
                             DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+#endif
+#ifdef DEBUG
+                            if ([gokanStr isEqualToString:@"形容動詞"]) {
+                                DEBUG_LOG(@"");
+                            }
 #endif
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                             [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
