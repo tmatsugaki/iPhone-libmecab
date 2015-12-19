@@ -4,6 +4,7 @@ h1. 「形態素解析エンジン Mecab on iPhone のサンプルアプリケ�
 解析した文章は iTunesファイル共有で読み書き可能なファイルに逐次、追加・保存されますので再利用が可能です。
 
 !/screenshot1.jpg! !/screenshot2.jpg!
+!/screenshot3.jpg! !/screenshot4.jpg!
 
 h2. ビルド方法
 XCode 7.1 で普通にやって下さい。

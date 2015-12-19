@@ -21,9 +21,9 @@
 #define REPLACE_OBJECT              1
 
 // パス
-#define kDocumentPath           [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject]
+#define kDocumentPath               [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject]
 // 例文ライブラリの XML ファイルのパス
-#define kLibPath                [kDocumentPath stringByAppendingPathComponent:@"Library.xml"]
+#define kLibXMLPath                 [kDocumentPath stringByAppendingPathComponent:@"Library.xml"]
 
 // ユーザーデフォルト
 #define kDefaultsPatchMode      @"PatchMode"            // パッチモードを保持する。

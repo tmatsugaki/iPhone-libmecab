@@ -88,7 +88,7 @@
 #endif
         }
 #if REPLACE_OBJECT
-        [_sentenceDics writeToFile:kLibPath atomically:YES];
+        [_sentenceDics writeToFile:kLibXMLPath atomically:YES];
 #endif
     } else {
         self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:string]];
@@ -146,7 +146,7 @@
                 newDic[@"modified"] = [NSNumber numberWithBool:mecabPatcher.modified];
                 [_sentenceDics addObject:newDic];
             }
-            [_sentenceDics writeToFile:kLibPath atomically:YES];
+            [_sentenceDics writeToFile:kLibXMLPath atomically:YES];
 
             // iCloud
 #if 0
@@ -157,7 +157,7 @@
                 CKRecord *record = [[CKRecord alloc] initWithRecordType:@"File" recordID:publicSentencesID];
                 
                 [record setObject:@"Sentences.xml" forKey:@"FileName"];
-                [record setObject:[NSArray arrayWithContentsOfFile:kLibPath] forKey:@"Asset"];
+                [record setObject:[NSArray arrayWithContentsOfFile:kLibXMLPath] forKey:@"Asset"];
                 
                 [privateCloudDatabase saveRecord:record
                                completionHandler:^(CKRecord *record, NSError *error) {
@@ -320,7 +320,7 @@
         [self initialParse];
     }
 #else
-    self.sentenceDics = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibPath]];
+    self.sentenceDics = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
     [self initialParse];
 #endif
 

@@ -275,7 +275,7 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
             }
             [_listDicItems removeObject:dic];
             // 文章を削除したので、XML ファイルに反映する。
-            [_listDicItems writeToFile:kLibPath atomically:YES];
+            [_listDicItems writeToFile:kLibXMLPath atomically:YES];
 
 #if DELETE_ANIMATION
             CGContextRef context = UIGraphicsGetCurrentContext();
@@ -337,7 +337,7 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
                 [_listDicItems insertObject:dic atIndex:toIndexPath.row];
             }
             // 文章を移動したので、XML ファイルに反映する。
-            [_listDicItems writeToFile:kLibPath atomically:YES];
+            [_listDicItems writeToFile:kLibXMLPath atomically:YES];
 
             [[NSUserDefaults standardUserDefaults] setObject:dic[@"sentence"] forKey:kDefaultsSentence];
 
