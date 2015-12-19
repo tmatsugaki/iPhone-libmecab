@@ -72,7 +72,7 @@
             [mecabPatcher patch_DetectAdverb];
             [mecabPatcher patch_TAIGEN_DA];
             [mecabPatcher patch_NANODA_NO];
-            [mecabPatcher patch_KANDOSHI_SOU];
+//            [mecabPatcher patch_KANDOSHI_SOU];
             [mecabPatcher patch_HOJO_KEIYOUSHI_NAI];
             [mecabPatcher patch_TAIGEN_RASHII];
             [mecabPatcher patch_TOMO];
@@ -113,7 +113,7 @@
             [mecabPatcher patch_DetectAdverb];
             [mecabPatcher patch_TAIGEN_DA];
             [mecabPatcher patch_NANODA_NO];
-            [mecabPatcher patch_KANDOSHI_SOU];
+//            [mecabPatcher patch_KANDOSHI_SOU];
             [mecabPatcher patch_HOJO_KEIYOUSHI_NAI];
             [mecabPatcher patch_TAIGEN_RASHII];
             [mecabPatcher patch_TOMO];

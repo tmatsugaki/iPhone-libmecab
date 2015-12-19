@@ -511,12 +511,13 @@ static MecabPatch *sharedManager = nil;
         
         if (nextNode &&
             [[node partOfSpeech] isEqualToString:@"名詞"] &&
-            ([[node partOfSpeechSubtype1] isEqualToString:@"副詞可能"] || [[node partOfSpeechSubtype2] isEqualToString:@"副詞可能"]) &&
+            ([[node partOfSpeechSubtype1] isEqualToString:@"副詞可能"] || [[node partOfSpeechSubtype2] isEqualToString:@"副詞可能"] || [[node partOfSpeechSubtype3] isEqualToString:@"副詞可能"]) &&
             ([nextNode.surface isEqualToString:@"、"] || [self isYougen:[nextNode partOfSpeech]]))
         {
             [node setPartOfSpeech:@"副詞"];
             [node setPartOfSpeechSubtype1:@""];
             [node setPartOfSpeechSubtype2:@""];
+            [node setPartOfSpeechSubtype3:@""];
 
             // 修正された。
             _modified = YES;
