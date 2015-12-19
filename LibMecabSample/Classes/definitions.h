@@ -23,7 +23,6 @@
 // パス
 #define kDocumentPath           [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject]
 // 例文ライブラリの XML ファイルのパス
-//#define kLibXMLPath             [kDocumentPath stringByAppendingPathComponent:@"Sentences.xml"]
 #define kLibPath                [kDocumentPath stringByAppendingPathComponent:@"Library.xml"]
 
 // ユーザーデフォルト

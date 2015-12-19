@@ -15,7 +15,6 @@
 @synthesize searchBar=_searchBar;
 @synthesize tableView=_tableView;
 @synthesize tokenCell=_tokenCell;
-//@synthesize listItems=_listItems;
 @synthesize rawSentences=_rawSentences;
 @synthesize filteredSentences=_filteredSentences;
 
@@ -27,7 +26,6 @@
     self.myNavigationItem = nil;
     self.searchBar = nil;
     self.tokenCell = nil;
-//    self.listItems = nil;
     self.listDicItems = nil;
     self.rawSentences = nil;
     self.filteredSentences = nil;
@@ -103,7 +101,6 @@
 
     _searchBar.delegate = self;
     
-//    [self createGestureRecognizers];
     [_tableView becomeFirstResponder];
 
     // ナビゲーションアイテムの初期化（閉じるボタン）
@@ -206,7 +203,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-//    DEBUG_LOG(@"%s Count:%lu Row:%ld", __func__, (unsigned long)[_listItems count], (long)indexPath.row);
+//    DEBUG_LOG(@"%s Count:%lu Row:%ld", __func__, (unsigned long)[_listDicItems count], (long)indexPath.row);
 
     static NSString *CellIdentifier = @"TokenCell";
     
@@ -225,7 +222,7 @@
 	NSDictionary *dic = [_listDicItems objectAtIndex:indexPath.row];
 
     if (((NSNumber *) dic[@"modified"]).boolValue) {
-        cell.textLabel.textColor = [UIColor redColor];
+        cell.textLabel.textColor = [UIColor blueColor];
     } else {
         cell.textLabel.textColor = [UIColor blackColor];
     }
@@ -516,36 +513,4 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
                       keyboardRect:endFrame
                           duration:duration];
 }
-
-#pragma mark - Gesture Recognizers
-
-// テーブルビューにジェスチャーレコグナイザーを追加する。
-- (void) createGestureRecognizers {
-    /*
-     * 長押しレコグナイザーを追加する。
-     */
-    UILongPressGestureRecognizer *longPressRecognizer =
-    [[UILongPressGestureRecognizer alloc] initWithTarget:self
-                                                  action:@selector(handleLongPress:)];
-    [_tableView addGestureRecognizer:longPressRecognizer];
-    
-    [longPressRecognizer release];
-}
-
-// 長押しで 編集メニュー表示
-- (IBAction) handleLongPress:(UILongPressGestureRecognizer *)sender {
-    
-    if (sender.state == UIGestureRecognizerStateBegan) {
-//        CGPoint location = [sender locationInView:self.view];
-//        self.selectedIndexPath = [tableView_ indexPathForRowAtPoint:location];
-//        TokenCell *cell = (TokenCell *) [tableView_ cellForRowAtIndexPath:_selectedIndexPath];
-        [_tableView setEditing:_tableView.editing == NO animated:YES];
-        
-        if (_tableView.editing == NO) {
-//            [tableView_ reloadData];
-        }
-//        DEBUG_LOG(@"%s", __func__);
-    }
-}
-
 @end

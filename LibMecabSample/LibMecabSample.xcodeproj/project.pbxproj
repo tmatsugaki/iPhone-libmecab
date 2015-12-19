@@ -46,6 +46,10 @@
 		0851EA121C0C9675006C2932 /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 13C86E8712C87C70006F2369 /* libstdc++.dylib */; };
 		0851EA1A1C0C96D7006C2932 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0851EA191C0C96D7006C2932 /* CloudKit.framework */; };
 		0851EA1C1C0C96E3006C2932 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0851EA191C0C96D7006C2932 /* CloudKit.framework */; };
+		085FC07F1C25E2BE00B3A8E7 /* SmallNodeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 085FC07E1C25E2BE00B3A8E7 /* SmallNodeCell.xib */; };
+		085FC0801C25E2BE00B3A8E7 /* SmallNodeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 085FC07E1C25E2BE00B3A8E7 /* SmallNodeCell.xib */; };
+		085FC0841C25E30300B3A8E7 /* SmallNodeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 085FC0831C25E30300B3A8E7 /* SmallNodeCell.m */; };
+		085FC0851C25E30300B3A8E7 /* SmallNodeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 085FC0831C25E30300B3A8E7 /* SmallNodeCell.m */; };
 		089AFE861C03353400BA5F98 /* TokenCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 089AFE851C03353400BA5F98 /* TokenCell.xib */; };
 		089AFE891C03353900BA5F98 /* TokensViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 089AFE881C03353900BA5F98 /* TokensViewController.xib */; };
 		089AFE8C1C03359000BA5F98 /* TokensViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 089AFE8B1C03359000BA5F98 /* TokensViewController.m */; };
@@ -99,6 +103,9 @@
 		0851EA181C0C96BE006C2932 /* HinshiMasterDev.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = HinshiMasterDev.entitlements; sourceTree = "<group>"; };
 		0851EA191C0C96D7006C2932 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		0851EA1B1C0C96DF006C2932 /* HinshiMaster.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = HinshiMaster.entitlements; sourceTree = "<group>"; };
+		085FC07E1C25E2BE00B3A8E7 /* SmallNodeCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SmallNodeCell.xib; sourceTree = "<group>"; };
+		085FC0821C25E30300B3A8E7 /* SmallNodeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmallNodeCell.h; sourceTree = "<group>"; };
+		085FC0831C25E30300B3A8E7 /* SmallNodeCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SmallNodeCell.m; sourceTree = "<group>"; };
 		089AFE851C03353400BA5F98 /* TokenCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TokenCell.xib; sourceTree = "<group>"; };
 		089AFE881C03353900BA5F98 /* TokensViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TokensViewController.xib; sourceTree = "<group>"; };
 		089AFE8A1C03359000BA5F98 /* TokensViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TokensViewController.h; sourceTree = "<group>"; };
@@ -185,6 +192,8 @@
 				28D7ACF70DDB3853001CB0EB /* LibMecabSampleViewController.m */,
 				13C86E6912C87B77006F2369 /* NodeCell.h */,
 				13C86E6A12C87B77006F2369 /* NodeCell.m */,
+				085FC0821C25E30300B3A8E7 /* SmallNodeCell.h */,
+				085FC0831C25E30300B3A8E7 /* SmallNodeCell.m */,
 				089AFE8A1C03359000BA5F98 /* TokensViewController.h */,
 				089AFE8B1C03359000BA5F98 /* TokensViewController.m */,
 				089AFE8D1C03359700BA5F98 /* TokenCell.h */,
@@ -278,6 +287,7 @@
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
 				2899E5210DE3E06400AC0155 /* LibMecabSampleViewController.xib */,
 				13C86E5D12C87B3E006F2369 /* NodeCell.xib */,
+				085FC07E1C25E2BE00B3A8E7 /* SmallNodeCell.xib */,
 				089AFE881C03353900BA5F98 /* TokensViewController.xib */,
 				089AFE851C03353400BA5F98 /* TokenCell.xib */,
 			);
@@ -417,6 +427,7 @@
 				0851EA011C0C9675006C2932 /* mecabrc in Resources */,
 				0820F5DA1C0D565900E17DD1 /* Settings.bundle in Resources */,
 				0851EA021C0C9675006C2932 /* folder.png in Resources */,
+				085FC0801C25E2BE00B3A8E7 /* SmallNodeCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -442,6 +453,7 @@
 				13C86F6E12C8871C006F2369 /* mecabrc in Resources */,
 				0820F5D91C0D565900E17DD1 /* Settings.bundle in Resources */,
 				089AFE961C03F51A00BA5F98 /* folder.png in Resources */,
+				085FC07F1C25E2BE00B3A8E7 /* SmallNodeCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -457,6 +469,7 @@
 				0851EA051C0C9675006C2932 /* main.m in Sources */,
 				0851EA061C0C9675006C2932 /* LibMecabSampleAppDelegate.m in Sources */,
 				0851EA071C0C9675006C2932 /* LibMecabSampleViewController.m in Sources */,
+				085FC0851C25E30300B3A8E7 /* SmallNodeCell.m in Sources */,
 				084A465D1C205EA1005C73F0 /* Utility.m in Sources */,
 				0851EA081C0C9675006C2932 /* Mecab.m in Sources */,
 				0851EA091C0C9675006C2932 /* Node.m in Sources */,
@@ -474,6 +487,7 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* LibMecabSampleAppDelegate.m in Sources */,
 				28D7ACF80DDB3853001CB0EB /* LibMecabSampleViewController.m in Sources */,
+				085FC0841C25E30300B3A8E7 /* SmallNodeCell.m in Sources */,
 				084A465C1C205EA1005C73F0 /* Utility.m in Sources */,
 				13C86E5B12C87B30006F2369 /* Mecab.m in Sources */,
 				13C86E5C12C87B30006F2369 /* Node.m in Sources */,

@@ -23,19 +23,17 @@
 
 @implementation LibMecabSampleViewController
 
-NSSet *upperSet = nil;
-NSSet *lowerSet = nil;
-
 @synthesize textField=_textField;
 @synthesize tableView=_tableView;
 @synthesize nodeCell=_nodeCell;
+@synthesize smallNodeCell=_smallNodeCell;
 @synthesize examples=_examples;
 @synthesize explore=_explore;
 @synthesize patch=_patch;
 @synthesize mecab=_mecab;
 @synthesize nodes=_nodes;
-//@synthesize sentences=_sentences;
 @synthesize sentenceDics=_sentenceDics;
+@synthesize shortFormat=_shortFormat;
 
 #pragma mark - IBAction
 
@@ -243,13 +241,13 @@ NSSet *lowerSet = nil;
 
     [super viewDidLoad];
 
+    _shortFormat = YES;
+    [self createGestureRecognizers];
+    
     if ([[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsPatchMode] == nil) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kDefaultsPatchMode];
     }
     [self setupByPreferences];
-    
-    upperSet = [[NSSet setWithObjects:@"イ", @"キ", @"ギ", @"シ", @"ジ", @"チ", @"ヂ", @"ニ", @"ヒ", @"ビ", @"ミ", @"リ", nil] retain];
-    lowerSet = [[NSSet setWithObjects:@"エ", @"ケ", @"ゲ", @"セ", @"ゼ", @"テ", @"デ", @"ネ", @"ヘ", @"ベ", @"メ", @"レ", nil] retain];
     
     [_tableView becomeFirstResponder];
 
@@ -384,57 +382,111 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    static NSString *CellIdentifier = @"NodeCell";
-    
-    NodeCell *cell = (NodeCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
-		[[NSBundle mainBundle] loadNibNamed:@"NodeCell" owner:self options:nil];
-		cell = _nodeCell;
-		self.nodeCell = nil;
-    }
-    
-	Node *node = [_nodes objectAtIndex:indexPath.row];
-    NSString *reading = [node reading];
-    NSString *partOfSpeech = [node partOfSpeech];
+    Node *node = [_nodes objectAtIndex:indexPath.row];
 
-    if (reading && ! [reading isEqualToString:@"(null)"]) {
-        cell.surfaceLabel.text = node.surface;
+    if (_shortFormat == NO) {
+//        static NSString *CellIdentifier = @"NodeCell";
+        
+        NodeCell *cell = (NodeCell *)[tableView dequeueReusableCellWithIdentifier:@"NodeCell"];
+        if (cell == nil) {
+            [[NSBundle mainBundle] loadNibNamed:@"NodeCell" owner:self options:nil];
+            cell = _nodeCell;
+            self.nodeCell = nil;
+        }
+        
+        NSString *reading = [node reading];
+        NSString *partOfSpeech = [node partOfSpeech];
+        
+        if (reading && ! [reading isEqualToString:@"(null)"]) {
+            cell.surfaceLabel.text = node.surface;
+        } else {
+            cell.surfaceLabel.text = node.surface;
+        }
+        // 読み
+        cell.readingLabel.text = [node reading];
+        // 発音
+        cell.pronunciationLabel.text = [node pronunciation];
+        // 原形
+        cell.originalFormLabel.text = [node originalForm];
+        
+        cell.partOfSpeechLabel.text = [node partOfSpeech];
+        cell.partOfSpeechSubtype1Label.text = [node partOfSpeechSubtype1];
+        cell.partOfSpeechSubtype2Label.text = [node partOfSpeechSubtype2];
+        cell.partOfSpeechSubtype3Label.text = [node partOfSpeechSubtype3];
+        
+        // 活用形
+        NSMutableString *inflection = [[node inflection] mutableCopy];
+        [inflection replaceOccurrencesOfString:@"™" withString:@""
+                                       options:NSLiteralSearch
+                                         range:NSMakeRange(0, [inflection length])];
+        if ([inflection isEqualToString:[node inflection]] == NO) {
+            cell.inflectionLabel.textColor = [UIColor brownColor];
+        } else {
+            cell.inflectionLabel.textColor = [UIColor blackColor];
+        }
+        if ([partOfSpeech isEqualToString:@"助詞"] ||
+            [partOfSpeech isEqualToString:@"助動詞"] ||
+            [partOfSpeech isEqualToString:@"記号"]) {
+            cell.partOfSpeechLabel.textColor = [UIColor colorWithRed:255 green:0 blue:255 alpha:0.4];
+        } else {
+            cell.partOfSpeechLabel.textColor = [UIColor magentaColor];
+        }
+        cell.inflectionLabel.text = inflection;
+        // 活用型
+        cell.useOfTypeLabel.text = [node useOfType];
+        return cell;
     } else {
-        cell.surfaceLabel.text = node.surface;
+//        static NSString *CellIdentifier = @"SmallNodeCell";
+        
+        SmallNodeCell *cell = (SmallNodeCell *)[tableView dequeueReusableCellWithIdentifier:@"SmallNodeCell"];
+        if (cell == nil) {
+            [[NSBundle mainBundle] loadNibNamed:@"SmallNodeCell" owner:self options:nil];
+            cell = _smallNodeCell;
+            self.smallNodeCell = nil;
+        }
+        
+        NSString *reading = [node reading];
+        NSString *partOfSpeech = [node partOfSpeech];
+        
+        if (reading && ! [reading isEqualToString:@"(null)"]) {
+            cell.surfaceLabel.text = node.surface;
+        } else {
+            cell.surfaceLabel.text = node.surface;
+        }
+        // 読み
+//        cell.readingLabel.text = [node reading];
+        // 発音
+//        cell.pronunciationLabel.text = [node pronunciation];
+        // 原形
+        cell.originalFormLabel.text = [node originalForm];
+        
+        cell.partOfSpeechLabel.text = [node partOfSpeech];
+//        cell.partOfSpeechSubtype1Label.text = [node partOfSpeechSubtype1];
+//        cell.partOfSpeechSubtype2Label.text = [node partOfSpeechSubtype2];
+//        cell.partOfSpeechSubtype3Label.text = [node partOfSpeechSubtype3];
+        
+        // 活用形
+        NSMutableString *inflection = [[node inflection] mutableCopy];
+        [inflection replaceOccurrencesOfString:@"™" withString:@""
+                                       options:NSLiteralSearch
+                                         range:NSMakeRange(0, [inflection length])];
+        if ([inflection isEqualToString:[node inflection]] == NO) {
+//            cell.inflectionLabel.textColor = [UIColor brownColor];
+        } else {
+//            cell.inflectionLabel.textColor = [UIColor blackColor];
+        }
+        if ([partOfSpeech isEqualToString:@"助詞"] ||
+            [partOfSpeech isEqualToString:@"助動詞"] ||
+            [partOfSpeech isEqualToString:@"記号"]) {
+            cell.partOfSpeechLabel.textColor = [UIColor colorWithRed:255 green:0 blue:255 alpha:0.4];
+        } else {
+            cell.partOfSpeechLabel.textColor = [UIColor magentaColor];
+        }
+//        cell.inflectionLabel.text = inflection;
+        // 活用型
+//        cell.useOfTypeLabel.text = [node useOfType];
+        return cell;
     }
-    // 読み
-    cell.readingLabel.text = [node reading];
-    // 発音
-    cell.pronunciationLabel.text = [node pronunciation];
-    // 原形
-    cell.originalFormLabel.text = [node originalForm];
-
-    cell.partOfSpeechLabel.text = [node partOfSpeech];
-    cell.partOfSpeechSubtype1Label.text = [node partOfSpeechSubtype1];
-    cell.partOfSpeechSubtype2Label.text = [node partOfSpeechSubtype2];
-    cell.partOfSpeechSubtype3Label.text = [node partOfSpeechSubtype3];
-
-    // 活用形
-    NSMutableString *inflection = [[node inflection] mutableCopy];
-    [inflection replaceOccurrencesOfString:@"™" withString:@""
-                               options:NSLiteralSearch
-                                 range:NSMakeRange(0, [inflection length])];
-    if ([inflection isEqualToString:[node inflection]] == NO) {
-        cell.inflectionLabel.textColor = [UIColor brownColor];
-    } else {
-        cell.inflectionLabel.textColor = [UIColor blackColor];
-    }
-    if ([partOfSpeech isEqualToString:@"助詞"] ||
-        [partOfSpeech isEqualToString:@"助動詞"] ||
-        [partOfSpeech isEqualToString:@"記号"]) {
-        cell.partOfSpeechLabel.textColor = [UIColor colorWithRed:255 green:0 blue:255 alpha:0.4];
-    } else {
-        cell.partOfSpeechLabel.textColor = [UIColor magentaColor];
-    }
-    cell.inflectionLabel.text = inflection;
-    // 活用型
-    cell.useOfTypeLabel.text = [node useOfType];
-    return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView
@@ -443,7 +495,11 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     Node *node = [_nodes objectAtIndex:indexPath.row];
 
     if (node.visible) {
-        return 74.0;
+        if (_shortFormat == NO) {
+            return 74.0;
+        } else {
+            return 29.0;
+        }
     } else {
         return 0.0;
     }
@@ -454,13 +510,13 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     self.textField = nil;
     self.tableView = nil;
     self.nodeCell = nil;
+    self.smallNodeCell = nil;
     self.examples = nil;
     self.explore = nil;
     self.patch = nil;
 
     self.mecab = nil;
 	self.nodes = nil;
-//    self.sentences = nil;
     self.sentenceDics = nil;
 	
     [super dealloc];
@@ -562,6 +618,35 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     [Utility keyboardHideAnimation:_tableView
                       keyboardRect:endFrame
                           duration:duration];
+}
+#pragma mark - Gesture Recognizers
+
+// テーブルビューにジェスチャーレコグナイザーを追加する。
+- (void) createGestureRecognizers {
+    /*
+     * 長押しレコグナイザーを追加する。
+     */
+    UILongPressGestureRecognizer *longPressRecognizer =
+    [[UILongPressGestureRecognizer alloc] initWithTarget:self
+                                                  action:@selector(handleLongPress:)];
+    [_tableView addGestureRecognizer:longPressRecognizer];
+    
+    [longPressRecognizer release];
+}
+
+// 長押しで表示モードをトグルさせる。
+- (IBAction) handleLongPress:(UILongPressGestureRecognizer *)sender {
+    
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        DEBUG_LOG(@"%s", __func__);
+//        CGPoint location = [sender locationInView:self.view];
+//        NSIndexPath *indexPath = [_tableView indexPathForRowAtPoint:location];
+//        NodeCell *cell = (NodeCell *) [_tableView cellForRowAtIndexPath:indexPath];
+
+        // 表示モードをトグルさせる。
+        _shortFormat = ! _shortFormat;
+        [_tableView reloadData];
+    }
 }
 
 @end
