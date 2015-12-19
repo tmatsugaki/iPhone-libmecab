@@ -26,7 +26,7 @@
     self.myNavigationItem = nil;
     self.searchBar = nil;
     self.tokenCell = nil;
-    self.listDicItems = nil;
+    self.listItems = nil;
     self.rawSentences = nil;
     self.filteredSentences = nil;
     
@@ -96,7 +96,7 @@
 
     [super viewDidLoad];
 
-    self.listDicItems = _rawSentences;
+    self.listItems = _rawSentences;
     self.filteredSentences = [[[NSMutableArray alloc] init] autorelease];
 
     _searchBar.delegate = self;
@@ -139,8 +139,8 @@
     if ([sentence length]) {
         NSUInteger index = NSNotFound;
         
-        for (NSUInteger i = 0; i < [_listDicItems count]; i++) {
-            NSDictionary *dic = _listDicItems[i];
+        for (NSUInteger i = 0; i < [_listItems count]; i++) {
+            NSDictionary *dic = _listItems[i];
             if ([dic[@"sentence"] isEqualToString:sentence]) {
                 index = i;
                 break;
@@ -194,8 +194,8 @@
 
 //    DEBUG_LOG(@"%s", __func__);
 
-    if (_listDicItems) {
-		return [_listDicItems count];
+    if (_listItems) {
+		return [_listItems count];
 	}
 	return 0;
 }
@@ -203,7 +203,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-//    DEBUG_LOG(@"%s Count:%lu Row:%ld", __func__, (unsigned long)[_listDicItems count], (long)indexPath.row);
+//    DEBUG_LOG(@"%s Count:%lu Row:%ld", __func__, (unsigned long)[_listItems count], (long)indexPath.row);
 
     static NSString *CellIdentifier = @"TokenCell";
     
@@ -219,7 +219,7 @@
 		self.tokenCell = nil;
     }
     
-	NSDictionary *dic = [_listDicItems objectAtIndex:indexPath.row];
+	NSDictionary *dic = [_listItems objectAtIndex:indexPath.row];
 
     if (((NSNumber *) dic[@"modified"]).boolValue) {
         cell.textLabel.textColor = [UIColor blueColor];
@@ -245,7 +245,7 @@ didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 
-    NSDictionary *dic = [_listDicItems objectAtIndex:indexPath.row];
+    NSDictionary *dic = [_listItems objectAtIndex:indexPath.row];
     [[NSUserDefaults standardUserDefaults] setObject:dic[@"sentence"] forKey:kDefaultsSentence];
     // 画面を閉じる
     [self performSelector:@selector(dismissMe) withObject:nil afterDelay:0.5];
@@ -266,16 +266,16 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
 
     @try {
         if (editingStyle == UITableViewCellEditingStyleDelete) {
-            NSDictionary *dic = [_listDicItems objectAtIndex:indexPath.row];
+            NSDictionary *dic = [_listItems objectAtIndex:indexPath.row];
             NSString *searchingToken = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
             
             if ([dic[@"sentence"] isEqualToString:searchingToken])
             {// 削除対象のディクショナリーの文字列が解析対象の文字列であるならば、初期化する。
                 [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsSentence];
             }
-            [_listDicItems removeObject:dic];
+            [_listItems removeObject:dic];
             // 文章を削除したので、XML ファイルに反映する。
-            [_listDicItems writeToFile:kLibXMLPath atomically:YES];
+            [_listItems writeToFile:kLibXMLPath atomically:YES];
 
 #if DELETE_ANIMATION
             CGContextRef context = UIGraphicsGetCurrentContext();
@@ -303,7 +303,7 @@ canEditRowAtIndexPath:(NSIndexPath *)indexPath {
 
     // 削除できるのは、検索中でなく複数セルがある場合
     // 【注意】最後のトークン消すと画面を終われなくなる。
-    return (_listDicItems == _rawSentences) && [_listDicItems count] > 1;
+    return (_listItems == _rawSentences) && [_listItems count] > 1;
 }
 
 // Override to support conditional editing of the table view.
@@ -313,7 +313,7 @@ canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
 //    DEBUG_LOG(@"%s", __func__);
 
     // 移動できるのは、検索中でなくテーブルビューが編集中で複数セルがある場合
-    return tableView.editing && (_listDicItems == _rawSentences) && [_listDicItems count] > 1;
+    return tableView.editing && (_listItems == _rawSentences) && [_listItems count] > 1;
 }
 
 // Override to support conditional editing of the table view.
@@ -326,18 +326,18 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
     @try {
         if (indexPath.row != toIndexPath.row) {
             NSUInteger numRows = [self tableView:tableView numberOfRowsInSection:0];
-            NSDictionary *dic = [_listDicItems[indexPath.row] retain];
+            NSDictionary *dic = [_listItems[indexPath.row] retain];
 
-            [_listDicItems removeObject:dic];
+            [_listItems removeObject:dic];
             if (toIndexPath.row == numRows - 1)
             {// 末端
-                [_listDicItems addObject:dic];
+                [_listItems addObject:dic];
             } else
             {
-                [_listDicItems insertObject:dic atIndex:toIndexPath.row];
+                [_listItems insertObject:dic atIndex:toIndexPath.row];
             }
             // 文章を移動したので、XML ファイルに反映する。
-            [_listDicItems writeToFile:kLibXMLPath atomically:YES];
+            [_listItems writeToFile:kLibXMLPath atomically:YES];
 
             [[NSUserDefaults standardUserDefaults] setObject:dic[@"sentence"] forKey:kDefaultsSentence];
 
@@ -419,8 +419,8 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
     if ([sentence length]) {
         NSUInteger index = NSNotFound;
         
-        for (NSUInteger i = 0; i < [_listDicItems count]; i++) {
-            NSDictionary *dic = _listDicItems[i];
+        for (NSUInteger i = 0; i < [_listItems count]; i++) {
+            NSDictionary *dic = _listItems[i];
             if ([dic[@"sentence"] isEqualToString:sentence]) {
                 index = i;
                 break;
@@ -474,10 +474,10 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
                 }
             }
         }
-        self.listDicItems = _filteredSentences;
+        self.listItems = _filteredSentences;
         _myNavigationItem.rightBarButtonItem.enabled = NO;
     } else {
-        self.listDicItems = _rawSentences;
+        self.listItems = _rawSentences;
         _myNavigationItem.rightBarButtonItem.enabled = YES;
     }
 }

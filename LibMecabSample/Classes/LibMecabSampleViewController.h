@@ -24,7 +24,7 @@
 	
 	Mecab *_mecab;
 	NSMutableArray *_nodes;
-    NSMutableArray *_sentenceDics;
+    NSMutableArray *_sentenceItems;
     BOOL _shortFormat;
 }
 
@@ -37,7 +37,7 @@
 @property (nonatomic, retain) IBOutlet UISwitch *patch;
 @property (nonatomic, retain) Mecab *mecab;
 @property (nonatomic, retain) NSMutableArray *nodes;
-@property (nonatomic, retain) NSMutableArray *sentenceDics;
+@property (nonatomic, retain) NSMutableArray *sentenceItems;
 @property (nonatomic, assign) BOOL shortFormat;
 
 - (IBAction)parse:(id)sender;

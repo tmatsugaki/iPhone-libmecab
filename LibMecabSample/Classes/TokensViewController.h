@@ -15,7 +15,7 @@
     UINavigationItem *_myNavigationItem;
     UISearchBar *_searchBar;
     TokenCell *_tokenCell;
-    NSMutableArray *_listDicItems;
+    NSMutableArray *_listItems;
     NSMutableArray *_rawSentences;
     NSMutableArray *_filteredSentences;
 }
@@ -25,7 +25,7 @@
 @property (nonatomic, retain) IBOutlet UISearchBar *searchBar;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet TokenCell *tokenCell;
-@property (nonatomic, retain) NSMutableArray *listDicItems;
+@property (nonatomic, retain) NSMutableArray *listItems;
 @property (nonatomic, retain) NSMutableArray *rawSentences;
 @property (nonatomic, retain) NSMutableArray *filteredSentences;
 

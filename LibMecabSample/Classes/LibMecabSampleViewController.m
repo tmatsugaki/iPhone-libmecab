@@ -32,7 +32,7 @@
 @synthesize patch=_patch;
 @synthesize mecab=_mecab;
 @synthesize nodes=_nodes;
-@synthesize sentenceDics=_sentenceDics;
+@synthesize sentenceItems=_sentenceItems;
 @synthesize shortFormat=_shortFormat;
 
 #pragma mark - IBAction
@@ -47,8 +47,8 @@
     {// ダイアグノシス
         NSUInteger i;
 
-        for (i = 0; i < [_sentenceDics count]; i++) {
-            NSMutableDictionary *sentenceDic = _sentenceDics[i];
+        for (i = 0; i < [_sentenceItems count]; i++) {
+            NSMutableDictionary *sentenceDic = _sentenceItems[i];
             NSString *sentence = sentenceDic[@"sentence"];
 
             DEBUG_LOG(@"**********************************************************************\n");
@@ -84,11 +84,11 @@
 
 #if REPLACE_OBJECT
             sentenceDic[@"modified"] = [NSNumber numberWithBool:mecabPatcher.modified];
-            [_sentenceDics replaceObjectAtIndex:i withObject:sentenceDic];
+            [_sentenceItems replaceObjectAtIndex:i withObject:sentenceDic];
 #endif
         }
 #if REPLACE_OBJECT
-        [_sentenceDics writeToFile:kLibXMLPath atomically:YES];
+        [_sentenceItems writeToFile:kLibXMLPath atomically:YES];
 #endif
     } else {
         self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:string]];
@@ -127,15 +127,15 @@
         if ([string length]) {
             NSUInteger foundIndex = NSNotFound;
             
-            for (NSUInteger i = 0; i < [_sentenceDics count]; i++) {
-                NSDictionary *dic = _sentenceDics[i];
+            for (NSUInteger i = 0; i < [_sentenceItems count]; i++) {
+                NSDictionary *dic = _sentenceItems[i];
                 if ([dic[@"sentence"] isEqualToString:string]) {
                     foundIndex = i;
                     break;
                 }
             }
             if (foundIndex != NSNotFound) {
-                NSMutableDictionary *dic = _sentenceDics[foundIndex];
+                NSMutableDictionary *dic = _sentenceItems[foundIndex];
 
                 dic[@"modified"] = [NSNumber numberWithBool:mecabPatcher.modified];
             } else {
@@ -144,9 +144,9 @@
                 newDic[@"sentence"] = string;
                 newDic[@"tag"]      = @"";
                 newDic[@"modified"] = [NSNumber numberWithBool:mecabPatcher.modified];
-                [_sentenceDics addObject:newDic];
+                [_sentenceItems addObject:newDic];
             }
-            [_sentenceDics writeToFile:kLibXMLPath atomically:YES];
+            [_sentenceItems writeToFile:kLibXMLPath atomically:YES];
 
             // iCloud
 #if 0
@@ -183,11 +183,11 @@
     
     [_textField resignFirstResponder];
 
-    if ([_sentenceDics count])
+    if ([_sentenceItems count])
     {// トークンリストのモーダルダイアログを表示する。
         TokensViewController *viewController = [[TokensViewController alloc] initWithNibName:@"TokensViewController"
                                                                                       bundle:nil
-                                                                              sentencesArray:_sentenceDics];
+                                                                              sentencesArray:_sentenceItems];
         
         [self presentViewController:viewController animated:YES completion:nil];
         [viewController release];
@@ -228,8 +228,8 @@
 
     NSString *string = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
 
-    if ([string length] == 0 && [_sentenceDics count]) {
-        string = ((NSDictionary *) _sentenceDics[0])[@"sentence"];
+    if ([string length] == 0 && [_sentenceItems count]) {
+        string = ((NSDictionary *) _sentenceItems[0])[@"sentence"];
     }
     [_textField setText:[string length] ? string : @""];
     [self parse:self];
@@ -320,7 +320,7 @@
         [self initialParse];
     }
 #else
-    self.sentenceDics = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+    self.sentenceItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
     [self initialParse];
 #endif
 
@@ -517,7 +517,7 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 
     self.mecab = nil;
 	self.nodes = nil;
-    self.sentenceDics = nil;
+    self.sentenceItems = nil;
 	
     [super dealloc];
 }
