@@ -498,6 +498,33 @@ static MecabPatch *sharedManager = nil;
 
 #pragma mark - Patch (パッチ)
 
+// 【助動詞化】副詞可能な名詞＋「、」→副詞
+- (void) patch_DetectAdverb {
+    Node *nextNode = nil;
+    
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
+        if (node.visible == NO) {
+            continue;
+        }
+        nextNode = [self nextNode:i];
+        
+        if ([[node partOfSpeech] isEqualToString:@"名詞"] &&
+            [[node partOfSpeechSubtype1] isEqualToString:@"副詞可能"] &&
+            nextNode && [nextNode.surface isEqualToString:@"、"])
+        {
+            [node setPartOfSpeech:@"副詞"];
+            [node setPartOfSpeechSubtype1:@""];
+
+            // 修正された。
+            _modified = YES;
+#if LOG_PATCH
+            DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
+#endif
+        }
+    }
+}
+
 // 【助動詞化】体言＋助詞「で、」→助動詞「だ」（連用形）
 // 【注意】後端の「、」が必須条件（制限事項！！）
 - (void) patch_TAIGEN_DA {

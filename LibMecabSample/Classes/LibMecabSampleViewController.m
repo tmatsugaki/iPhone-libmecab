@@ -69,6 +69,7 @@
             [mecabPatcher patch_merge_GOKAN];
             [mecabPatcher patch_merge_MEISHI];  // 名詞の連結は、語幹連結の後にしないとダメ！！
             // パッチ
+            [mecabPatcher patch_DetectAdverb];
             [mecabPatcher patch_TAIGEN_DA];
             [mecabPatcher patch_NANODA_NO];
             [mecabPatcher patch_KANDOSHI_SOU];
@@ -109,6 +110,7 @@
             [mecabPatcher patch_merge_GOKAN];
             [mecabPatcher patch_merge_MEISHI];  // 名詞の連結は、語幹連結の後にしないとダメ！！
             // パッチ
+            [mecabPatcher patch_DetectAdverb];
             [mecabPatcher patch_TAIGEN_DA];
             [mecabPatcher patch_NANODA_NO];
             [mecabPatcher patch_KANDOSHI_SOU];
