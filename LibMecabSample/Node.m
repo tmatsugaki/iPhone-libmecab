@@ -14,6 +14,7 @@
 @synthesize feature;
 @synthesize features;
 @synthesize attribute;
+@synthesize modified;
 @synthesize visible;
 
 - (void)setFeature:(NSString *)value {

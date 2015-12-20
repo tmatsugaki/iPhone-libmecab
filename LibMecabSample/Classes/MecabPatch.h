@@ -28,7 +28,7 @@
 - (void) patch_before_merge_GOKAN;
 - (void) patch_merge_GOKAN;
 - (void) patch_merge_MEISHI;
-- (void) patch_DetectAdverb;
+- (void) patch_detect_FUKUSHI;
 - (void) patch_TAIGEN_DA;
 - (void) patch_NANODA_NO;
 - (void) patch_KANDOSHI_SOU;

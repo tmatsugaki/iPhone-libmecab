@@ -94,6 +94,7 @@ static MecabPatch *sharedManager = nil;
 #endif
         }
         node.attribute = @"";
+        node.modified = NO;
         node.visible = YES;
     }
 }
@@ -216,7 +217,8 @@ static MecabPatch *sharedManager = nil;
                 [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                 [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
                 [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
-                [node setInflection:[NSString stringWithFormat:@"%@%@&%@", @"™" , [lastNode inflection], [node inflection]]];
+                [node setInflection:[NSString stringWithFormat:@"%@&%@", [lastNode inflection], [node inflection]]];
+                node.modified = YES;
             }
         }
         lastNode = node;
@@ -255,7 +257,8 @@ static MecabPatch *sharedManager = nil;
                     [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
                     [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
-                    [node setInflection:[NSString stringWithFormat:@"%@%@", @"™" , [node inflection]]];
+                    [node setInflection:[NSString stringWithFormat:@"%@", [node inflection]]];
+                    node.modified = YES;
                 }
             }
         }
@@ -300,7 +303,8 @@ static MecabPatch *sharedManager = nil;
                             [lastNode setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                             [lastNode setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
                             [lastNode setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
-                            [lastNode setInflection:[@"™" stringByAppendingString:[node inflection]]];
+                            [lastNode setInflection:[@"" stringByAppendingString:[node inflection]]];
+                            lastNode.modified = YES;
                             node = lastNode;
                         }
                     }
@@ -311,7 +315,7 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
-// 語幹の連結
+// 語幹の連結（自分の前が語幹の場合）
 - (void) patch_merge_GOKAN {
     Node *lastNode = nil;
     
@@ -350,15 +354,17 @@ static MecabPatch *sharedManager = nil;
                         [node setPartOfSpeech:@"助動詞"];
                         [node setPartOfSpeechSubtype1:@""];
                         [node setUseOfType:@"連用形"];
-                        [node setInflection:@"™断定"];
+                        [node setInflection:@"断定"];
                         [_nodes replaceObjectAtIndex:index withObject:node];
+                        node.modified = YES;
                         
                         [newNode setSurface:@"も"];
                         [newNode setPronunciation:@"モ"];
                         [newNode setOriginalForm:@"も"];
                         [newNode setPartOfSpeech:@"助詞"];
                         [newNode setPartOfSpeechSubtype1:@"係助詞"];
-                        [newNode setInflection:@"™"];
+                        [newNode setInflection:@""];
+                        newNode.modified = YES;
                         newNode.visible = YES;
                         [_nodes insertObject:newNode atIndex:index+1];
                         [newNode release];
@@ -415,25 +421,30 @@ static MecabPatch *sharedManager = nil;
                             if ([gokanStr isEqualToString:@"ナイ形容詞"]) {
                                 [node setPartOfSpeech:@"形容詞"];
                                 [node setPartOfSpeechSubtype1:@"自立"];
-                                [node setInflection:@"™形容詞・アウオ段"];
+                                [node setInflection:@"形容詞・アウオ段"];
+                                node.modified = YES;
                             } else {
                                 [node setPartOfSpeech:gokanStr];
-                                [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
+                                [node setInflection:[@"" stringByAppendingString:[node inflection]]];
+                                node.modified = YES;
                             }
                             if (changeIntoAdverb) {
                                 [node setPartOfSpeech:@"副詞"];
                                 [node setPartOfSpeechSubtype1:@"助詞副詞化"];
+                                node.modified = YES;
                             }
                             // ゴミ処理
                             if ([[node partOfSpeech] isEqualToString:@"形容動詞"] &&
                                 [[node partOfSpeechSubtype1] isEqualToString:@"格助詞"])
                             {
                                 [node setPartOfSpeechSubtype1:@""];
+                                node.modified = YES;
                             }
                         } else if (inhibitRashii) {
                             _modified = YES;
                             [lastNode setPartOfSpeech:@"形容動詞"];
                             [lastNode setOriginalForm:[[lastNode originalForm] stringByAppendingString:@"だ"]];
+                            lastNode.modified = YES;
                         }
                     }
                 }
@@ -459,22 +470,33 @@ static MecabPatch *sharedManager = nil;
                 BOOL retainLastSubtype = NO;
                 BOOL adverb = NO;
 
-                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"])
-                {// 名詞に連なっている。
+                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] || [[lastNode partOfSpeech] isEqualToString:@"動詞"])
+                {// 名詞｜動詞
                     if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
-                    {// 接尾辞である。
+                    {// （名詞｜動詞）＆名詞（接尾辞）である。
                         merge = YES;
                         retainLastSubtype = YES;
-                    } else if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
-                    {// 一般名詞が連なっている。
+                    } else if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
+                               [[node partOfSpeechSubtype1] isEqualToString:@"一般"])
+                    {// 名詞＆一般名詞が連なっている。
                         merge = YES;
                         retainLastSubtype = YES;
-                    } else if ([[lastNode partOfSpeechSubtype1] isEqualToString:@"副詞可能"] &&
-                               [[node partOfSpeechSubtype2] isEqualToString:@"副詞可能"])
-                    {
+                    } else if ([[node partOfSpeechSubtype2] isEqualToString:@"副詞可能"])
+                    {// eg.（名詞｜動詞）＆副詞可能「今日限り」「それ以上」「する以上」
                         merge = YES;
                         adverb = YES;
                     }
+#ifdef DEBUG
+                    NSString *lastSubtype1 = [lastNode partOfSpeechSubtype1];
+                    NSString *nodeSubtype2 = [node partOfSpeechSubtype2];
+                    
+                    if ([lastSubtype1 length] > 2 && [[lastSubtype1 substringFromIndex:[lastSubtype1 length] - 2] isEqualToString:@"可能"]) {
+                        DEBUG_LOG(@"[%@]%@", lastSubtype1, lastNode.surface);
+                    }
+                    if ([nodeSubtype2 length] > 2 && [[nodeSubtype2 substringFromIndex:[nodeSubtype2 length] - 2] isEqualToString:@"可能"]) {
+                        DEBUG_LOG(@"[%@]%@", nodeSubtype2, node.surface);
+                    }
+#endif
                 } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"] &&
                            [[lastNode partOfSpeechSubtype1] isEqualToString:@"名詞接続"])
                 {// 接頭詞・名詞接続に連なった一般名詞である。
@@ -499,11 +521,13 @@ static MecabPatch *sharedManager = nil;
                         [node setPronunciation:@"?"];
                     }
                     [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
+                    node.modified = YES;
                     
                     if (retainLastSubtype) {
                         [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
                     } else if (adverb) {
-                        [node setPartOfSpeechSubtype1:@"副詞"];
+                        [node setPartOfSpeech:@"副詞"];
+                        [node setPartOfSpeechSubtype1:@""];
                         [node setPartOfSpeechSubtype2:@""];
                     }
 //                    [node setPartOfSpeechSubtype2:[lastNode partOfSpeechSubtype2]]; // 元の属性を保全する。
@@ -518,7 +542,7 @@ static MecabPatch *sharedManager = nil;
 #pragma mark - Patch (パッチ)
 
 // 【助動詞化】副詞可能な名詞＋「、」→副詞
-- (void) patch_DetectAdverb {
+- (void) patch_detect_FUKUSHI {
     Node *nextNode = nil;
     
     for (NSInteger i = 0; i < [_nodes count]; i++) {
@@ -533,13 +557,14 @@ static MecabPatch *sharedManager = nil;
             ([[node partOfSpeechSubtype1] isEqualToString:@"副詞可能"] || [[node partOfSpeechSubtype2] isEqualToString:@"副詞可能"] || [[node partOfSpeechSubtype3] isEqualToString:@"副詞可能"]) &&
             ([nextNode.surface isEqualToString:@"、"] || [self isYougen:[nextNode partOfSpeech]]))
         {
+            // 修正された。
+            _modified = YES;
+
             [node setPartOfSpeech:@"副詞"];
             [node setPartOfSpeechSubtype1:@""];
             [node setPartOfSpeechSubtype2:@""];
             [node setPartOfSpeechSubtype3:@""];
-
-            // 修正された。
-            _modified = YES;
+            node.modified = YES;
 #if LOG_PATCH
             DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
 #endif
@@ -566,15 +591,16 @@ static MecabPatch *sharedManager = nil;
             if ([[node partOfSpeech] isEqualToString:@"助詞"] &&
                 [node.surface isEqualToString:@"で"])
             {
+                // 修正された。
+                _modified = YES;
+
                 [node setPartOfSpeech:@"助動詞"];
                 [node setPartOfSpeechSubtype1:@""];
                 [node setPartOfSpeechSubtype2:@""];
                 [node setOriginalForm:@"だ"];
                 [node setUseOfType:@"連用形"];
-                [node setInflection:[@"™" stringByAppendingString:@"断定"]];
-
-                // 修正された。
-                _modified = YES;
+                [node setInflection:[@"" stringByAppendingString:@"断定"]];
+                node.modified = YES;
 #if LOG_PATCH
                 DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
 #endif
@@ -597,12 +623,13 @@ static MecabPatch *sharedManager = nil;
         {
             if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"])
             {// 準体助詞である。
+                // 修正された。
+                _modified = YES;
+
                 [node setPartOfSpeech:@"助詞"];
                 [node setPartOfSpeechSubtype1:@"準体助詞"];
                 [node setPartOfSpeechSubtype2:@""];
-
-                // 修正された。
-                _modified = YES;
+                node.modified = YES;
 #if LOG_PATCH
                 DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
 #endif
@@ -621,12 +648,13 @@ static MecabPatch *sharedManager = nil;
                 [[node partOfSpeech] isEqualToString:@"副詞"] &&
                 [[node partOfSpeechSubtype1] isEqualToString:@"助詞類接続"])
             {
+                // 修正された。
+                _modified = YES;
+
                 [node setPartOfSpeech:@"感動詞"];
                 [node setPartOfSpeechSubtype1:@""];
                 [node setPartOfSpeechSubtype2:@""];
-
-                // 修正された。
-                _modified = YES;
+                node.modified = YES;
 #if LOG_PATCH
                 DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
 #endif
@@ -646,23 +674,25 @@ static MecabPatch *sharedManager = nil;
                     Node *nextNode = [self nextNode:i];
                     
                     if ([self isYougen:[nextNode partOfSpeech]] == NO) {
+                        // 修正された。
+                        _modified = YES;
+
                         [node setPartOfSpeech:@"感動詞"];
                         [node setPartOfSpeechSubtype1:@""];
                         [node setPartOfSpeechSubtype2:@""];
-
-                        // 修正された。
-                        _modified = YES;
+                        node.modified = YES;
 #if LOG_PATCH
                         DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
 #endif
                     }
                 } else {
+                    // 修正された。
+                    _modified = YES;
+
                     [node setPartOfSpeech:@"感動詞"];
                     [node setPartOfSpeechSubtype1:@""];
                     [node setPartOfSpeechSubtype2:@""];
-
-                    // 修正された。
-                    _modified = YES;
+                    node.modified = YES;
 #if LOG_PATCH
                     DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
 #endif
@@ -700,12 +730,13 @@ static MecabPatch *sharedManager = nil;
                     && [lastUseOfType length] >= 2 && [[lastUseOfType substringToIndex:2] isEqualToString:@"連用"]
                     ) // 連用形の形容詞／形容動詞に連なる場合は補助形容詞。
                 {// 形容詞／形容動詞＋補助形容詞（ない）
-                    [node setPartOfSpeech:@"形容詞"];
-                    [node setPartOfSpeechSubtype1:@"補助形容詞"];
-                    [node setInflection:@"™形容詞／形容動詞の補助動詞「ない」"];
-
                     // 修正された。
                     _modified = YES;
+
+                    [node setPartOfSpeech:@"形容詞"];
+                    [node setPartOfSpeechSubtype1:@"補助形容詞"];
+                    [node setInflection:@"形容詞／形容動詞の補助動詞「ない」"];
+                    node.modified = YES;
 #if LOG_PATCH
                     DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
 #endif
@@ -755,12 +786,13 @@ static MecabPatch *sharedManager = nil;
                     [node setPartOfSpeechSubtype2:@""];
                     if (rentai) {
                         [node setUseOfType:@"連体形"];
-                        [node setInflection:@"™形容詞・イ段"];
+                        [node setInflection:@"形容詞・イ段"];
                     } else if (renyou) {
                         [node setUseOfType:@"連用形"];
-                        [node setInflection:@"™形容詞・ウ段"];
+                        [node setInflection:@"形容詞・ウ段"];
                     }
-//                    [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
+//                    [node setInflection:[@"" stringByAppendingString:[node inflection]]];
+                    node.modified = YES;
                 }
             }
         }
@@ -779,12 +811,14 @@ static MecabPatch *sharedManager = nil;
         if ([[node partOfSpeechSubtype1] isEqualToString:@"接続助詞"] &&
             [node.surface isEqualToString:@"とも"])
         {
-            if ([self isEndOfSentence:i + 1]) {
-                [node setPartOfSpeechSubtype1:@"終助詞"];
-                [node setInflection:@"™強調"];
-
+            if ([self isEndOfSentence:i + 1])
+            {
                 // 修正された。
                 _modified = YES;
+
+                [node setPartOfSpeechSubtype1:@"終助詞"];
+                [node setInflection:@"強調"];
+                node.modified = YES;
 #if LOG_PATCH
                 DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
 #endif
@@ -823,8 +857,9 @@ static MecabPatch *sharedManager = nil;
                 
                 [node setPartOfSpeechSubtype1:@"終助詞"];
                 [node setPartOfSpeechSubtype2:@""];
-                [node setInflection:[@"™" stringByAppendingString:@"強調"]];
-                [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
+                [node setInflection:[@"" stringByAppendingString:@"強調"]];
+                [node setInflection:[@"" stringByAppendingString:[node inflection]]];
+                node.modified = YES;
             }
         }
         lastNode = node;
@@ -864,7 +899,8 @@ static MecabPatch *sharedManager = nil;
             [node setPartOfSpeechSubtype1:@"接続助詞"];
             [node setPartOfSpeechSubtype2:@""];
             [node setOriginalForm:@"ても"];
-            [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
+            [node setInflection:[@"" stringByAppendingString:[node inflection]]];
+            node.modified = YES;
         }
         lastNode = node;
     }
@@ -890,6 +926,9 @@ static MecabPatch *sharedManager = nil;
                     Node *newNode = [[Node alloc] init];
                     NSMutableArray *features = [[NSMutableArray alloc] initWithObjects:@"", @"", @"", @"", @"", @"", @"", @"", @"", nil];
                     
+                    // 修正された。
+                    _modified = YES;
+
                     newNode.features = features;
                     [features release];
                     
@@ -900,19 +939,18 @@ static MecabPatch *sharedManager = nil;
                     [node setPartOfSpeech:@"助詞"];
                     [node setPartOfSpeechSubtype1:@"格助詞"];
                     [_nodes replaceObjectAtIndex:index withObject:node];
+                    node.modified = YES;
                     
                     [newNode setSurface:@"も"];
                     [newNode setPronunciation:@"モ"];
                     [newNode setOriginalForm:@"も"];
                     [newNode setPartOfSpeech:@"助詞"];
                     [newNode setPartOfSpeechSubtype1:@"係助詞"];
-                    [newNode setInflection:@"™"];
+                    [newNode setInflection:@""];
+                    newNode.modified = YES;
                     newNode.visible = YES;
                     [_nodes insertObject:newNode atIndex:index+1];
                     [newNode release];
-
-                    // 修正された。
-                    _modified = YES;
 #if LOG_PATCH
                     DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
 #endif
@@ -953,7 +991,8 @@ static MecabPatch *sharedManager = nil;
             [node setPartOfSpeechSubtype1:@"係助詞"];
             [node setPartOfSpeechSubtype2:@""];
             [node setOriginalForm:@"でも"];
-            [node setInflection:[@"™" stringByAppendingString:[node inflection]]];
+            [node setInflection:[@"" stringByAppendingString:[node inflection]]];
+            node.modified = YES;
         }
         lastNode = node;
     }
@@ -1075,7 +1114,8 @@ static MecabPatch *sharedManager = nil;
                     [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
                     [node setOriginalForm:@"そうだ"];
-                    [node setInflection:@"™伝聞"];
+                    [node setInflection:@"伝聞"];
+                    node.modified = YES;
                 }
                 if ([[lastNode partOfSpeech] isEqualToString:@"副詞"] &&
                     [lastNode.surface isEqualToString:@"そう"])
@@ -1087,7 +1127,8 @@ static MecabPatch *sharedManager = nil;
                     [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
                     [node setOriginalForm:@"そうだ"];
-                    [node setInflection:@"™様相"];
+                    [node setInflection:@"様相"];
+                    node.modified = YES;
                 }
             }
         }
@@ -1118,11 +1159,12 @@ static MecabPatch *sharedManager = nil;
                     [node setSurface:[[lastNode surface] stringByAppendingString:[node surface]]];
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
                     [node setOriginalForm:[[lastNode originalForm] stringByAppendingString:@"だ"]];
-                    //                    [node setInflection:@"™伝聞"];
+//                    [node setInflection:@"伝聞"];
                     [node setPartOfSpeech:@"形容動詞"];
                     if (isRenyou) {
                         [node setUseOfType:@"連用形"];
                     }
+                    node.modified = YES;
                 }
             }
         }

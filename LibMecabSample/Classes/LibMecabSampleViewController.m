@@ -67,9 +67,9 @@
             [mecabPatcher patch_merge_FUKUGO_DOSHI_SAHEN];
             [mecabPatcher patch_before_merge_GOKAN];
             [mecabPatcher patch_merge_GOKAN];
-            [mecabPatcher patch_merge_MEISHI];  // 名詞の連結は、語幹連結の後にしないとダメ！！
+            [mecabPatcher patch_merge_MEISHI];  // 原則的に、名詞の連結は語幹連結の後にしないとダメ！！
             // パッチ
-            [mecabPatcher patch_DetectAdverb];
+            [mecabPatcher patch_detect_FUKUSHI];
             [mecabPatcher patch_TAIGEN_DA];
             [mecabPatcher patch_NANODA_NO];
 //            [mecabPatcher patch_KANDOSHI_SOU];
@@ -108,9 +108,9 @@
             [mecabPatcher patch_merge_FUKUGO_DOSHI_SAHEN];
             [mecabPatcher patch_before_merge_GOKAN];
             [mecabPatcher patch_merge_GOKAN];
-            [mecabPatcher patch_merge_MEISHI];  // 名詞の連結は、語幹連結の後にしないとダメ！！
+            [mecabPatcher patch_merge_MEISHI];  // 原則的に、名詞の連結は語幹連結の後にしないとダメ！！
             // パッチ
-            [mecabPatcher patch_DetectAdverb];
+            [mecabPatcher patch_detect_FUKUSHI];
             [mecabPatcher patch_TAIGEN_DA];
             [mecabPatcher patch_NANODA_NO];
 //            [mecabPatcher patch_KANDOSHI_SOU];
@@ -418,10 +418,8 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         
         // 活用形
         NSMutableString *inflection = [[node inflection] mutableCopy];
-        [inflection replaceOccurrencesOfString:@"™" withString:@""
-                                       options:NSLiteralSearch
-                                         range:NSMakeRange(0, [inflection length])];
-        if ([inflection isEqualToString:[node inflection]] == NO) {
+
+        if (node.modified) {
             cell.inflectionLabel.textColor = [UIColor brownColor];
         } else {
             cell.inflectionLabel.textColor = [UIColor blackColor];
@@ -455,28 +453,11 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         } else {
             cell.surfaceLabel.text = node.surface;
         }
-        // 読み
-//        cell.readingLabel.text = [node reading];
-        // 発音
-//        cell.pronunciationLabel.text = [node pronunciation];
         // 原形
         cell.originalFormLabel.text = [node originalForm];
-        
+        // 品詞
         cell.partOfSpeechLabel.text = [node partOfSpeech];
-//        cell.partOfSpeechSubtype1Label.text = [node partOfSpeechSubtype1];
-//        cell.partOfSpeechSubtype2Label.text = [node partOfSpeechSubtype2];
-//        cell.partOfSpeechSubtype3Label.text = [node partOfSpeechSubtype3];
-        
-        // 活用形
-        NSMutableString *inflection = [[node inflection] mutableCopy];
-        [inflection replaceOccurrencesOfString:@"™" withString:@""
-                                       options:NSLiteralSearch
-                                         range:NSMakeRange(0, [inflection length])];
-        if ([inflection isEqualToString:[node inflection]] == NO) {
-//            cell.inflectionLabel.textColor = [UIColor brownColor];
-        } else {
-//            cell.inflectionLabel.textColor = [UIColor blackColor];
-        }
+        // 品詞のカラーリング
         if ([partOfSpeech isEqualToString:@"助詞"] ||
             [partOfSpeech isEqualToString:@"助動詞"] ||
             [partOfSpeech isEqualToString:@"記号"]) {
@@ -484,9 +465,6 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         } else {
             cell.partOfSpeechLabel.textColor = [UIColor magentaColor];
         }
-//        cell.inflectionLabel.text = inflection;
-        // 活用型
-//        cell.useOfTypeLabel.text = [node useOfType];
         return cell;
     }
 }
