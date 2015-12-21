@@ -27,7 +27,7 @@
                         <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </label>
                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label" lineBreakMode="tailTruncation" minimumFontSize="10" id="kuo-a7-zSf">
-                        <rect key="frame" x="216" y="4" width="90" height="21"/>
+                        <rect key="frame" x="183" y="4" width="123" height="21"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
@@ -35,7 +35,7 @@
                         <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </label>
                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label" lineBreakMode="tailTruncation" minimumFontSize="10" id="8">
-                        <rect key="frame" x="115" y="4" width="90" height="21"/>
+                        <rect key="frame" x="106" y="4" width="69" height="21"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
@@ -51,7 +51,7 @@
                 <outlet property="partOfSpeechLabel" destination="8" id="aNN-6g-Ypx"/>
                 <outlet property="surfaceLabel" destination="7" id="11"/>
             </connections>
-            <point key="canvasLocation" x="410" y="415"/>
+            <point key="canvasLocation" x="410" y="414.5"/>
         </tableViewCell>
     </objects>
 </document>
