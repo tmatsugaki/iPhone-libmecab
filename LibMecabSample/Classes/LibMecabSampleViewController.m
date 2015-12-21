@@ -130,8 +130,26 @@
             [mecabPatcher postProcess];
         }
         _patchedResult = _patch.on;
+#if 1
         [_tableView reloadData];
+#elif 0
+        [UIView animateWithDuration:0.2
+                         animations:^{
+                             [_tableView reloadData];
+                         }
+                         completion:^(BOOL finished) {
+                         }];
+#else
+        CGContextRef context = UIGraphicsGetCurrentContext();
         
+        [UIView beginAnimations:nil context:context];
+        [UIView setAnimationDuration:0.5];
+        [UIView setAnimationTransition:UIViewAnimationTransitionNone
+                               forView:_tableView
+                                 cache:NO];
+        [_tableView reloadData];
+        [UIView commitAnimations];
+#endif
         if ([string length]) {
             NSUInteger foundIndex = NSNotFound;
             
@@ -248,6 +266,8 @@
 //    DEBUG_LOG(@"%s", __func__);
 
     [super viewDidLoad];
+    
+    [_tableView setBackgroundColor:[UIColor lightTextColor]];
 
     _shortFormat = YES;
     [self createGestureRecognizers];
@@ -403,7 +423,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         cell.delegate = self;
         if (_patchedResult) {
             if (([self nthPhrase:indexPath.row] % 2) == 0) {
-                [cell.contentView setBackgroundColor:[UIColor whiteColor]];
+                [cell.contentView setBackgroundColor:[UIColor colorWithRed:1.0 green:1.0 blue:0.0 alpha:0.04]];
             } else {
                 [cell.contentView setBackgroundColor:[UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.04]];
             }
@@ -460,7 +480,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         cell.delegate = self;
         if (_patchedResult) {
             if (([self nthPhrase:indexPath.row] % 2) == 0) {
-                [cell.contentView setBackgroundColor:[UIColor whiteColor]];
+                [cell.contentView setBackgroundColor:[UIColor colorWithRed:1.0 green:1.0 blue:0.0 alpha:0.04]];
             } else {
                 [cell.contentView setBackgroundColor:[UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.04]];
             }
@@ -505,6 +525,12 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     } else {
         return 0.0;
     }
+}
+
+- (CGFloat)tableView:(UITableView *)tableView
+heightForFooterInSection:(NSInteger)section {
+    
+    return 0.001;
 }
 
 - (void)dealloc {

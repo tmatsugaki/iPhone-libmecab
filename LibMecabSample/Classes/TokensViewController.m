@@ -96,6 +96,8 @@
 
     [super viewDidLoad];
 
+//    [_tableView setBackgroundColor:[UIColor grayColor]];
+    
     self.listItems = _rawSentences;
     self.filteredSentences = [[[NSMutableArray alloc] init] autorelease];
 
@@ -354,6 +356,12 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
 //    DEBUG_LOG(@"%s", __func__);
 
     return self.editing ? UITableViewCellEditingStyleNone : UITableViewCellEditingStyleDelete;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView
+heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    return 29.0;
 }
 
 #pragma mark - UISearchBarDelegate

@@ -843,7 +843,7 @@ static MecabPatch *sharedManager = nil;
 
                     [node setPartOfSpeech:@"形容詞"];
                     [node setPartOfSpeechSubtype1:@"補助形容詞"];
-                    [node setInflection:@"形容詞／形容動詞の補助動詞「ない」"];
+                    [node setInflection:@"形容詞／形容動詞に連なる"];
                     node.modified = YES;
 #if LOG_PATCH
                     DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
