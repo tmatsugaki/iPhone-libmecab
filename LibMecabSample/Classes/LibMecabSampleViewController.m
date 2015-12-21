@@ -34,6 +34,7 @@
 @synthesize nodes=_nodes;
 @synthesize sentenceItems=_sentenceItems;
 @synthesize shortFormat=_shortFormat;
+//@synthesize selectedIndexPath=_selectedIndexPath;
 
 #pragma mark - IBAction
 
@@ -500,6 +501,8 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     self.mecab = nil;
 	self.nodes = nil;
     self.sentenceItems = nil;
+
+//    self.selectedIndexPath = nil;
 	
     [super dealloc];
 }
@@ -620,15 +623,17 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 - (IBAction) handleLongPress:(UILongPressGestureRecognizer *)sender {
     
     if (sender.state == UIGestureRecognizerStateBegan) {
-        DEBUG_LOG(@"%s", __func__);
-//        CGPoint location = [sender locationInView:self.view];
-//        NSIndexPath *indexPath = [_tableView indexPathForRowAtPoint:location];
-//        NodeCell *cell = (NodeCell *) [_tableView cellForRowAtIndexPath:indexPath];
+        CGPoint location = [sender locationInView:_tableView];
+        NSIndexPath *indexPath = [_tableView indexPathForRowAtPoint:location];
+//        NSUInteger row = indexPath.row;
+        DEBUG_LOG(@"%s[%ld]", __func__, (long)indexPath.row);
 
         // 表示モードをトグルさせる。
         _shortFormat = ! _shortFormat;
         [_tableView reloadData];
+        [_tableView selectRowAtIndexPath:indexPath
+                                animated:NO
+                          scrollPosition:UITableViewScrollPositionMiddle];
     }
 }
-
 @end
