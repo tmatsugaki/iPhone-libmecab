@@ -457,6 +457,7 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 動詞に連なる「ん」「んで」の名詞「ん」を「の」（助詞化）にする。
+// 和布蕪は名詞に連なる場合の「ん」処理は出来ているが、それに準じて「格助詞」にする。eg.「佐賀ん鳥栖」は処理できている。
 // 【注意】語幹のマージに先立つこと。
 - (void) patch_merge_N {
     Node *lastNode = nil;
