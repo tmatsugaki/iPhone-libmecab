@@ -9,6 +9,13 @@
 #import <UIKit/UIKit.h>
 
 
+@protocol SmallNodeCellDelegate
+
+@required
+// アクション
+- (void) toggleCellSize:(UITableViewCell *)cell;
+@end
+
 @interface SmallNodeCell : UITableViewCell {
 
 	UILabel *surfaceLabel;
@@ -19,5 +26,6 @@
 @property (nonatomic, retain) IBOutlet UILabel *surfaceLabel;
 @property (nonatomic, retain) IBOutlet UILabel *partOfSpeechLabel;
 @property (nonatomic, retain) IBOutlet UILabel *originalFormLabel;
+@property (nonatomic, assign) id <SmallNodeCellDelegate> delegate;
 
 @end

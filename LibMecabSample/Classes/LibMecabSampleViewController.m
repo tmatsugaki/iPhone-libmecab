@@ -391,7 +391,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
     
     Node *node = [_nodes objectAtIndex:indexPath.row];
 
-    if (_shortFormat == NO || node.detailed) {
+    if (node.detailed) {
         NodeCell *cell = (NodeCell *)[tableView dequeueReusableCellWithIdentifier:@"NodeCell"];
 
         if (cell == nil) {
@@ -399,6 +399,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
             cell = _nodeCell;
             self.nodeCell = nil;
         }
+        cell.delegate = self;
         if ([[NSUserDefaults standardUserDefaults] boolForKey:kDefaultsPatchMode]) {
             if (([self nthPhrase:indexPath.row] % 2) == 0) {
                 [cell.contentView setBackgroundColor:[UIColor whiteColor]];
@@ -453,6 +454,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
             cell = _smallNodeCell;
             self.smallNodeCell = nil;
         }
+        cell.delegate = self;
         if ([[NSUserDefaults standardUserDefaults] boolForKey:kDefaultsPatchMode]) {
             if (([self nthPhrase:indexPath.row] % 2) == 0) {
                 [cell.contentView setBackgroundColor:[UIColor whiteColor]];
@@ -490,7 +492,7 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     Node *node = [_nodes objectAtIndex:indexPath.row];
 
     if (node.visible) {
-        if (_shortFormat == NO || node.detailed) {
+        if (node.detailed) {
             return 74.0;
         } else {
             return 29.0;
@@ -637,16 +639,31 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (sender.state == UIGestureRecognizerStateBegan) {
         CGPoint location = [sender locationInView:_tableView];
         NSIndexPath *indexPath = [_tableView indexPathForRowAtPoint:location];
-//        NSUInteger row = indexPath.row;
+        BOOL shortFormat = (((Node *) _nodes[indexPath.row]).detailed == NO);
         DEBUG_LOG(@"%s[%ld]", __func__, (long)indexPath.row);
 
         // 表示モードをトグルさせる。
-        _shortFormat = ! _shortFormat;
+//        _shortFormat = ! _shortFormat;
+
+        _shortFormat = ! shortFormat;
+        for (Node *node in _nodes) {
+            node.detailed = (_shortFormat == NO);
+        }
         [_tableView reloadData];
         [_tableView selectRowAtIndexPath:indexPath
                                 animated:NO
                           scrollPosition:UITableViewScrollPositionMiddle];
     }
+}
+
+- (void) toggleCellSize:(UITableViewCell *)cell {
+    
+    NSIndexPath *indexPath = [_tableView indexPathForCell:cell];
+    Node *node = _nodes[indexPath.row];
+    
+    node.detailed = ! node.detailed;
+    [_tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                      withRowAnimation:UITableViewRowAnimationFade];
 }
 
 - (NSUInteger) nthPhrase:(NSUInteger)index {

@@ -9,6 +9,13 @@
 #import <UIKit/UIKit.h>
 
 
+@protocol NodeCellDelegate
+
+@required
+// アクション
+- (void) toggleCellSize:(UITableViewCell *)cell;
+@end
+
 @interface NodeCell : UITableViewCell {
 
 	UILabel *featureLabel;
@@ -35,5 +42,6 @@
 @property (nonatomic, retain) IBOutlet UILabel *originalFormLabel;
 @property (nonatomic, retain) IBOutlet UILabel *readingLabel;
 @property (nonatomic, retain) IBOutlet UILabel *pronunciationLabel;
+@property (nonatomic, assign) id <NodeCellDelegate> delegate;
 
 @end

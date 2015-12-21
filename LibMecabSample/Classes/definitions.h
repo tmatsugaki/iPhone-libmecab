@@ -40,4 +40,6 @@
 #define LOG_CURRENT_METHOD ;
 #endif
 
+#define kDoubleTapDetectPeriod      0.3   // 【変更不可】0.25 秒以内にタップがされればダブルタップと見なす。
+
 #endif /* definitions_h */
