@@ -193,6 +193,36 @@ static MecabPatch *sharedManager = nil;
 
 #pragma mark - Patch (マージ)
 
+// 謝りの検出
+// 【注意】語幹の連結後に実行すること！！
+- (void) patch_fix_RARERU {
+    
+    for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
+        if ([[node partOfSpeech] isEqualToString:@"動詞"])
+        {
+            BOOL fix = NO;
+            
+            if ([[node originalForm] isEqualToString:@"られる"])
+            {// 動詞
+                fix = YES;
+            }
+            if (fix) {
+                // マージする。
+                _modified = YES;
+#if LOG_PATCH
+                DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"助動詞");
+#endif
+                [node setPartOfSpeech:@"助動詞"];
+                [node setPartOfSpeechSubtype1:@""];
+                node.modified = YES;
+            }
+        }
+    }
+}
+
 // 動詞の連結
 // 【注意】語幹の連結後に実行すること！！
 - (void) patch_merge_DOSHI {
@@ -409,6 +439,53 @@ static MecabPatch *sharedManager = nil;
                 DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
                 [node setSurface:[[lastNode surface]                 stringByAppendingString:[node surface]]];
+                @try {
+                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
+                }
+                @catch (NSException *exception) {
+                    [node setPronunciation:@"?"];
+                }
+                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
+                node.modified = YES;
+            }
+        }
+        lastNode = node;
+    }
+}
+
+// 名詞に連なる動詞の（事実上の）接尾辞「〜じみる」の連結（形容詞化）
+// 【注意】語幹のマージに先立つこと。
+- (void) patch_merge_JIMI {
+    Node *lastNode = nil;
+    
+    for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
+        if (lastNode) {
+            NSString *pronunciation = [node pronunciation];
+            BOOL merge = NO;
+            
+            if ([[lastNode partOfSpeech] isEqualToString:@"名詞"])
+            {// 動詞
+                if ([[node partOfSpeech] isEqualToString:@"動詞"])
+                {
+                    if ([[node originalForm] isEqualToString:@"じみる"])
+                    {// 名詞＆動詞（事実上の接尾辞）「じみる」である。
+                        merge = YES;
+                    }
+                }
+            }
+            if (merge) {
+                lastNode.visible = NO;
+                
+                // マージする。
+                _modified = YES;
+#if LOG_PATCH
+                DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+#endif
+                [node setSurface:[[lastNode surface]                 stringByAppendingString:[node surface]]];
+                [node setPartOfSpeech:@"形容詞"];
                 @try {
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
                 }

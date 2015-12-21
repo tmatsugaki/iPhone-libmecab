@@ -27,11 +27,13 @@
 + (BOOL) isFuzokugo:(NSString *)hinshi;
 
 - (void) preProcess;
+- (void) patch_fix_RARERU;
 - (void) patch_merge_DOSHI;
 - (void) patch_merge_FUKUGO_DOSHI;
 - (void) patch_merge_FUKUGO_DOSHI_SAHEN;
 - (void) patch_before_merge_GOKAN;          // 語幹のマージに先立つこと！！
 - (void) patch_merge_GACHI_GIMI_YASUI;      // 語幹のマージに先立つこと！！
+- (void) patch_merge_JIMI;
 - (void) patch_merge_GOKAN;
 - (void) patch_merge_MEISHI;
 - (void) patch_detect_FUKUSHI;
