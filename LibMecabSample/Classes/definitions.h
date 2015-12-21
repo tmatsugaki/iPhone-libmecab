@@ -41,5 +41,4 @@
 #define DEBUG_LOG(...) ;
 #define LOG_CURRENT_METHOD ;
 #endif
-
 #endif /* definitions_h */
