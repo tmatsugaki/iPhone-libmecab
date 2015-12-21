@@ -64,6 +64,7 @@
             // 【注意】必須！！
             [mecabPatcher preProcess];
             // マージ
+            [mecabPatcher patch_merge_DOSHI];
             [mecabPatcher patch_merge_FUKUGO_DOSHI];
             [mecabPatcher patch_merge_FUKUGO_DOSHI_SAHEN];
             [mecabPatcher patch_before_merge_GOKAN];        // 語幹のマージに先立つこと！！
@@ -106,6 +107,7 @@
         
         if (_patch.on) {
             // マージ
+            [mecabPatcher patch_merge_DOSHI];
             [mecabPatcher patch_merge_FUKUGO_DOSHI];
             [mecabPatcher patch_merge_FUKUGO_DOSHI_SAHEN];
             [mecabPatcher patch_before_merge_GOKAN];        // 語幹のマージに先立つこと！！
@@ -397,12 +399,13 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
             cell = _nodeCell;
             self.nodeCell = nil;
         }
-        if (([self nthPhrase:indexPath.row] % 2) == 0) {
-            [cell.contentView setBackgroundColor:[UIColor whiteColor]];
-        } else {
-            [cell.contentView setBackgroundColor:[UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.04]];
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:kDefaultsPatchMode]) {
+            if (([self nthPhrase:indexPath.row] % 2) == 0) {
+                [cell.contentView setBackgroundColor:[UIColor whiteColor]];
+            } else {
+                [cell.contentView setBackgroundColor:[UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.04]];
+            }
         }
-        
         NSString *reading = [node reading];
         NSString *partOfSpeech = [node partOfSpeech];
         
@@ -450,12 +453,13 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
             cell = _smallNodeCell;
             self.smallNodeCell = nil;
         }
-        if (([self nthPhrase:indexPath.row] % 2) == 0) {
-            [cell.contentView setBackgroundColor:[UIColor whiteColor]];
-        } else {
-            [cell.contentView setBackgroundColor:[UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.04]];
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:kDefaultsPatchMode]) {
+            if (([self nthPhrase:indexPath.row] % 2) == 0) {
+                [cell.contentView setBackgroundColor:[UIColor whiteColor]];
+            } else {
+                [cell.contentView setBackgroundColor:[UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.04]];
+            }
         }
-        
         NSString *reading = [node reading];
         NSString *partOfSpeech = [node partOfSpeech];
         

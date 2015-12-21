@@ -193,6 +193,53 @@ static MecabPatch *sharedManager = nil;
 
 #pragma mark - Patch (マージ)
 
+// 動詞の連結
+// 【注意】語幹の連結後に実行すること！！
+- (void) patch_merge_DOSHI {
+    Node *lastNode = nil;
+    
+    for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
+        if (lastNode) {
+            if ([[node partOfSpeech] isEqualToString:@"動詞"])
+            {
+                BOOL merge = NO;
+                
+                if ([[lastNode partOfSpeech] isEqualToString:@"動詞"])
+                {// 動詞
+                    if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
+                    {// 動詞＆動詞（接尾辞）である。
+                        merge = YES;
+                    }
+                }
+                if (merge) {
+                    lastNode.visible = NO;
+                    
+                    // マージする。
+                    _modified = YES;
+#if LOG_PATCH
+                    DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+#endif
+                    [node setSurface:[[lastNode surface]                 stringByAppendingString:[node surface]]];
+                    @try {
+                        [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                    }
+                    @catch (NSException *exception) {
+                        [node setPronunciation:@"?"];
+                    }
+                    [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
+                    // 「サ変・スル」を保つ
+                    [node setInflection:[lastNode inflection]];
+                    node.modified = YES;
+                }
+            }
+        }
+        lastNode = node;
+    }
+}
+
 // 複合動詞の連結
 - (void) patch_merge_FUKUGO_DOSHI {
     Node *lastNode = nil;
