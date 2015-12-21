@@ -242,8 +242,19 @@ static MecabPatch *sharedManager = nil;
                 {// 名詞｜動詞
                     if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"])
                     {// 名詞＆名詞（非自立）である。
-                        merge = YES;
-                        retainLastSubtype = YES;
+                        if ([[node originalForm] isEqualToString:@"ん"]== NO) {
+                            merge = YES;
+                            retainLastSubtype = YES;
+                        } else {
+#if LOG_PATCH
+                            DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"助詞");
+#endif
+                            [node setPartOfSpeech:@"助詞"];
+                            [node setPartOfSpeechSubtype1:@"格助詞"];
+                            [node setPartOfSpeechSubtype2:@"「の」撥音便"];
+                            [node setOriginalForm:@"の"];
+                            node.modified = YES;
+                        }
                     }
 #ifdef DEBUG
                     NSString *lastSubtype1 = [lastNode partOfSpeechSubtype1];
