@@ -21,7 +21,7 @@
         self.opaque = YES;
         self.contentView.opaque = YES;
         // ハイライトカラーを設定する。
-        self.selectionStyle = UITableViewCellSelectionStyleGray;
+        self.selectionStyle = UITableViewCellSelectionStyleBlue;
         // 【セルの背景②】iOS7 でセル自身（ビュー）の背景が白になっているので、補正する。
         self.backgroundColor = [UIColor clearColor];
         // 【セルのコンテントの背景③ 】コンテントの背景色を設定する。（セルの背景は iOS7 より前は透明だった）

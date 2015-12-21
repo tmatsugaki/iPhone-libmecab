@@ -26,11 +26,11 @@
 #define kLibXMLPath                 [kDocumentPath stringByAppendingPathComponent:@"Library.xml"]
 
 // ユーザーデフォルト
-#define kDefaultsPatchMode      @"PatchMode"            // パッチモードを保持する。
-#define kDefaultsSentence       @"EvaluatingSentence"   // 評価中の文字列を保持する。
-#define kDefaultsSearchingToken @"SearchingToken"       // 検索中の文字列を保持する。
-#define kUse_iCloudKey          @"iCloud"               // iCloud 使用フラグ
-#define kIncrementalSearchKey   @"IncrementalSearch"
+#define kDefaultsPatchMode          @"PatchMode"            // パッチモードを保持する。
+#define kDefaultsEvaluatingSentence @"EvaluatingSentence"   // 評価中の文字列を保持する。
+#define kDefaultsSearchingToken     @"SearchingToken"       // 検索中の文字列を保持する。
+#define kUse_iCloudKey              @"iCloud"               // iCloud 使用フラグ
+#define kIncrementalSearchKey       @"IncrementalSearch"    // インクリメンタルサーチするか否かのフラグ（未使用）
 
 #ifdef DEBUG
 #define DEBUG_LOG(...) NSLog(__VA_ARGS__)
@@ -40,6 +40,7 @@
 #define LOG_CURRENT_METHOD ;
 #endif
 
+#define kTableViewBackgroundColor   [UIColor lightTextColor]
 #define kDoubleTapDetectPeriod      0.3   // 【変更不可】0.25 秒以内にタップがされればダブルタップと見なす。
 
 #endif /* definitions_h */

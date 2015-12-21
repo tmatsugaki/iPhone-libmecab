@@ -396,7 +396,7 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
-// 名詞の接尾辞「〜がち」「〜ぎみ」「〜やすい」の連結
+// 名詞の接尾辞「〜がち」「〜ぎみ」「〜やすい」の連結（形容動詞化）
 // 【注意】語幹のマージに先立つこと。
 - (void) patch_merge_GACHI_GIMI_YASUI {
     Node *lastNode = nil;
@@ -623,9 +623,9 @@ static MecabPatch *sharedManager = nil;
                             }
                             // ゴミ処理
                             if ([[node partOfSpeech] isEqualToString:@"形容動詞"] &&
-                                [[node partOfSpeechSubtype1] isEqualToString:@"格助詞"])
+                                ([[node partOfSpeechSubtype1] isEqualToString:@"格助詞"] || [[node partOfSpeechSubtype1] isEqualToString:@"終助詞"]))
                             {
-                                [node setPartOfSpeechSubtype1:@""];
+                                [node setPartOfSpeechSubtype1:@"+"];
                                 node.modified = YES;
                             }
                         } else if (inhibitRashii) {

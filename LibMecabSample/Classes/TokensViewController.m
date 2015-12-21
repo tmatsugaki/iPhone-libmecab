@@ -41,7 +41,6 @@
 
 - (void) toggleEdit:(id)sender {
     
-//    UIBarButtonItem *editButton = _myNavigationItem.rightBarButtonItem;
     UIBarButtonItem *editButton = sender;
 
     [_tableView setEditing:_tableView.editing == NO animated:YES];
@@ -50,12 +49,10 @@
     {// ブラウズモード >> 編集モード
         [editButton setStyle:UIBarButtonItemStyleDone];
         [editButton setTitle:@"完了"];
-//        editButton.tintColor = [UIColor colorWithRed:0.0/256.0 green:122.0/256.0 blue:255.0/256.0 alpha:1.0];
     } else
     {// 編集モード >> ブラウズモード
         [editButton setStyle:UIBarButtonItemStylePlain];
         [editButton setTitle:@"編集"];
-//        editButton.tintColor = [UIColor grayColor];
 
 #if RELOAD_WHEN_TOGGLE_EDIT
         [_tableView reloadData];
@@ -96,7 +93,7 @@
 
     [super viewDidLoad];
 
-//    [_tableView setBackgroundColor:[UIColor grayColor]];
+//    [_tableView setBackgroundColor:kTableViewBackgroundColor];
     
     self.listItems = _rawSentences;
     self.filteredSentences = [[[NSMutableArray alloc] init] autorelease];
@@ -136,7 +133,7 @@
 
     [super viewWillAppear:animated];
 
-    NSString *sentence = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
+    NSString *sentence = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsEvaluatingSentence];
 
     if ([sentence length]) {
         NSUInteger index = NSNotFound;
@@ -220,6 +217,7 @@
 		cell = _tokenCell;
 		self.tokenCell = nil;
     }
+//    cell.selectionStyle = UITableViewCellSelectionStyleBlue;
     
 	NSDictionary *dic = [_listItems objectAtIndex:indexPath.row];
 
@@ -248,7 +246,7 @@ didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 
     NSDictionary *dic = [_listItems objectAtIndex:indexPath.row];
-    [[NSUserDefaults standardUserDefaults] setObject:dic[@"sentence"] forKey:kDefaultsSentence];
+    [[NSUserDefaults standardUserDefaults] setObject:dic[@"sentence"] forKey:kDefaultsEvaluatingSentence];
     // 画面を閉じる
     [self performSelector:@selector(dismissMe) withObject:nil afterDelay:0.5];
 }
@@ -269,11 +267,11 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
     @try {
         if (editingStyle == UITableViewCellEditingStyleDelete) {
             NSDictionary *dic = [_listItems objectAtIndex:indexPath.row];
-            NSString *searchingToken = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
+            NSString *searchingToken = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsEvaluatingSentence];
             
             if ([dic[@"sentence"] isEqualToString:searchingToken])
             {// 削除対象のディクショナリーの文字列が解析対象の文字列であるならば、初期化する。
-                [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsSentence];
+                [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsEvaluatingSentence];
             }
             [_listItems removeObject:dic];
             // 文章を削除したので、XML ファイルに反映する。
@@ -341,7 +339,7 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
             // 文章を移動したので、XML ファイルに反映する。
             [_listItems writeToFile:kLibXMLPath atomically:YES];
 
-            [[NSUserDefaults standardUserDefaults] setObject:dic[@"sentence"] forKey:kDefaultsSentence];
+            [[NSUserDefaults standardUserDefaults] setObject:dic[@"sentence"] forKey:kDefaultsEvaluatingSentence];
 
             [dic release];
         }
@@ -362,6 +360,12 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
 heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     return 29.0;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView
+heightForFooterInSection:(NSInteger)section {
+    
+    return 0.001;
 }
 
 #pragma mark - UISearchBarDelegate
@@ -415,7 +419,7 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 {
     DEBUG_LOG(@"%s", __func__);
 
-    NSString *sentence = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
+    NSString *sentence = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsEvaluatingSentence];
 
     if ([searchBar.text length] == 0) {
         // 空の文字列をユーザーデフォルトに保持する。

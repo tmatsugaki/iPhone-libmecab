@@ -199,8 +199,9 @@
                                }];
             }
 #endif
+            [[NSUserDefaults standardUserDefaults] setObject:string forKey:kDefaultsEvaluatingSentence];
         } else {
-            [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsSentence];
+            [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsEvaluatingSentence];
         }
     }
 }
@@ -256,7 +257,7 @@
 
 - (void) initialParse {
 
-    NSString *string = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSentence];
+    NSString *string = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsEvaluatingSentence];
 
     if ([string length] == 0 && [_sentenceItems count]) {
         string = ((NSDictionary *) _sentenceItems[0])[@"sentence"];
@@ -271,7 +272,7 @@
 
     [super viewDidLoad];
     
-    [_tableView setBackgroundColor:[UIColor lightTextColor]];
+    [_tableView setBackgroundColor:kTableViewBackgroundColor];
 
     _shortFormat = YES;
     [self createGestureRecognizers];
