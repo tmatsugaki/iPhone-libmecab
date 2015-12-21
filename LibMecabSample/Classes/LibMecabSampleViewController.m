@@ -64,6 +64,7 @@
             // 【注意】必須！！
             [mecabPatcher preProcess];
             [mecabPatcher patch_fix_RARERU];
+            [mecabPatcher patch_merge_HIJIRITSU_MEISHI];
             // マージ
             [mecabPatcher patch_merge_DOSHI];
             [mecabPatcher patch_merge_FUKUGO_DOSHI];
@@ -111,6 +112,7 @@
 
         if (_patch.on) {
             // マージ
+            [mecabPatcher patch_merge_HIJIRITSU_MEISHI];
             [mecabPatcher patch_merge_DOSHI];
             [mecabPatcher patch_merge_FUKUGO_DOSHI];
             [mecabPatcher patch_merge_FUKUGO_DOSHI_SAHEN];

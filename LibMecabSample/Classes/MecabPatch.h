@@ -28,6 +28,7 @@
 
 - (void) preProcess;
 - (void) patch_fix_RARERU;
+- (void) patch_merge_HIJIRITSU_MEISHI;
 - (void) patch_merge_DOSHI;
 - (void) patch_merge_FUKUGO_DOSHI;
 - (void) patch_merge_FUKUGO_DOSHI_SAHEN;

@@ -223,6 +223,68 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
+// 非自立名詞の連結
+// 【注意】語幹の連結前に実行すること！！
+- (void) patch_merge_HIJIRITSU_MEISHI {
+    Node *lastNode = nil;
+    
+    for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
+        if (lastNode) {
+            if ([[node partOfSpeech] isEqualToString:@"名詞"])
+            {
+                BOOL merge = NO;
+                BOOL retainLastSubtype = NO;
+                
+                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"])
+                {// 名詞｜動詞
+                    if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"])
+                    {// 名詞＆名詞（非自立）である。
+                        merge = YES;
+                        retainLastSubtype = YES;
+                    }
+#ifdef DEBUG
+                    NSString *lastSubtype1 = [lastNode partOfSpeechSubtype1];
+                    NSString *nodeSubtype2 = [node partOfSpeechSubtype2];
+                    
+                    if ([lastSubtype1 length] > 2 && [[lastSubtype1 substringFromIndex:[lastSubtype1 length] - 2] isEqualToString:@"可能"]) {
+                        DEBUG_LOG(@"[%@]%@", lastSubtype1, lastNode.surface);
+                    }
+                    if ([nodeSubtype2 length] > 2 && [[nodeSubtype2 substringFromIndex:[nodeSubtype2 length] - 2] isEqualToString:@"可能"]) {
+                        DEBUG_LOG(@"[%@]%@", nodeSubtype2, node.surface);
+                    }
+#endif
+                }
+                if (merge) {
+                    lastNode.visible = NO;
+                    
+                    // マージする。
+                    _modified = YES;
+#if LOG_PATCH
+                    DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+#endif
+                    [node setSurface:[[lastNode surface]                 stringByAppendingString:[node surface]]];
+                    @try {
+                        [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                    }
+                    @catch (NSException *exception) {
+                        [node setPronunciation:@"?"];
+                    }
+                    [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
+                    node.modified = YES;
+                    
+                    if (retainLastSubtype) {
+                        [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
+                    }
+                }
+            }
+        }
+        lastNode = node;
+    }
+}
+
 // 動詞の連結
 // 【注意】語幹の連結後に実行すること！！
 - (void) patch_merge_DOSHI {
@@ -706,8 +768,9 @@ static MecabPatch *sharedManager = nil;
                     {// （名詞｜動詞）＆名詞（接尾辞）である。
                         merge = YES;
                         retainLastSubtype = YES;
-                    } else if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
-                               [[node partOfSpeechSubtype1] isEqualToString:@"一般"])
+                    } else if ([[lastNode partOfSpeech] isEqualToString:@"名詞"]
+//                               && [[node partOfSpeechSubtype1] isEqualToString:@"一般"]
+                               )
                     {// 名詞＆一般名詞が連なっている。
                         merge = YES;
                         retainLastSubtype = YES;
@@ -730,7 +793,7 @@ static MecabPatch *sharedManager = nil;
                 } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"] &&
                            [[lastNode partOfSpeechSubtype1] isEqualToString:@"名詞接続"])
                 {// 接頭詞・名詞接続に連なった一般名詞である。
-                    if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
+//                    if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
                     {// 直前が名詞接続の接頭詞である。
                         merge = YES;
                     }
