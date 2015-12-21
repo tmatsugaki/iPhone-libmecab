@@ -259,7 +259,8 @@ static MecabPatch *sharedManager = nil;
                     @catch (NSException *exception) {
                         [node setPronunciation:@"?"];
                     }
-                    [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
+//                    [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
+                    [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
                     // 「サ変・スル」を保つ
                     [node setInflection:[lastNode inflection]];
                     node.modified = YES;
@@ -294,7 +295,8 @@ static MecabPatch *sharedManager = nil;
                 
                 [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                 [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+//                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
                 [node setInflection:[NSString stringWithFormat:@"%@&%@", [lastNode inflection], [node inflection]]];
                 node.modified = YES;
             }
@@ -334,7 +336,8 @@ static MecabPatch *sharedManager = nil;
                     
                     [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                    [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+//                    [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                    [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
                     [node setInflection:[NSString stringWithFormat:@"%@", [node inflection]]];
                     node.modified = YES;
                 }
