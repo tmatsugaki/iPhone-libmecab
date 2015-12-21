@@ -5,7 +5,6 @@ h1. 「形態素解析エンジン Mecab on iPhone のサンプルアプリケ�
 起動時の解析結果は簡易表示ですが、タップや長押しにて相互にでモード（簡易／詳細）切り替えすることができます。
 
 !/screenshot1.jpg! !/screenshot2.jpg!
-!/screenshot3.jpg! !/screenshot4.jpg!
 
 h2. ビルド方法
 XCode 7.1 で普通にやって下さい。

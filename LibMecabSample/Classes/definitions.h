@@ -32,6 +32,9 @@
 #define kUse_iCloudKey              @"iCloud"               // iCloud 使用フラグ
 #define kIncrementalSearchKey       @"IncrementalSearch"    // インクリメンタルサーチするか否かのフラグ（未使用）
 
+#define kTableViewBackgroundColor   [UIColor lightTextColor]
+#define kDoubleTapDetectPeriod      0.3   // 【変更不可】0.25 秒以内にタップがされればダブルタップと見なす。
+
 #ifdef DEBUG
 #define DEBUG_LOG(...) NSLog(__VA_ARGS__)
 #define LOG_CURRENT_METHOD NSLog(NSStringFromSelector(_cmd))
@@ -39,8 +42,5 @@
 #define DEBUG_LOG(...) ;
 #define LOG_CURRENT_METHOD ;
 #endif
-
-#define kTableViewBackgroundColor   [UIColor lightTextColor]
-#define kDoubleTapDetectPeriod      0.3   // 【変更不可】0.25 秒以内にタップがされればダブルタップと見なす。
 
 #endif /* definitions_h */
