@@ -389,14 +389,18 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
     
     Node *node = [_nodes objectAtIndex:indexPath.row];
 
-    if (_shortFormat == NO) {
-//        static NSString *CellIdentifier = @"NodeCell";
-        
+    if (_shortFormat == NO || node.detailed) {
         NodeCell *cell = (NodeCell *)[tableView dequeueReusableCellWithIdentifier:@"NodeCell"];
+
         if (cell == nil) {
             [[NSBundle mainBundle] loadNibNamed:@"NodeCell" owner:self options:nil];
             cell = _nodeCell;
             self.nodeCell = nil;
+        }
+        if (([self nthPhrase:indexPath.row] % 2) == 0) {
+            [cell.contentView setBackgroundColor:[UIColor whiteColor]];
+        } else {
+            [cell.contentView setBackgroundColor:[UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.04]];
         }
         
         NSString *reading = [node reading];
@@ -439,13 +443,17 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         cell.useOfTypeLabel.text = [node useOfType];
         return cell;
     } else {
-//        static NSString *CellIdentifier = @"SmallNodeCell";
-        
         SmallNodeCell *cell = (SmallNodeCell *)[tableView dequeueReusableCellWithIdentifier:@"SmallNodeCell"];
+
         if (cell == nil) {
             [[NSBundle mainBundle] loadNibNamed:@"SmallNodeCell" owner:self options:nil];
             cell = _smallNodeCell;
             self.smallNodeCell = nil;
+        }
+        if (([self nthPhrase:indexPath.row] % 2) == 0) {
+            [cell.contentView setBackgroundColor:[UIColor whiteColor]];
+        } else {
+            [cell.contentView setBackgroundColor:[UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.04]];
         }
         
         NSString *reading = [node reading];
@@ -478,7 +486,7 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     Node *node = [_nodes objectAtIndex:indexPath.row];
 
     if (node.visible) {
-        if (_shortFormat == NO) {
+        if (_shortFormat == NO || node.detailed) {
             return 74.0;
         } else {
             return 29.0;
@@ -635,5 +643,21 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
                                 animated:NO
                           scrollPosition:UITableViewScrollPositionMiddle];
     }
+}
+
+- (NSUInteger) nthPhrase:(NSUInteger)index {
+
+    NSUInteger nth = 0;
+
+    for (NSUInteger i = 0; i <= index; i++) {
+        Node *node = _nodes[i];
+
+        if (node.visible &&
+            ([[node partOfSpeech] isEqualToString:@"記号"] == NO && [MecabPatch isFuzokugo:[node partOfSpeech]] == NO))
+        {
+            nth++;
+        }
+    }
+    return nth;
 }
 @end

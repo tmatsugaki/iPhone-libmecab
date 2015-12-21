@@ -95,6 +95,7 @@ static MecabPatch *sharedManager = nil;
         }
         node.attribute = @"";
         node.modified = NO;
+        node.detailed = NO;
         node.visible = YES;
     }
 }
@@ -102,23 +103,23 @@ static MecabPatch *sharedManager = nil;
 #pragma mark - Patch (ツール)
 
 // 用言（動詞／形容詞／形容動詞）である。
-- (BOOL) isTaigen:(NSString *)hinshi {
++ (BOOL) isTaigen:(NSString *)hinshi {
     return ([hinshi isEqualToString:@"名詞"] ||
             [hinshi isEqualToString:@"代名詞"]);
 }
 
 // 用言（動詞／形容詞／形容動詞）である。
-- (BOOL) isYougen:(NSString *)hinshi {
++ (BOOL) isYougen:(NSString *)hinshi {
     return ([hinshi isEqualToString:@"動詞"] ||
             [hinshi isEqualToString:@"形容詞"] ||
             [hinshi isEqualToString:@"形容動詞"]);
 }
 
-- (BOOL) isKeiyoushi:(NSString *)hinshi {
++ (BOOL) isKeiyoushi:(NSString *)hinshi {
     return ([hinshi isEqualToString:@"形容詞"]);
 }
 
-- (BOOL) isFuzokugo:(NSString *)hinshi {
++ (BOOL) isFuzokugo:(NSString *)hinshi {
     return ([hinshi isEqualToString:@"助詞"] ||
             [hinshi isEqualToString:@"助動詞"]);
 }
@@ -388,8 +389,8 @@ static MecabPatch *sharedManager = nil;
         if (lastNode) {
             NSString *gokanStr = [self gokanString:lastNode];
 
-            if (([gokanStr isEqualToString:@"ナイ形容詞"] && [self isKeiyoushi:[node partOfSpeech]]) ||
-                [self isFuzokugo:[node partOfSpeech]])
+            if (([gokanStr isEqualToString:@"ナイ形容詞"] && [MecabPatch isKeiyoushi:[node partOfSpeech]]) ||
+                [MecabPatch isFuzokugo:[node partOfSpeech]])
             {// 付属語（助詞、助動詞）
                 NSString *lastSubType1 = [lastNode partOfSpeechSubtype1];
                 NSString *surface = node.surface;
@@ -615,7 +616,7 @@ static MecabPatch *sharedManager = nil;
         if (nextNode &&
             [[node partOfSpeech] isEqualToString:@"名詞"] &&
             ([[node partOfSpeechSubtype1] isEqualToString:@"副詞可能"] || [[node partOfSpeechSubtype2] isEqualToString:@"副詞可能"] || [[node partOfSpeechSubtype3] isEqualToString:@"副詞可能"]) &&
-            ([nextNode.surface isEqualToString:@"、"] || [self isYougen:[nextNode partOfSpeech]]))
+            ([nextNode.surface isEqualToString:@"、"] || [MecabPatch isYougen:[nextNode partOfSpeech]]))
         {
             // 修正された。
             _modified = YES;
@@ -645,7 +646,7 @@ static MecabPatch *sharedManager = nil;
         }
         nextNode = [self nextNode:i];
 
-        if (lastNode && [self isTaigen:[lastNode partOfSpeech]] &&
+        if (lastNode && [MecabPatch isTaigen:[lastNode partOfSpeech]] &&
             nextNode && [nextNode.surface isEqualToString:@"、"])
         {
             if ([[node partOfSpeech] isEqualToString:@"助詞"] &&
@@ -733,7 +734,7 @@ static MecabPatch *sharedManager = nil;
                 if (i < [_nodes count] - 1) {
                     Node *nextNode = [self nextNode:i];
                     
-                    if ([self isYougen:[nextNode partOfSpeech]] == NO) {
+                    if ([MecabPatch isYougen:[nextNode partOfSpeech]] == NO) {
                         // 修正された。
                         _modified = YES;
 
@@ -818,15 +819,15 @@ static MecabPatch *sharedManager = nil;
         if (node.visible == NO) {
             continue;
         }
-        if (lastNode && [self isTaigen:[lastNode partOfSpeech]])
+        if (lastNode && [MecabPatch isTaigen:[lastNode partOfSpeech]])
         {
             if ([[node partOfSpeech] isEqualToString:@"助動詞"] &&
                 [[node originalForm] isEqualToString:@"らしい"] &&
                 [[[node inflection] substringToIndex:3] isEqualToString:@"形容詞"])
             {
                 Node *nextNode = [self nextNode:i];
-                BOOL rentai = [node.surface isEqualToString:@"らしい"] && [self isTaigen:[nextNode partOfSpeech]];
-                BOOL renyou = [node.surface isEqualToString:@"らしく"] && [self isYougen:[nextNode partOfSpeech]];
+                BOOL rentai = [node.surface isEqualToString:@"らしい"] && [MecabPatch isTaigen:[nextNode partOfSpeech]];
+                BOOL renyou = [node.surface isEqualToString:@"らしく"] && [MecabPatch isYougen:[nextNode partOfSpeech]];
 
                 if (rentai || renyou)
                 {
@@ -943,7 +944,7 @@ static MecabPatch *sharedManager = nil;
         if (lastNode && [[lastNode inflection] length] >= 2 && [[[lastNode inflection] substringToIndex:2] isEqualToString:@"五段"] &&
             [node.surface isEqualToString:@"で"] && [[node partOfSpeechSubtype1] isEqualToString:@"接続助詞"] &&
             nextNode && [nextNode.surface isEqualToString:@"も"] && [[nextNode partOfSpeechSubtype1] isEqualToString:@"係助詞"] &&
-            [self isYougen:[nextNextNode partOfSpeech]] == NO)
+            [MecabPatch isYougen:[nextNextNode partOfSpeech]] == NO)
         {
             nextNode.visible = NO;
             
@@ -1152,7 +1153,7 @@ static MecabPatch *sharedManager = nil;
             continue;
         }
         if (lastNode) {
-            if ([self isYougen:[lastNode partOfSpeech]] &&
+            if ([MecabPatch isYougen:[lastNode partOfSpeech]] &&
                 [node.surface isEqualToString:@"そう"])
             {// 用言に連なる「そう」は全て副詞。
                 [node setPartOfSpeech:@"副詞"];

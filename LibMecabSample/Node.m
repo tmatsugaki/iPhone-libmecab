@@ -15,7 +15,20 @@
 @synthesize features;
 @synthesize attribute;
 @synthesize modified;
+@synthesize detailed;
 @synthesize visible;
+
+- (id) init {
+    
+    self = [super init];
+    if (self != nil) {
+        self.attribute = @"";
+        self.modified = NO;
+        self.detailed = NO;
+        self.visible = YES;
+    }
+    return self;
+}
 
 - (void)setFeature:(NSString *)value {
 	if (feature) {

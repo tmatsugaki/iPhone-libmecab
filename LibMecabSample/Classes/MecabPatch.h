@@ -21,6 +21,10 @@
 @property (nonatomic, assign) BOOL modified;
 
 + (MecabPatch *) sharedManager;
++ (BOOL) isTaigen:(NSString *)hinshi;
++ (BOOL) isYougen:(NSString *)hinshi;
++ (BOOL) isKeiyoushi:(NSString *)hinshi;
++ (BOOL) isFuzokugo:(NSString *)hinshi;
 
 - (void) preProcess;
 - (void) patch_merge_FUKUGO_DOSHI;

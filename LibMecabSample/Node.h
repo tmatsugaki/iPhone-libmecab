@@ -16,6 +16,7 @@
 	NSMutableArray *_features;
 	NSString *_attribute;
     BOOL _modified;
+    BOOL _detailed;
 	BOOL _visible;
 }
 
@@ -25,6 +26,7 @@
 
 @property (nonatomic, retain) NSString *attribute;      // 将来のバージョンで対話によってパースの補助させる際に使う文字列（今のところ、Reserved）
 @property (nonatomic, assign) BOOL modified;            // パッチの結果で影響があったことを示すフラグ
+@property (nonatomic, assign) BOOL detailed;            // 詳細表示フラグ
 @property (nonatomic, assign) BOOL visible;             // パッチの結果で非表示にするセルを示すフラグ
 
 // 品詞
