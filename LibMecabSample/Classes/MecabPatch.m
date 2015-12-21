@@ -456,6 +456,47 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
+// 動詞に連なる「ん」「んで」の名詞「ん」を「の」（助詞化）にする。
+// 【注意】語幹のマージに先立つこと。
+- (void) patch_merge_N {
+    Node *lastNode = nil;
+    
+    for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
+        if (lastNode) {
+            BOOL changed = NO;
+            
+            if ([[lastNode partOfSpeech] isEqualToString:@"動詞"])
+            {// 動詞
+                if ([[node partOfSpeech] isEqualToString:@"名詞"])
+                {
+                    if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"])
+                    {// 動詞＆名詞「ん」である。
+                        if ([[node originalForm] isEqualToString:@"ん"]) {
+                            changed = YES;
+                        }
+                    }
+                }
+            }
+            if (changed) {
+                // 変換する。
+                _modified = YES;
+#if LOG_PATCH
+                DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"助詞");
+#endif
+                [node setPartOfSpeech:@"助詞"];
+                [node setPartOfSpeechSubtype1:@"格助詞"];
+                [node setPartOfSpeechSubtype2:@"「の」撥音便"];
+                [node setOriginalForm:@"の"];
+                node.modified = YES;
+            }
+        }
+        lastNode = node;
+    }
+}
+
 // 名詞に連なる動詞の（事実上の）接尾辞「〜じみる」の連結（形容詞化）
 // 【注意】語幹のマージに先立つこと。
 - (void) patch_merge_JIMI {
