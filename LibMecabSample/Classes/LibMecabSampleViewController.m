@@ -34,7 +34,7 @@
 @synthesize nodes=_nodes;
 @synthesize sentenceItems=_sentenceItems;
 @synthesize shortFormat=_shortFormat;
-//@synthesize selectedIndexPath=_selectedIndexPath;
+@synthesize patchedResult=_patchedResult;
 
 #pragma mark - IBAction
 
@@ -129,6 +129,7 @@
             // 用語置換
             [mecabPatcher postProcess];
         }
+        _patchedResult = _patch.on;
         [_tableView reloadData];
         
         if ([string length]) {
@@ -400,12 +401,14 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
             self.nodeCell = nil;
         }
         cell.delegate = self;
-        if ([[NSUserDefaults standardUserDefaults] boolForKey:kDefaultsPatchMode]) {
+        if (_patchedResult) {
             if (([self nthPhrase:indexPath.row] % 2) == 0) {
                 [cell.contentView setBackgroundColor:[UIColor whiteColor]];
             } else {
                 [cell.contentView setBackgroundColor:[UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.04]];
             }
+        } else {
+            [cell.contentView setBackgroundColor:[UIColor whiteColor]];
         }
         NSString *reading = [node reading];
         NSString *partOfSpeech = [node partOfSpeech];
@@ -455,12 +458,14 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
             self.smallNodeCell = nil;
         }
         cell.delegate = self;
-        if ([[NSUserDefaults standardUserDefaults] boolForKey:kDefaultsPatchMode]) {
+        if (_patchedResult) {
             if (([self nthPhrase:indexPath.row] % 2) == 0) {
                 [cell.contentView setBackgroundColor:[UIColor whiteColor]];
             } else {
                 [cell.contentView setBackgroundColor:[UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.04]];
             }
+        } else {
+            [cell.contentView setBackgroundColor:[UIColor whiteColor]];
         }
         NSString *reading = [node reading];
         NSString *partOfSpeech = [node partOfSpeech];

@@ -27,7 +27,7 @@
     NSMutableArray *_sentenceItems;
     BOOL _shortFormat;
 
-//    NSIndexPath *_selectedIndexPath;
+    BOOL _patchedResult;
 }
 
 @property (nonatomic, retain) IBOutlet UITextField *textField;
@@ -41,7 +41,7 @@
 @property (nonatomic, retain) NSMutableArray *nodes;
 @property (nonatomic, retain) NSMutableArray *sentenceItems;
 @property (nonatomic, assign) BOOL shortFormat;
-//@property (nonatomic, retain) NSIndexPath *selectedIndexPath;;
+@property (nonatomic, assign) BOOL patchedResult;
 
 - (IBAction)parse:(id)sender;
 
