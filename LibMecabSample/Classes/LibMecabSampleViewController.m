@@ -65,9 +65,10 @@
             // マージ
             [mecabPatcher patch_merge_FUKUGO_DOSHI];
             [mecabPatcher patch_merge_FUKUGO_DOSHI_SAHEN];
-            [mecabPatcher patch_before_merge_GOKAN];
+            [mecabPatcher patch_before_merge_GOKAN];        // 語幹のマージに先立つこと！！
+            [mecabPatcher patch_merge_GACHI_GIMI_YASUI];    // 語幹のマージに先立つこと！！
             [mecabPatcher patch_merge_GOKAN];
-            [mecabPatcher patch_merge_MEISHI];  // 原則的に、名詞の連結は語幹連結の後にしないとダメ！！
+            [mecabPatcher patch_merge_MEISHI];              // 原則的に、名詞の連結は語幹連結の後にしないとダメ！！
             // パッチ
             [mecabPatcher patch_detect_FUKUSHI];
             [mecabPatcher patch_TAIGEN_DA];
@@ -106,9 +107,10 @@
             // マージ
             [mecabPatcher patch_merge_FUKUGO_DOSHI];
             [mecabPatcher patch_merge_FUKUGO_DOSHI_SAHEN];
-            [mecabPatcher patch_before_merge_GOKAN];
+            [mecabPatcher patch_before_merge_GOKAN];        // 語幹のマージに先立つこと！！
+            [mecabPatcher patch_merge_GACHI_GIMI_YASUI];    // 語幹のマージに先立つこと！！
             [mecabPatcher patch_merge_GOKAN];
-            [mecabPatcher patch_merge_MEISHI];  // 原則的に、名詞の連結は語幹連結の後にしないとダメ！！
+            [mecabPatcher patch_merge_MEISHI];              // 原則的に、名詞の連結は語幹連結の後にしないとダメ！！
             // パッチ
             [mecabPatcher patch_detect_FUKUSHI];
             [mecabPatcher patch_TAIGEN_DA];

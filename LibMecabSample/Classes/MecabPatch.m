@@ -266,8 +266,8 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
-// 語幹の連結の前処理
 // ナイ形容詞語幹＆「が、の」＆「ない」場合、格助詞をナイ形容詞語幹に連結して patch_merge_GOKAN に備える。
+// 【注意】語幹のマージに先立つこと。
 - (void) patch_before_merge_GOKAN {
     Node *lastNode = nil;
     Node *nextNode = nil;
@@ -309,6 +309,66 @@ static MecabPatch *sharedManager = nil;
                         }
                     }
                 }
+            }
+        }
+        lastNode = node;
+    }
+}
+
+// 名詞の接尾辞「〜がち」「〜ぎみ」「〜やすい」の連結
+// 【注意】語幹のマージに先立つこと。
+- (void) patch_merge_GACHI_GIMI_YASUI {
+    Node *lastNode = nil;
+    
+    for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
+        if (lastNode) {
+            NSString *pronunciation = [node pronunciation];
+            BOOL merge = NO;
+
+            if ([[lastNode partOfSpeech] isEqualToString:@"動詞"])
+            {// 動詞
+                if ([[node partOfSpeech] isEqualToString:@"名詞"])
+                {
+                    if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
+                    {// 動詞＆名詞（接尾辞）「がち」である。
+                        if ([pronunciation isEqualToString:@"ガチ"]) {
+                            merge = YES;
+                        } else if ([pronunciation isEqualToString:@"ギミ"]) {
+                            [node setPartOfSpeechSubtype2:@"形容動詞語幹"];
+                            merge = YES;
+                        }
+                    }
+                } else if ([[node partOfSpeech] isEqualToString:@"形容詞"])
+                {
+                    if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"]) {
+                        if ([pronunciation isEqualToString:@"ヤスイ"]) {
+                            [node setPartOfSpeechSubtype1:@""];
+                            [node setPartOfSpeechSubtype2:@"形容詞語幹"];
+                            merge = YES;
+                        }
+                    }
+                }
+            }
+            if (merge) {
+                lastNode.visible = NO;
+                
+                // マージする。
+                _modified = YES;
+#if LOG_PATCH
+                DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+#endif
+                [node setSurface:[[lastNode surface]                 stringByAppendingString:[node surface]]];
+                @try {
+                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
+                }
+                @catch (NSException *exception) {
+                    [node setPronunciation:@"?"];
+                }
+                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
+                node.modified = YES;
             }
         }
         lastNode = node;
@@ -393,7 +453,7 @@ static MecabPatch *sharedManager = nil;
                                 DEBUG_LOG(@"形容動詞語幹に連なる「らしい」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
                             } else if ([pronunciation isEqualToString:@"ニ"])
                             {// 形容動詞語幹に「に」が連なると副詞になる。
-                                changeIntoAdverb = YES;
+//                                changeIntoAdverb = YES; これはない！！
                             } else if ([pronunciation isEqualToString:@"ヲ"])
                             {// 形容動詞になりえない。
                                 inhibitWo = YES;
@@ -411,8 +471,8 @@ static MecabPatch *sharedManager = nil;
                             DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
 #ifdef DEBUG
-                            if ([gokanStr isEqualToString:@"形容動詞"]) {
-                                DEBUG_LOG(@"");
+                            if ([gokanStr length] && node.modified) {
+                                DEBUG_LOG(@"!!!!");
                             }
 #endif
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
@@ -1010,10 +1070,11 @@ static MecabPatch *sharedManager = nil;
         NSString *useOfType = [node useOfType];
         NSString *partOfSpeechSubtype1 = [node partOfSpeechSubtype1];
         NSString *inflection = [node inflection];
+        NSString *gokanStr = [self gokanString:node];
         
         // 【名詞（XXX語幹）】partOfSpeech
         if ([[node partOfSpeech] isEqualToString:@"名詞"]) {
-            if ([self gokanString:node])
+            if (gokanStr)
             {// 語幹であると見なされたが未だ名詞であるダメな奴。
                 NSString *pronunciation = [node pronunciation];
 
@@ -1022,8 +1083,22 @@ static MecabPatch *sharedManager = nil;
                     [node setPartOfSpeechSubtype1:@"終助詞"];
                     [node setPartOfSpeechSubtype2:@""];
                 } else {
-                    DEBUG_LOG(@"!!!対処が必要か？：「%@」（%@）", node.surface, pronunciation);
+                    DEBUG_LOG(@"!!![名詞]対処が必要か？：「%@」（%@）", node.surface, pronunciation);
                 }
+            }
+        }
+        // 【形容詞（XXX語幹）】partOfSpeech
+        if ([[node partOfSpeech] isEqualToString:@"形容詞"]) {
+            if (gokanStr)
+            {// 語幹であると見なされたが未だ名詞であるダメな奴。
+                DEBUG_LOG(@"!!![形容詞]対処が必要か？：「%@」", node.surface);
+            }
+        }
+        // 【形容動詞（XXX語幹）】partOfSpeech
+        if ([[node partOfSpeech] isEqualToString:@"形容動詞"]) {
+            if (gokanStr)
+            {// 語幹であると見なされたが未だ名詞であるダメな奴。
+                DEBUG_LOG(@"!!![形容動詞]対処が必要か？：「%@」", node.surface);
             }
         }
         // 【補助動詞】partOfSpeech
