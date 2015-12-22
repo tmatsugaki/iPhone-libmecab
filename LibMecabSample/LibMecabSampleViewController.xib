@@ -48,7 +48,7 @@
                     </connections>
                 </button>
                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" id="u1c-Jm-LgV">
-                    <rect key="frame" x="87" y="69" width="51" height="31"/>
+                    <rect key="frame" x="84" y="69" width="51" height="31"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <connections>
                         <action selector="setPatchDefaults:" destination="-1" eventType="valueChanged" id="Jll-YX-zr1"/>
