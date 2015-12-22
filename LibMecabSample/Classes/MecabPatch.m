@@ -236,12 +236,16 @@ static MecabPatch *sharedManager = nil;
             if ([[node partOfSpeech] isEqualToString:@"名詞"])
             {
                 BOOL merge = NO;
+                BOOL adverb = NO;
                 BOOL retainLastSubtype = NO;
                 
                 if ([[lastNode partOfSpeech] isEqualToString:@"名詞"])
                 {// 名詞｜動詞
                     if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"])
                     {// 名詞＆名詞（非自立）である。
+                        if ([[node partOfSpeechSubtype2] isEqualToString:@"副詞可能"]) {
+                            adverb = YES;
+                        }
                         if ([[node originalForm] isEqualToString:@"ん"]== NO) {
                             merge = YES;
                             retainLastSubtype = YES;
@@ -284,6 +288,12 @@ static MecabPatch *sharedManager = nil;
                         [node setPronunciation:@"?"];
                     }
                     [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
+
+                    if (adverb) {
+                        [node setPartOfSpeech:@"副詞"];
+                        [node setPartOfSpeechSubtype1:@""];
+                        [node setPartOfSpeechSubtype2:@""];
+                    }
                     node.modified = YES;
                     
                     if (retainLastSubtype) {
@@ -694,9 +704,10 @@ static MecabPatch *sharedManager = nil;
                                 inhibitRashii = YES;
                                 DEBUG_LOG(@"形容動詞語幹に連なる「らしい」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
                             } else if ([pronunciation isEqualToString:@"ダ"] == NO &&
+                                       [pronunciation isEqualToString:@"デ"] == NO &&
                                        [pronunciation isEqualToString:@"ナ"] == NO &&
                                        [pronunciation isEqualToString:@"ニ"] == NO &&
-                                       [pronunciation isEqualToString:@"デ"] == NO)
+                                       [pronunciation isEqualToString:@"ネ"] == NO)
                             {// 形容動詞になりえない。
                                 inhibitKeido = YES;
                                 DEBUG_LOG(@"形容動詞になりえない。[%@] -> [%@]", lastNode.surface, node.surface);
@@ -796,8 +807,15 @@ static MecabPatch *sharedManager = nil;
 //                               && [[node partOfSpeechSubtype1] isEqualToString:@"一般"]
                                )
                     {// 名詞＆一般名詞が連なっている。
-                        merge = YES;
-                        retainLastSubtype = YES;
+                        if ([[node partOfSpeechSubtype1] isEqualToString:@"副詞可能"] &&
+                            [[node pronunciation] isEqualToString:@"イライ"])
+                        {// 「以来」を「今日限り」「それ以上」「する以上」に合わせる。
+                            merge = YES;
+                            adverb = YES;
+                        } else {
+                            merge = YES;
+                            retainLastSubtype = YES;
+                        }
                     } else if ([[node partOfSpeechSubtype2] isEqualToString:@"副詞可能"])
                     {// eg.（名詞｜動詞）＆副詞可能「今日限り」「それ以上」「する以上」
                         merge = YES;
@@ -859,7 +877,7 @@ static MecabPatch *sharedManager = nil;
 
 #pragma mark - Patch (パッチ)
 
-// 【助動詞化】副詞可能な名詞＋「、」→副詞
+// 【副詞化】副詞可能な名詞＋「、」→副詞
 - (void) patch_detect_FUKUSHI {
     Node *nextNode = nil;
     
