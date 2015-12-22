@@ -620,6 +620,7 @@ static MecabPatch *sharedManager = nil;
 
 // 語幹の連結（自分の前が語幹の場合）
 - (void) patch_merge_GOKAN {
+    Node *lastLastNode = nil;
     Node *lastNode = nil;
     
     for (NSUInteger index = 0; index < [_nodes count]; index++) {
@@ -634,7 +635,6 @@ static MecabPatch *sharedManager = nil;
             if (([gokanStr isEqualToString:@"ナイ形容詞"] && [MecabPatch isKeiyoushi:[node partOfSpeech]]) ||
                 [MecabPatch isFuzokugo:[node partOfSpeech]])
             {// 付属語（助詞、助動詞）
-                NSString *lastSubType1 = [lastNode partOfSpeechSubtype1];
                 NSString *surface = node.surface;
 
                 if ([gokanStr length]) {
@@ -678,8 +678,7 @@ static MecabPatch *sharedManager = nil;
                     {// 語幹（多少の例外がある！！）
                         BOOL inhibitNai = NO;
                         BOOL inhibitRashii = NO;
-                        BOOL inhibitWo = NO;
-                        BOOL changeIntoAdverb = NO;
+                        BOOL inhibitKeido = NO;
                         NSString *pronunciation = [node pronunciation];
                         NSString *originalForm = [node originalForm];
                         
@@ -689,23 +688,23 @@ static MecabPatch *sharedManager = nil;
                             inhibitNai = YES;
                             DEBUG_LOG(@"条件を満たさない「ナイ形容詞」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
                         } else if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
-                                   [lastSubType1 isEqualToString:@"形容動詞語幹"])
+                                   [gokanStr isEqualToString:@"形容動詞"])
                         {
                             if ([originalForm isEqualToString:@"らしい"]) {
                                 inhibitRashii = YES;
                                 DEBUG_LOG(@"形容動詞語幹に連なる「らしい」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
-                            } else if ([pronunciation isEqualToString:@"ニ"])
-                            {// 形容動詞語幹に「に」が連なると副詞になる。
-//                                changeIntoAdverb = YES; これはない！！
-                            } else if ([pronunciation isEqualToString:@"ヲ"])
+                            } else if ([pronunciation isEqualToString:@"ダ"] == NO &&
+                                       [pronunciation isEqualToString:@"ナ"] == NO &&
+                                       [pronunciation isEqualToString:@"ニ"] == NO &&
+                                       [pronunciation isEqualToString:@"デ"] == NO)
                             {// 形容動詞になりえない。
-                                inhibitWo = YES;
+                                inhibitKeido = YES;
                                 DEBUG_LOG(@"形容動詞になりえない。[%@] -> [%@]", lastNode.surface, node.surface);
                             }
                         }
                         // 【例外1】ナイ形容詞
                         // 【例外2】形容動詞語幹に連なる「らしい」
-                        if (inhibitNai == NO && inhibitRashii == NO && inhibitWo == NO) {
+                        if (inhibitNai == NO && inhibitRashii == NO && inhibitKeido == NO) {
                             lastNode.visible = NO;
                             
                             // マージする。
@@ -718,6 +717,16 @@ static MecabPatch *sharedManager = nil;
                                 DEBUG_LOG(@"!!!!");
                             }
 #endif
+                            if ([[lastLastNode partOfSpeech] isEqualToString:@"名詞"] &&
+                                [[lastNode partOfSpeech] isEqualToString:@"名詞"])
+                            {
+                                DEBUG_LOG(@"語幹マージ中に連なった名詞を検知した！！");
+                                lastLastNode.visible = NO;
+
+                                [lastNode setSurface:[[lastLastNode surface]             stringByAppendingString:[lastNode surface]]];
+                                [lastNode setPronunciation:[[lastLastNode pronunciation] stringByAppendingString:[lastNode pronunciation]]];
+                                [lastNode setOriginalForm:[[lastLastNode originalForm]   stringByAppendingString:[lastNode originalForm]]];
+                            }
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                             [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
                             [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
@@ -731,11 +740,11 @@ static MecabPatch *sharedManager = nil;
                                 [node setInflection:[@"" stringByAppendingString:[node inflection]]];
                                 node.modified = YES;
                             }
-                            if (changeIntoAdverb) {
-                                [node setPartOfSpeech:@"副詞"];
-                                [node setPartOfSpeechSubtype1:@"助詞副詞化"];
-                                node.modified = YES;
-                            }
+//                            if (changeIntoAdverb) {
+//                                [node setPartOfSpeech:@"副詞"];
+//                                [node setPartOfSpeechSubtype1:@"助詞副詞化"];
+//                                node.modified = YES;
+//                            }
                             // ゴミ処理
                             if ([[node partOfSpeech] isEqualToString:@"形容動詞"] &&
                                 ([[node partOfSpeechSubtype1] isEqualToString:@"格助詞"] || [[node partOfSpeechSubtype1] isEqualToString:@"終助詞"]))
@@ -753,6 +762,7 @@ static MecabPatch *sharedManager = nil;
                 }
             }
         }
+        lastLastNode = lastNode;
         lastNode = node;
     }
 }
@@ -772,8 +782,11 @@ static MecabPatch *sharedManager = nil;
                 BOOL merge = NO;
                 BOOL retainLastSubtype = NO;
                 BOOL adverb = NO;
+                BOOL jyoshi = [[lastNode partOfSpeech] isEqualToString:@"助詞"];
 
-                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] || [[lastNode partOfSpeech] isEqualToString:@"動詞"])
+                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] ||
+                    [[lastNode partOfSpeech] isEqualToString:@"動詞"] ||
+                    [[lastNode partOfSpeech] isEqualToString:@"助詞"])
                 {// 名詞｜動詞
                     if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
                     {// （名詞｜動詞）＆名詞（接尾辞）である。
@@ -827,6 +840,9 @@ static MecabPatch *sharedManager = nil;
                     [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
                     node.modified = YES;
                     
+                    if (jyoshi) {
+                        [node setPartOfSpeech:@"助詞"];
+                    }
                     if (retainLastSubtype) {
                         [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
                     } else if (adverb) {
@@ -834,8 +850,6 @@ static MecabPatch *sharedManager = nil;
                         [node setPartOfSpeechSubtype1:@""];
                         [node setPartOfSpeechSubtype2:@""];
                     }
-//                    [node setPartOfSpeechSubtype2:[lastNode partOfSpeechSubtype2]]; // 元の属性を保全する。
-//                    [node setPartOfSpeechSubtype3:[lastNode partOfSpeechSubtype3]]; // 元の属性を保全する。
                 }
             }
         }
@@ -1467,8 +1481,10 @@ static MecabPatch *sharedManager = nil;
         if (lastNode) {
             if ([[node partOfSpeech] isEqualToString:@"助詞"])
             {
+                NSString *gokanStr = [self gokanString:lastNode];
+
                 if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
-                    [[lastNode partOfSpeechSubtype1] isEqualToString:@"形容動詞語幹"])
+                    [gokanStr isEqualToString:@"形容動詞"])
                 {// 形容動詞＋助詞（に）は形容動詞
                     BOOL isRenyou = [node.surface isEqualToString:@"に"];
                     lastNode.visible = NO;
