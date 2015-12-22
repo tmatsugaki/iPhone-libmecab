@@ -365,7 +365,7 @@ heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 - (CGFloat)tableView:(UITableView *)tableView
 heightForFooterInSection:(NSInteger)section {
     
-    return 0.001;
+    return 1.0;
 }
 
 #pragma mark - UISearchBarDelegate
