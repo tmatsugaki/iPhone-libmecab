@@ -9,6 +9,12 @@
 /* Begin PBXBuildFile section */
 		0820F5D91C0D565900E17DD1 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 0820F5D81C0D565900E17DD1 /* Settings.bundle */; };
 		0820F5DA1C0D565900E17DD1 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 0820F5D81C0D565900E17DD1 /* Settings.bundle */; };
+		08437FA51C29BFE3009CEF91 /* README.textile in Resources */ = {isa = PBXBuildFile; fileRef = 08437FA41C29BFE3009CEF91 /* README.textile */; };
+		08437FA61C29BFE3009CEF91 /* README.textile in Resources */ = {isa = PBXBuildFile; fileRef = 08437FA41C29BFE3009CEF91 /* README.textile */; };
+		08437FA81C29BFE8009CEF91 /* screenshot1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 08437FA71C29BFE8009CEF91 /* screenshot1.jpg */; };
+		08437FA91C29BFE8009CEF91 /* screenshot1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 08437FA71C29BFE8009CEF91 /* screenshot1.jpg */; };
+		08437FAB1C29BFED009CEF91 /* screenshot2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 08437FAA1C29BFED009CEF91 /* screenshot2.jpg */; };
+		08437FAC1C29BFED009CEF91 /* screenshot2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 08437FAA1C29BFED009CEF91 /* screenshot2.jpg */; };
 		084A465C1C205EA1005C73F0 /* Utility.m in Sources */ = {isa = PBXBuildFile; fileRef = 084A465B1C205EA1005C73F0 /* Utility.m */; };
 		084A465D1C205EA1005C73F0 /* Utility.m in Sources */ = {isa = PBXBuildFile; fileRef = 084A465B1C205EA1005C73F0 /* Utility.m */; };
 		084A46611C206682005C73F0 /* MecabPatch.m in Sources */ = {isa = PBXBuildFile; fileRef = 084A46601C206682005C73F0 /* MecabPatch.m */; };
@@ -93,6 +99,9 @@
 
 /* Begin PBXFileReference section */
 		0820F5D81C0D565900E17DD1 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		08437FA41C29BFE3009CEF91 /* README.textile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.textile; path = ../README.textile; sourceTree = "<group>"; };
+		08437FA71C29BFE8009CEF91 /* screenshot1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = screenshot1.jpg; path = ../screenshot1.jpg; sourceTree = "<group>"; };
+		08437FAA1C29BFED009CEF91 /* screenshot2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = screenshot2.jpg; path = ../screenshot2.jpg; sourceTree = "<group>"; };
 		084A465A1C205EA1005C73F0 /* Utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utility.h; sourceTree = "<group>"; };
 		084A465B1C205EA1005C73F0 /* Utility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Utility.m; sourceTree = "<group>"; };
 		084A465F1C206682005C73F0 /* MecabPatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MecabPatch.h; sourceTree = "<group>"; };
@@ -251,6 +260,9 @@
 				089AFE9B1C04092100BA5F98 /* HinshiMaster-Info.plist */,
 				0851EA181C0C96BE006C2932 /* HinshiMasterDev.entitlements */,
 				0851EA1B1C0C96DF006C2932 /* HinshiMaster.entitlements */,
+				08437FA41C29BFE3009CEF91 /* README.textile */,
+				08437FA71C29BFE8009CEF91 /* screenshot1.jpg */,
+				08437FAA1C29BFED009CEF91 /* screenshot2.jpg */,
 				0820F5D81C0D565900E17DD1 /* Settings.bundle */,
 				08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */,
 				089AFE951C03F51A00BA5F98 /* folder.png */,
@@ -410,7 +422,9 @@
 				0851E9F51C0C9675006C2932 /* char.bin in Resources */,
 				0851E9F61C0C9675006C2932 /* dicrc in Resources */,
 				0851E9F71C0C9675006C2932 /* Default-568h@2x.png in Resources */,
+				08437FA91C29BFE8009CEF91 /* screenshot1.jpg in Resources */,
 				0851E9F81C0C9675006C2932 /* left-id.def in Resources */,
+				08437FAC1C29BFED009CEF91 /* screenshot2.jpg in Resources */,
 				0851E9F91C0C9675006C2932 /* matrix.bin in Resources */,
 				0851E9FA1C0C9675006C2932 /* pos-id.def in Resources */,
 				0851E9FB1C0C9675006C2932 /* rewrite.def in Resources */,
@@ -421,6 +435,7 @@
 				0851EA001C0C9675006C2932 /* TokenCell.xib in Resources */,
 				0851EA011C0C9675006C2932 /* mecabrc in Resources */,
 				0820F5DA1C0D565900E17DD1 /* Settings.bundle in Resources */,
+				08437FA61C29BFE3009CEF91 /* README.textile in Resources */,
 				0851EA021C0C9675006C2932 /* folder.png in Resources */,
 				085FC0801C25E2BE00B3A8E7 /* SmallNodeCell.xib in Resources */,
 			);
@@ -436,7 +451,9 @@
 				13C86E9512C87C9D006F2369 /* char.bin in Resources */,
 				13C86E9612C87C9D006F2369 /* dicrc in Resources */,
 				08B0BCA11C02B19100D5A21C /* Default-568h@2x.png in Resources */,
+				08437FA81C29BFE8009CEF91 /* screenshot1.jpg in Resources */,
 				13C86E9712C87C9D006F2369 /* left-id.def in Resources */,
+				08437FAB1C29BFED009CEF91 /* screenshot2.jpg in Resources */,
 				13C86E9812C87C9D006F2369 /* matrix.bin in Resources */,
 				13C86E9912C87C9D006F2369 /* pos-id.def in Resources */,
 				13C86E9A12C87C9D006F2369 /* rewrite.def in Resources */,
@@ -447,6 +464,7 @@
 				089AFE861C03353400BA5F98 /* TokenCell.xib in Resources */,
 				13C86F6E12C8871C006F2369 /* mecabrc in Resources */,
 				0820F5D91C0D565900E17DD1 /* Settings.bundle in Resources */,
+				08437FA51C29BFE3009CEF91 /* README.textile in Resources */,
 				089AFE961C03F51A00BA5F98 /* folder.png in Resources */,
 				085FC07F1C25E2BE00B3A8E7 /* SmallNodeCell.xib in Resources */,
 			);
