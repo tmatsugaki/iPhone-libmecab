@@ -12,12 +12,21 @@
 // 0
 #define INITIAL_DOC                 0
 #define GIVEUP_EDIT_WHEN_SCROLL     0
-#define LOG_PATCH                   1
 
 // 1
+#define LOG_PATCH                   1
 #define DELETE_ANIMATION            1
 #define RELOAD_WHEN_TOGGLE_EDIT     1
 #define REPLACE_OBJECT              1
+
+#ifdef DEBUG
+#define DEBUG_LOG(...) NSLog(__VA_ARGS__)
+#define LOG_CURRENT_METHOD NSLog(NSStringFromSelector(_cmd))
+#else
+#define DEBUG_LOG(...) ;
+#define LOG_CURRENT_METHOD ;
+#undef LOG_PATCH
+#endif
 
 // パス
 #define kDocumentPath               [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject]
@@ -37,13 +46,5 @@
 #define kFuzokugoCellColor          [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.05]
 
 #define kDoubleTapDetectPeriod      0.3   // 【変更不可】0.25 秒以内にタップがされればダブルタップと見なす。
-
-#ifdef DEBUG
-#define DEBUG_LOG(...) NSLog(__VA_ARGS__)
-#define LOG_CURRENT_METHOD NSLog(NSStringFromSelector(_cmd))
-#else
-#define DEBUG_LOG(...) ;
-#define LOG_CURRENT_METHOD ;
-#endif
 
 #endif /* definitions_h */
