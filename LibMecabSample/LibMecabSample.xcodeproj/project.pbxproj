@@ -44,8 +44,6 @@
 		0851EA101C0C9675006C2932 /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 13C86E6712C87B6C006F2369 /* libiconv.dylib */; };
 		0851EA111C0C9675006C2932 /* libmecab.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13C86E7C12C87C31006F2369 /* libmecab.a */; };
 		0851EA121C0C9675006C2932 /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 13C86E8712C87C70006F2369 /* libstdc++.dylib */; };
-		0851EA1A1C0C96D7006C2932 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0851EA191C0C96D7006C2932 /* CloudKit.framework */; };
-		0851EA1C1C0C96E3006C2932 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0851EA191C0C96D7006C2932 /* CloudKit.framework */; };
 		085FC07F1C25E2BE00B3A8E7 /* SmallNodeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 085FC07E1C25E2BE00B3A8E7 /* SmallNodeCell.xib */; };
 		085FC0801C25E2BE00B3A8E7 /* SmallNodeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 085FC07E1C25E2BE00B3A8E7 /* SmallNodeCell.xib */; };
 		085FC0841C25E30300B3A8E7 /* SmallNodeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 085FC0831C25E30300B3A8E7 /* SmallNodeCell.m */; };
@@ -101,7 +99,6 @@
 		084A46601C206682005C73F0 /* MecabPatch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MecabPatch.m; sourceTree = "<group>"; };
 		0851EA161C0C9675006C2932 /* HinshiMaster.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HinshiMaster.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0851EA181C0C96BE006C2932 /* HinshiMasterDev.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = HinshiMasterDev.entitlements; sourceTree = "<group>"; };
-		0851EA191C0C96D7006C2932 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		0851EA1B1C0C96DF006C2932 /* HinshiMaster.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = HinshiMaster.entitlements; sourceTree = "<group>"; };
 		085FC07E1C25E2BE00B3A8E7 /* SmallNodeCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SmallNodeCell.xib; sourceTree = "<group>"; };
 		085FC0821C25E30300B3A8E7 /* SmallNodeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmallNodeCell.h; sourceTree = "<group>"; };
@@ -155,7 +152,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0851EA1A1C0C96D7006C2932 /* CloudKit.framework in Frameworks */,
 				0851EA0D1C0C9675006C2932 /* Foundation.framework in Frameworks */,
 				0851EA0E1C0C9675006C2932 /* UIKit.framework in Frameworks */,
 				0851EA0F1C0C9675006C2932 /* CoreGraphics.framework in Frameworks */,
@@ -169,7 +165,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0851EA1C1C0C96E3006C2932 /* CloudKit.framework in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */,
@@ -297,7 +292,6 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				0851EA191C0C96D7006C2932 /* CloudKit.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765A40DF7441C002DB57D /* CoreGraphics.framework */,
@@ -360,9 +354,10 @@
 						};
 					};
 					1D6058900D05DD3D006BFB54 = {
+						DevelopmentTeam = F42S2EFB55;
 						SystemCapabilities = {
 							com.apple.iCloud = {
-								enabled = 1;
+								enabled = 0;
 							};
 						};
 					};

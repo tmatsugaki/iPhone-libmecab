@@ -183,7 +183,8 @@
             [_sentenceItems writeToFile:kLibXMLPath atomically:YES];
 
             // iCloud
-#if 0
+#ifdef kUse_iCloudKey
+
             if ([[NSUserDefaults standardUserDefaults] boolForKey:kUse_iCloudKey]) {
                 CKContainer *defaultContainer =[CKContainer defaultContainer];
                 CKDatabase *privateCloudDatabase = [defaultContainer privateCloudDatabase];
@@ -432,9 +433,9 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         cell.delegate = self;
         if (_patchedResult) {
             if (([self nthPhrase:indexPath.row] % 2) == 0) {
-                [cell.contentView setBackgroundColor:[UIColor colorWithRed:1.0 green:1.0 blue:0.0 alpha:0.04]];
+                [cell.contentView setBackgroundColor:kJiritsugoCellColor];
             } else {
-                [cell.contentView setBackgroundColor:[UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.04]];
+                [cell.contentView setBackgroundColor:kFuzokugoCellColor];
             }
         } else {
             [cell.contentView setBackgroundColor:[UIColor whiteColor]];
@@ -489,9 +490,9 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         cell.delegate = self;
         if (_patchedResult) {
             if (([self nthPhrase:indexPath.row] % 2) == 0) {
-                [cell.contentView setBackgroundColor:[UIColor colorWithRed:1.0 green:1.0 blue:0.0 alpha:0.04]];
+                [cell.contentView setBackgroundColor:kJiritsugoCellColor];
             } else {
-                [cell.contentView setBackgroundColor:[UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.04]];
+                [cell.contentView setBackgroundColor:kFuzokugoCellColor];
             }
         } else {
             [cell.contentView setBackgroundColor:[UIColor whiteColor]];
@@ -512,7 +513,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         if ([partOfSpeech isEqualToString:@"助詞"] ||
             [partOfSpeech isEqualToString:@"助動詞"] ||
             [partOfSpeech isEqualToString:@"記号"]) {
-            cell.partOfSpeechLabel.textColor = [UIColor colorWithRed:255 green:0 blue:255 alpha:0.4];
+            cell.partOfSpeechLabel.textColor = [UIColor colorWithRed:1.0 green:0.0 blue:1.0 alpha:0.4];
         } else {
             cell.partOfSpeechLabel.textColor = [UIColor magentaColor];
         }
@@ -571,8 +572,8 @@ heightForFooterInSection:(NSInteger)section {
 #pragma mark - UITextFieldDelegate
 
 - (void) setupByPreferences {
-    
-    //    YardbirdAppDelegate *appDelegate = (YardbirdAppDelegate *) [[UIApplication sharedApplication] delegate];
+
+#ifdef kUse_iCloudKey
     
     if ([[NSUserDefaults standardUserDefaults] objectForKey:kUse_iCloudKey] == nil)
     {
@@ -625,6 +626,7 @@ heightForFooterInSection:(NSInteger)section {
             [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUse_iCloudKey];
         }
     }
+#endif
 }
 
 #pragma mark - UIKeyboard

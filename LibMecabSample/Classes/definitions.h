@@ -28,10 +28,14 @@
 #define kDefaultsPatchMode          @"PatchMode"            // パッチモードを保持する。
 #define kDefaultsEvaluatingSentence @"EvaluatingSentence"   // 評価中の文字列を保持する。
 #define kDefaultsSearchingToken     @"SearchingToken"       // 検索中の文字列を保持する。
-#define kUse_iCloudKey              @"iCloud"               // iCloud 使用フラグ
+//#define kUse_iCloudKey              @"iCloud"               // iCloud 使用フラグ
 #define kIncrementalSearchKey       @"IncrementalSearch"    // インクリメンタルサーチするか否かのフラグ（未使用）
 
-#define kTableViewBackgroundColor   [UIColor lightTextColor]
+//#define kTableViewBackgroundColor   [UIColor colorWithRed:0.9 green:0.9 blue:0.93 alpha:1.0]
+#define kTableViewBackgroundColor   [UIColor whiteColor]
+#define kJiritsugoCellColor         [UIColor colorWithRed:1.0 green:1.0 blue:0.0 alpha:0.05]
+#define kFuzokugoCellColor          [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.05]
+
 #define kDoubleTapDetectPeriod      0.3   // 【変更不可】0.25 秒以内にタップがされればダブルタップと見なす。
 
 #ifdef DEBUG

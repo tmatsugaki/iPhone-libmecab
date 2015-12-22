@@ -57,8 +57,8 @@
 #if RELOAD_WHEN_TOGGLE_EDIT
         [_tableView reloadData];
 #else
-        [self.view setNeedsLayout];
-        [self.view setNeedsDisplay];
+        [_tableView setNeedsLayout];
+        [_tableView setNeedsDisplay];
 #endif
     }
     [_myNavigationItem setRightBarButtonItem:editButton];
