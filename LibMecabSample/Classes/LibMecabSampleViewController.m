@@ -13,13 +13,13 @@
 #import "Node.h"
 #import "MecabPatch.h"
 #import "Utility.h"
+#import "LibMecabSampleAppDelegate.h"
 
-//#import "CloudKit/CKDefines.h"
-#import "CloudKit/CKContainer.h"
-#import "CloudKit/CKRecordID.h"
-#import "CloudKit/CKRecord.h"
-#import "CloudKit/CKFetchRecordsOperation.h"
-#import "CloudKit/CKDatabase.h"
+//#import "CloudKit/CKContainer.h"
+//#import "CloudKit/CKRecordID.h"
+//#import "CloudKit/CKRecord.h"
+//#import "CloudKit/CKFetchRecordsOperation.h"
+//#import "CloudKit/CKDatabase.h"
 
 @implementation LibMecabSampleViewController
 
@@ -181,29 +181,9 @@
                 [_sentenceItems addObject:newDic];
             }
             [_sentenceItems writeToFile:kLibXMLPath atomically:YES];
-
             // iCloud
-#ifdef kUse_iCloudKey
+            [self save];
 
-            if ([[NSUserDefaults standardUserDefaults] boolForKey:kUse_iCloudKey]) {
-                CKContainer *defaultContainer =[CKContainer defaultContainer];
-                CKDatabase *privateCloudDatabase = [defaultContainer privateCloudDatabase];
-                CKRecordID *publicSentencesID = [[CKRecordID alloc] initWithRecordName:@"46705d64-48e5-4f02-8899-083af3baed2d"];
-                CKRecord *record = [[CKRecord alloc] initWithRecordType:@"File" recordID:publicSentencesID];
-                
-                [record setObject:@"Sentences.xml" forKey:@"FileName"];
-                [record setObject:[NSArray arrayWithContentsOfFile:kLibXMLPath] forKey:@"Asset"];
-                
-                [privateCloudDatabase saveRecord:record
-                               completionHandler:^(CKRecord *record, NSError *error) {
-                                   DEBUG_LOG(@"erorr : %@", error);
-                                   CKAsset *asset = record[@"Asset"];
-                                   
-                                   // asset.fileURL.pathにファイルがダウンロードされてる
-                                   DEBUG_LOG(@"%@", asset.fileURL.path);
-                               }];
-            }
-#endif
             [[NSUserDefaults standardUserDefaults] setObject:string forKey:kDefaultsEvaluatingSentence];
         } else {
             [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsEvaluatingSentence];
@@ -285,7 +265,7 @@
     if ([[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsPatchMode] == nil) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kDefaultsPatchMode];
     }
-    [self setupByPreferences];
+//    [self setupByPreferences];
     
     [_tableView becomeFirstResponder];
 
@@ -310,57 +290,8 @@
 
     [super viewWillAppear:animated];
 
-#if INITIAL_DOC
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:kUse_iCloudKey] &&
-        [[NSFileManager defaultManager] fileExistsAtPath:kLibXMLPath] == NO)
-    {
-        [self deactivateControls];
-        // iCloud
-        CKContainer *defaultContainer =[CKContainer defaultContainer];
-        CKDatabase *publicDatabase = [defaultContainer publicCloudDatabase];
-        CKRecordID *publicSentencesID = [[CKRecordID alloc] initWithRecordName:@"7cc4ea03-43e9-42a4-ba32-cdf95f76c941"];
-#if 1
-        [publicDatabase fetchRecordWithID:publicSentencesID
-                        completionHandler:^(CKRecord *fetchedParty, NSError *error) {
-                            DEBUG_LOG(@"erorr : %@", error);
-                            CKAsset *asset = fetchedParty[@"Asset"];
-                            
-                            // asset.fileURL.pathにファイルがダウンロードされてる
-                            DEBUG_LOG(@"%@", asset.fileURL.path);
-                            if ([[NSFileManager defaultManager] fileExistsAtPath:kLibXMLPath] == NO) {
-                                [[NSFileManager defaultManager] moveItemAtPath:asset.fileURL.path toPath:kLibXMLPath error:nil];
-                            }
-                            self.sentences = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
-                            [self activateControls];
-                            [self initialParse];
-                        }];
-#else
-        CKFetchRecordsOperation * op = [[CKFetchRecordsOperation alloc] initWithRecordIDs:@[publicSentencesID]];
-        op.queuePriority = NSOperationQueuePriorityVeryHigh;
-        op.perRecordProgressBlock = ^(CKRecordID * recordId, double progress) {
-            DEBUG_LOG(@"progress : %lf", progress);
-        };
-        op.perRecordCompletionBlock = ^(CKRecord *fetchedParty, CKRecordID * recordId,  NSError *error) {
-            DEBUG_LOG(@"erorr : %@", error);
-            CKAsset *asset = fetchedParty[@"Asset"];
-            DEBUG_LOG(@"%@", asset.fileURL.path);
-            if ([[NSFileManager defaultManager] fileExistsAtPath:kLibXMLPath] == NO) {
-                [[NSFileManager defaultManager] moveItemAtPath:asset.fileURL.path toPath:kLibXMLPath error:nil];
-            }
-            self.tokens = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
-            [self activateControls];
-            [self initialParse];
-        };
-        [publicDatabase addOperation:op];
-#endif
-    } else {
-        self.sentences = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
-        [self initialParse];
-    }
-#else
     self.sentenceItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
     [self initialParse];
-#endif
 
 #if (GIVEUP_EDIT_WHEN_SCROLL == 0)
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -573,8 +504,6 @@ heightForFooterInSection:(NSInteger)section {
 
 - (void) setupByPreferences {
 
-#ifdef kUse_iCloudKey
-    
     if ([[NSUserDefaults standardUserDefaults] objectForKey:kUse_iCloudKey] == nil)
     {
         @try {
@@ -626,7 +555,6 @@ heightForFooterInSection:(NSInteger)section {
             [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUse_iCloudKey];
         }
     }
-#endif
 }
 
 #pragma mark - UIKeyboard
@@ -722,5 +650,49 @@ heightForFooterInSection:(NSInteger)section {
         }
     }
     return nth;
+}
+
+#pragma mark - for Data Management
+
+- (void) save {
+    
+#if TARGET_IPHONE_SIMULATOR
+    return NO;
+#else
+    LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+
+    // ディレクトリをトラバースして当該ページに属する情報だけをアーカイブする。
+    NSString *xmlPath = [NSString stringWithFormat:@"%@/%@", kDocumentPath, kLibXMLName];
+    NSString *targetPath = nil;
+    NSString *tempPath = nil;   // 作業対象はココ！！
+    
+    appDelegate.use_iCloud = YES;
+
+    if (appDelegate.use_iCloud)
+    {
+        targetPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
+        tempPath = xmlPath;
+    } else {
+        targetPath = xmlPath;
+        tempPath = targetPath;
+    }
+    DEBUG_LOG(@"ターゲットのパス %@", targetPath);
+    DEBUG_LOG(@"作業用　　のパス %@", tempPath);
+
+    if (appDelegate.use_iCloud) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:targetPath])
+        {// 【管理対象】上書きであるので、iCloud に管理対象に変更があったことをアサインする。
+            (void) [appDelegate enqueue_iCloudModify:targetPath
+                                                data:[[[NSFileManager defaultManager] contentsAtPath:tempPath] copy]];
+        } else {
+            // iCloud領域 へのペーストは、常時 iCloud の管理対象にするようアサインする。
+            // 【注意】iCloud 用の例外的な処理。
+            // 【効果】管理対象外のファイルを強制的に管理対象にする。
+            // テンポラリXMLファイルを正式名称にリネームする。
+            [[NSFileManager defaultManager] moveItemAtPath:tempPath toPath:targetPath error:nil];
+            (void) [appDelegate enqueue_iCloudPublish:targetPath];
+        }
+    }
+#endif
 }
 @end

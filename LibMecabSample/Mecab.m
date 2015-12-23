@@ -19,12 +19,12 @@
 
 	if (mecab == NULL) {
 		
-#if TARGET_IPHONE_SIMULATOR
-		// Homebrew mecab path
-		NSString *path = @"/usr/local/Cellar/mecab/0.98/lib/mecab/dic/ipadic";
-#else
+//#if TARGET_IPHONE_SIMULATOR
+//		// Homebrew mecab path
+//		NSString *path = @"/usr/local/Cellar/mecab/0.98/lib/mecab/dic/ipadic";
+//#else
 		NSString *path = [[NSBundle mainBundle] resourcePath];
-#endif
+//#endif
 		
 		mecab = mecab_new2([[@"-d " stringByAppendingString:path] UTF8String]);
 

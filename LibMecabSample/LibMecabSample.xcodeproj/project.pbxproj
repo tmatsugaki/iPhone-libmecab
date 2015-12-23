@@ -15,6 +15,16 @@
 		08437FA91C29BFE8009CEF91 /* screenshot1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 08437FA71C29BFE8009CEF91 /* screenshot1.jpg */; };
 		08437FAB1C29BFED009CEF91 /* screenshot2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 08437FAA1C29BFED009CEF91 /* screenshot2.jpg */; };
 		08437FAC1C29BFED009CEF91 /* screenshot2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 08437FAA1C29BFED009CEF91 /* screenshot2.jpg */; };
+		0844B1F21C2A30980098F232 /* iCloudStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 0844B1F11C2A30980098F232 /* iCloudStorage.m */; };
+		0844B1F31C2A30980098F232 /* iCloudStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 0844B1F11C2A30980098F232 /* iCloudStorage.m */; };
+		0844B1F71C2A32DD0098F232 /* FileRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 0844B1F61C2A32DD0098F232 /* FileRepresentation.m */; };
+		0844B1F81C2A32DD0098F232 /* FileRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 0844B1F61C2A32DD0098F232 /* FileRepresentation.m */; };
+		0844B1FB1C2A33000098F232 /* FileSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0844B1FA1C2A33000098F232 /* FileSpec.m */; };
+		0844B1FC1C2A33000098F232 /* FileSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0844B1FA1C2A33000098F232 /* FileSpec.m */; };
+		0844B1FF1C2A33290098F232 /* FileUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 0844B1FE1C2A33290098F232 /* FileUtil.m */; };
+		0844B2001C2A33290098F232 /* FileUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 0844B1FE1C2A33290098F232 /* FileUtil.m */; };
+		0844B2031C2A33D10098F232 /* NSString+TM.m in Sources */ = {isa = PBXBuildFile; fileRef = 0844B2021C2A33D10098F232 /* NSString+TM.m */; };
+		0844B2041C2A33D10098F232 /* NSString+TM.m in Sources */ = {isa = PBXBuildFile; fileRef = 0844B2021C2A33D10098F232 /* NSString+TM.m */; };
 		084A465C1C205EA1005C73F0 /* Utility.m in Sources */ = {isa = PBXBuildFile; fileRef = 084A465B1C205EA1005C73F0 /* Utility.m */; };
 		084A465D1C205EA1005C73F0 /* Utility.m in Sources */ = {isa = PBXBuildFile; fileRef = 084A465B1C205EA1005C73F0 /* Utility.m */; };
 		084A46611C206682005C73F0 /* MecabPatch.m in Sources */ = {isa = PBXBuildFile; fileRef = 084A46601C206682005C73F0 /* MecabPatch.m */; };
@@ -102,6 +112,16 @@
 		08437FA41C29BFE3009CEF91 /* README.textile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.textile; path = ../README.textile; sourceTree = "<group>"; };
 		08437FA71C29BFE8009CEF91 /* screenshot1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = screenshot1.jpg; path = ../screenshot1.jpg; sourceTree = "<group>"; };
 		08437FAA1C29BFED009CEF91 /* screenshot2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = screenshot2.jpg; path = ../screenshot2.jpg; sourceTree = "<group>"; };
+		0844B1F01C2A30980098F232 /* iCloudStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCloudStorage.h; sourceTree = "<group>"; };
+		0844B1F11C2A30980098F232 /* iCloudStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iCloudStorage.m; sourceTree = "<group>"; };
+		0844B1F51C2A32DD0098F232 /* FileRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileRepresentation.h; sourceTree = "<group>"; };
+		0844B1F61C2A32DD0098F232 /* FileRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileRepresentation.m; sourceTree = "<group>"; };
+		0844B1F91C2A33000098F232 /* FileSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSpec.h; sourceTree = "<group>"; };
+		0844B1FA1C2A33000098F232 /* FileSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileSpec.m; sourceTree = "<group>"; };
+		0844B1FD1C2A33290098F232 /* FileUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileUtil.h; sourceTree = "<group>"; };
+		0844B1FE1C2A33290098F232 /* FileUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileUtil.m; sourceTree = "<group>"; };
+		0844B2011C2A33D10098F232 /* NSString+TM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+TM.h"; sourceTree = "<group>"; };
+		0844B2021C2A33D10098F232 /* NSString+TM.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+TM.m"; sourceTree = "<group>"; };
 		084A465A1C205EA1005C73F0 /* Utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utility.h; sourceTree = "<group>"; };
 		084A465B1C205EA1005C73F0 /* Utility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Utility.m; sourceTree = "<group>"; };
 		084A465F1C206682005C73F0 /* MecabPatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MecabPatch.h; sourceTree = "<group>"; };
@@ -202,10 +222,20 @@
 				089AFE8B1C03359000BA5F98 /* TokensViewController.m */,
 				089AFE8D1C03359700BA5F98 /* TokenCell.h */,
 				089AFE8E1C03359700BA5F98 /* TokenCell.m */,
+				0844B2011C2A33D10098F232 /* NSString+TM.h */,
+				0844B2021C2A33D10098F232 /* NSString+TM.m */,
 				084A465A1C205EA1005C73F0 /* Utility.h */,
 				084A465B1C205EA1005C73F0 /* Utility.m */,
 				084A465F1C206682005C73F0 /* MecabPatch.h */,
 				084A46601C206682005C73F0 /* MecabPatch.m */,
+				0844B1FD1C2A33290098F232 /* FileUtil.h */,
+				0844B1FE1C2A33290098F232 /* FileUtil.m */,
+				0844B1F91C2A33000098F232 /* FileSpec.h */,
+				0844B1FA1C2A33000098F232 /* FileSpec.m */,
+				0844B1F51C2A32DD0098F232 /* FileRepresentation.h */,
+				0844B1F61C2A32DD0098F232 /* FileRepresentation.m */,
+				0844B1F01C2A30980098F232 /* iCloudStorage.h */,
+				0844B1F11C2A30980098F232 /* iCloudStorage.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -359,6 +389,7 @@
 				LastUpgradeCheck = 0710;
 				TargetAttributes = {
 					0851E9F01C0C9675006C2932 = {
+						DevelopmentTeam = F42S2EFB55;
 						SystemCapabilities = {
 							com.apple.iCloud = {
 								enabled = 1;
@@ -369,7 +400,7 @@
 						DevelopmentTeam = F42S2EFB55;
 						SystemCapabilities = {
 							com.apple.iCloud = {
-								enabled = 0;
+								enabled = 1;
 							};
 						};
 					};
@@ -477,16 +508,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0844B2001C2A33290098F232 /* FileUtil.m in Sources */,
 				0851EA041C0C9675006C2932 /* TokensViewController.m in Sources */,
 				084A46621C206682005C73F0 /* MecabPatch.m in Sources */,
 				0851EA051C0C9675006C2932 /* main.m in Sources */,
+				0844B1F31C2A30980098F232 /* iCloudStorage.m in Sources */,
 				0851EA061C0C9675006C2932 /* LibMecabSampleAppDelegate.m in Sources */,
+				0844B1F81C2A32DD0098F232 /* FileRepresentation.m in Sources */,
 				0851EA071C0C9675006C2932 /* LibMecabSampleViewController.m in Sources */,
 				085FC0851C25E30300B3A8E7 /* SmallNodeCell.m in Sources */,
 				084A465D1C205EA1005C73F0 /* Utility.m in Sources */,
 				0851EA081C0C9675006C2932 /* Mecab.m in Sources */,
 				0851EA091C0C9675006C2932 /* Node.m in Sources */,
+				0844B2041C2A33D10098F232 /* NSString+TM.m in Sources */,
 				0851EA0A1C0C9675006C2932 /* NodeCell.m in Sources */,
+				0844B1FC1C2A33000098F232 /* FileSpec.m in Sources */,
 				0851EA0B1C0C9675006C2932 /* TokenCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -495,16 +531,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0844B1FF1C2A33290098F232 /* FileUtil.m in Sources */,
 				089AFE8C1C03359000BA5F98 /* TokensViewController.m in Sources */,
 				084A46611C206682005C73F0 /* MecabPatch.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
+				0844B1F21C2A30980098F232 /* iCloudStorage.m in Sources */,
 				1D3623260D0F684500981E51 /* LibMecabSampleAppDelegate.m in Sources */,
+				0844B1F71C2A32DD0098F232 /* FileRepresentation.m in Sources */,
 				28D7ACF80DDB3853001CB0EB /* LibMecabSampleViewController.m in Sources */,
 				085FC0841C25E30300B3A8E7 /* SmallNodeCell.m in Sources */,
 				084A465C1C205EA1005C73F0 /* Utility.m in Sources */,
 				13C86E5B12C87B30006F2369 /* Mecab.m in Sources */,
 				13C86E5C12C87B30006F2369 /* Node.m in Sources */,
+				0844B2031C2A33D10098F232 /* NSString+TM.m in Sources */,
 				13C86E6B12C87B77006F2369 /* NodeCell.m in Sources */,
+				0844B1FB1C2A33000098F232 /* FileSpec.m in Sources */,
 				089AFE8F1C03359700BA5F98 /* TokenCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
