@@ -44,6 +44,7 @@
 #define kTableViewBackgroundColor   [UIColor whiteColor]
 #define kJiritsugoCellColor         [UIColor colorWithRed:1.0 green:1.0 blue:0.0 alpha:0.05]
 #define kFuzokugoCellColor          [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.05]
+#define kSelectionColor             [UIColor colorWithRed:0.8 green:0.9 blue:1.0 alpha:0.5]
 
 #define kDoubleTapDetectPeriod      0.3   // 【変更不可】0.25 秒以内にタップがされればダブルタップと見なす。
 
