@@ -14,9 +14,11 @@
 
 @synthesize window=_window;
 @synthesize viewController=_viewController;
+#if ICLOUD_ENABLD
 @synthesize iCloudStorage=_iCloudStorage;
 @synthesize ubiquityContainerURL=_ubiquityContainerURL;
 @synthesize listingCountByUpdate=_listingCountByUpdate;
+#endif
 @synthesize use_iCloud=_use_iCloud;
 
 NSString *iCloudListingNotification = @"iCloudListing";
@@ -157,6 +159,7 @@ NSString *iCloudDeletedNotification = @"iCloudDeleted";
     return ret;
 }
 
+#if ICLOUD_ENABLD
 - (BOOL) create_iCloudFolder {
     
 #if (LOG == ON)
@@ -176,7 +179,6 @@ NSString *iCloudDeletedNotification = @"iCloudDeleted";
 }
 
 #pragma mark - iCloud Utility
-
 - (void) init_iCloud {
     
     DEBUG_LOG(@"%s", __func__);
@@ -486,15 +488,6 @@ NSString *iCloudDeletedNotification = @"iCloudDeleted";
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudDeletedNotification
                                                                                          object:self
                                                                                        userInfo:userInfo]];
-    
-    //    NSString *path = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:fileName];
-    //    NSDate *modDate = [FileUtil modificationDate:path];
-    //    if ([[[NSUserDefaults standardUserDefaults] objectForKey:DEFAULT_ICLOUD_BACKUP_DATE_KEY] isEqualToString:[modDate description]])
-    //    {// 自分自身がバックアップしたので、iCloud からの更新が主導ではない。
-    //    } else {
-    // iCloud書類が更新されたことを保持する。
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:DEFAULT_ICLOUD_DOC_UPDATED_KEY];
-    //    }
 }
 
 - (void) iCloudUpdatedNotify:(NSArray *)files {
@@ -532,23 +525,17 @@ NSString *iCloudDeletedNotification = @"iCloudDeleted";
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudSyncNotification
                                                                                          object:self
                                                                                        userInfo:userInfo]];
-    
-    //    NSString *path = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:fileName];
-    //    NSDate *modDate = [FileUtil modificationDate:path];
-    //    if ([[[NSUserDefaults standardUserDefaults] objectForKey:DEFAULT_ICLOUD_BACKUP_DATE_KEY] isEqualToString:[modDate description]])
-    //    {// 自分自身がバックアップしたので、iCloud からの更新が主導ではない。
-    //    } else {
-    // iCloud書類が更新されたことを保持する。
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:DEFAULT_ICLOUD_DOC_UPDATED_KEY];
-    //    }
 }
+#endif
 
 - (void)dealloc {
 
     [_viewController release];
     [_window release];
+
+#if ICLOUD_ENABLD
     [_iCloudStorage release];
-    
+#endif
     [super dealloc];
 }
 
@@ -612,7 +599,10 @@ NSString *iCloudDeletedNotification = @"iCloudDeleted";
             [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUse_iCloudKey];
         }
     }
+#if ICLOUD_ENABLD
     self.use_iCloud = [[NSUserDefaults standardUserDefaults] boolForKey:kUse_iCloudKey];
+#else
+    self.use_iCloud = NO;
+#endif
 }
-
 @end

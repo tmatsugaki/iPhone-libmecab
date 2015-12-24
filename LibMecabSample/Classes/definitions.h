@@ -47,15 +47,12 @@
 #define kSelectionColor             [UIColor colorWithRed:0.8 green:0.9 blue:1.0 alpha:0.5]
 
 #define kDoubleTapDetectPeriod      0.3   // 【変更不可】0.25 秒以内にタップがされればダブルタップと見なす。
-#define USE_iCloud                  1
 
 /*
   iCloud 関係
  */
 #define ICLOUD_ENABLD                       1
 #define ICLOUD_FALLBACK_STORE_IN_CACHE      1
-
-#if USE_iCloud
 
 #define kDocumentRoot					NSHomeDirectory()
 #define kLibraryPath					[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject]
@@ -65,7 +62,11 @@
 #define kHinshiMasterUbiquityCotainerPath   @"/private/var/mobile/Library/Mobile Documents/iCloud~jp~mydns~rikki~HinshiMaster/Documents"
 // バックアップ対象（iCloud に保存される）
 #define kPreferencesPath				[kLibraryPath stringByAppendingPathComponent:@"Preferences"]
-// ~/Library/Preferences/org.dyndns.rikki.Yardbirds.plist には、デフォルトの差分が保持されている！！
+// ~/Library/Preferences/jp.mydns.rikki.HinshiMaster.plist には、デフォルトの差分が保持されている！！
+
+extern NSString *iCloudListingNotification;
+extern NSString *iCloudSyncNotification;
+extern NSString *iCloudDeletedNotification;
 
 // 固定ディレクトリ名
 #define SHOULDNOT_BE_ACCESSIBLE_FILE_PATH   @"/Application/Preferences.app/General.plist"
@@ -74,20 +75,12 @@
 #define WORK_FOLDER_NAME                    @"work"
 
 // バックアップ対象外（iCloud に保存されない）
-#define kCachedDocumentRoot				[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject]
 #define kCachedDocumentPath				[kCachedDocumentRoot stringByAppendingPathComponent:@"Documents"]
+#define kCachedDocumentRoot				[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject]
 #define kCachedXMLPath                  [kCachedDocumentRoot stringByAppendingPathComponent:@"xml"]
 #define k_iCloudDocumentPath			[kCachedDocumentRoot stringByAppendingPathComponent:ICLOUD_FOLDER_NAME]
 #define kCachedWorkPath                 [kCachedDocumentRoot stringByAppendingPathComponent:WORK_FOLDER_NAME]
 
-extern NSString *iCloudListingNotification;
-extern NSString *iCloudSyncNotification;
-extern NSString *iCloudDeletedNotification;
-
-//#define DEFAULT_USE_ICLOUD_KEY          @"use_iCloud"
-#define DEFAULT_ICLOUD_DOC_UPDATED_KEY  @"iCloudDocUpdated"
-
 static NSString *UbiquityContainerIdentifier = @"iCloud.jp.mydns.rikki.HinshiMaster";
-#endif
 
 #endif /* definitions_h */

@@ -127,7 +127,7 @@
 
 #pragma mark - Environment
 
-// file://localhost/private/var/mobile/Library/Mobile%20Documents/F42S2EFB55~org~dyndns~rikki~Yardbirds/
+// file://localhost/private/var/mobile/Library/Mobile%20Documents/iCloud~jp~mydns~rikki~HinshiMaster/
 //
 + (NSURL *) ubiquityContainerURL {
     
@@ -142,7 +142,7 @@
     return ubiquityContainerURL;
 }
 
-// file://localhost/private/var/mobile/Library/Mobile%20Documents/F42S2EFB55~org~dyndns~rikki~Yardbirds/Documents/
+// file://localhost/private/var/mobile/Library/Mobile%20Documents/iCloud~jp~mydns~rikki~HinshiMaster/Documents/
 //
 + (NSURL *) ubiquityDocumentsURL {
     

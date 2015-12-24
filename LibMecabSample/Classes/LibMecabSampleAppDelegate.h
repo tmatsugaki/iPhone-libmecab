@@ -7,28 +7,42 @@
 //
 
 #import <UIKit/UIKit.h>
+#if ICLOUD_ENABLD
 #import "iCloudStorage.h"
+#endif
 
 @class LibMecabSampleViewController;
 
+#if ICLOUD_ENABLD
 @interface LibMecabSampleAppDelegate : NSObject <UIApplicationDelegate, iCloudStorageDelegate> {
     UIWindow *_window;
     LibMecabSampleViewController *_viewController;
-
+    
+#if ICLOUD_ENABLD
     iCloudStorage *_iCloudStorage;
     NSURL *_ubiquityContainerURL;
     NSInteger _listingCountByUpdate;
-    
+#endif
     BOOL _use_iCloud;
 }
+#else
+@interface LibMecabSampleAppDelegate : NSObject <UIApplicationDelegate> {
+    UIWindow *_window;
+    LibMecabSampleViewController *_viewController;
+    BOOL _use_iCloud;
+}
+#endif
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet LibMecabSampleViewController *viewController;
+#if ICLOUD_ENABLD
 @property (nonatomic, retain) iCloudStorage *iCloudStorage;
 @property (retain, nonatomic) NSURL *ubiquityContainerURL;
 @property (assign, nonatomic) NSInteger listingCountByUpdate;
+#endif
 @property (assign, nonatomic) BOOL use_iCloud;
 
+#if ICLOUD_ENABLD
 // iCloud
 - (void) init_iCloud;
 - (void) saveTo_iCloud;
@@ -40,6 +54,7 @@
 - (BOOL) enqueue_iCloudModify:(NSString *)path data:(NSData *)data;             // パスはサンドボックスコンテナ内であること
 //- (BOOL) enqueue_iCloudDelete:(NSString *)path;                                 // パスはサンドボックスコンテナ内であること
 //- (void) get_iCloudAttributes:(NSString *)path fileSpec:(FileSpec *)fileSpec;   // パスはサンドボックスコンテナ内であること
+#endif
 
 @end
 

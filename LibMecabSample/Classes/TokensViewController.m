@@ -296,9 +296,11 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
             // iCloud
             LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
 
+#if ICLOUD_ENABLD
             if (appDelegate.use_iCloud) {
                 [appDelegate saveTo_iCloud];
             }
+#endif
 
 #if DELETE_ANIMATION
             CGContextRef context = UIGraphicsGetCurrentContext();
@@ -365,9 +367,11 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
             // iCloud
             LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
 
+#if ICLOUD_ENABLD
             if (appDelegate.use_iCloud) {
                 [appDelegate saveTo_iCloud];
             }
+#endif
             [[NSUserDefaults standardUserDefaults] setObject:dic[@"sentence"] forKey:kDefaultsEvaluatingSentence];
 
             [dic release];

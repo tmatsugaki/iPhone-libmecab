@@ -566,7 +566,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = LibMecabSample_Prefix.pch;
-				INFOPLIST_FILE = "LibMecabSample copy-Info.plist";
+				INFOPLIST_FILE = "HinshiMaster-Info.plist";
 				OTHER_CFLAGS = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.mydns.rikki.HinshiMaster;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -585,7 +585,7 @@
 				ENABLE_TESTABILITY = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = LibMecabSample_Prefix.pch;
-				INFOPLIST_FILE = "LibMecabSample copy-Info.plist";
+				INFOPLIST_FILE = "HinshiMaster-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.mydns.rikki.HinshiMaster;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";

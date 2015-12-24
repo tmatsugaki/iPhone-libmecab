@@ -183,9 +183,11 @@
                 // iCloud
                 LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
 
+#if ICLOUD_ENABLD
                 if (appDelegate.use_iCloud) {
                     [appDelegate saveTo_iCloud];
                 }
+#endif
             }
             [[NSUserDefaults standardUserDefaults] setObject:string forKey:kDefaultsEvaluatingSentence];
         } else {
@@ -260,9 +262,12 @@
 
     [super viewDidLoad];
 
+#if ICLOUD_ENABLD
     LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+
     [appDelegate init_iCloud];
-    
+#endif
+
     [_tableView setBackgroundColor:kTableViewBackgroundColor];
 
     _shortFormat = YES;
@@ -287,6 +292,7 @@
         _tableView.layoutMargins = UIEdgeInsetsZero;
     }
 
+#if ICLOUD_ENABLD
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(iCloudListReceived:)
                                                  name:iCloudListingNotification
@@ -299,6 +305,7 @@
                                              selector:@selector(iCloudDeleted:)
                                                  name:iCloudDeletedNotification
                                                object:self];
+#endif
 }
 
 - (void) viewWillAppear:(BOOL)animated {
@@ -309,11 +316,12 @@
 
     LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
     
+#if ICLOUD_ENABLD
     if (appDelegate.use_iCloud) {
         // 【必須】サンドボックス・コンテナに Library.xml を取得する。
         [appDelegate.iCloudStorage requestListing:kLibXMLName];
     }
-
+#endif
     self.sentenceItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
     [self initialParse];
 
@@ -500,6 +508,7 @@ heightForFooterInSection:(NSInteger)section {
 
 - (void)dealloc {
 
+#if ICLOUD_ENABLD
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:iCloudListingNotification
                                                   object:self];
@@ -509,7 +518,7 @@ heightForFooterInSection:(NSInteger)section {
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:iCloudDeletedNotification
                                                   object:self];
-
+#endif
     self.textField = nil;
     self.tableView = nil;
     self.nodeCell = nil;
@@ -631,6 +640,7 @@ heightForFooterInSection:(NSInteger)section {
 
 #pragma mark - iCloud 用リスナーのコールバック
 
+#if ICLOUD_ENABLD
 - (void) iCloudListReceived:(id)sender {
 
     DEBUG_LOG(@"%s Library.xml を iCloud から取得したファイルに置換しました。", __func__);
@@ -665,5 +675,5 @@ heightForFooterInSection:(NSInteger)section {
 
 - (void) iCloudDeleted:(id)sender {
 }
-
+#endif
 @end
