@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "NodeCell.h"
 #import "SmallNodeCell.h"
+#import "TokensViewController.h"
 
 @class Mecab;
 
@@ -24,10 +25,11 @@
 	
 	Mecab *_mecab;
 	NSMutableArray *_nodes;
-    NSMutableArray *_sentenceItems;
+    NSMutableArray *_listItems;
     BOOL _shortFormat;
 
     BOOL _patchedResult;
+    TokensViewController *_tokensViewController;
 }
 
 @property (nonatomic, retain) IBOutlet UITextField *textField;
@@ -39,9 +41,10 @@
 @property (nonatomic, retain) IBOutlet UISwitch *patch;
 @property (nonatomic, retain) Mecab *mecab;
 @property (nonatomic, retain) NSMutableArray *nodes;
-@property (nonatomic, retain) NSMutableArray *sentenceItems;
+@property (nonatomic, retain) NSMutableArray *listItems;
 @property (nonatomic, assign) BOOL shortFormat;
 @property (nonatomic, assign) BOOL patchedResult;
+@property (nonatomic, retain) TokensViewController *tokensViewController;
 
 - (IBAction)parse:(id)sender;
 

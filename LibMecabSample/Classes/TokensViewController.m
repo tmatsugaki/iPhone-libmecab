@@ -8,6 +8,7 @@
 #import "TokensViewController.h"
 #import "Utility.h"
 #import "LibMecabSampleAppDelegate.h"
+#import "FileUtil.h"
 
 @implementation TokensViewController
 
@@ -31,6 +32,12 @@
     self.rawSentences = nil;
     self.filteredSentences = nil;
     
+#if ICLOUD_ENABLD
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:iCloudDownloadCompletedNotification
+                                                  object:self];
+#endif
+
     [super dealloc];
 }
 
@@ -128,6 +135,12 @@
         _searchBar.text = searchingToken;
         [self filterContentForSearchText:searchingToken];
     }
+#if ICLOUD_ENABLD
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(iCloudListDownloadCompleted:)
+                                                 name:iCloudDownloadCompletedNotification
+                                               object:self];
+#endif
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -167,6 +180,14 @@
                                              selector:@selector(keyboardWillHide:)
                                                  name:UIKeyboardWillHideNotification
                                                object:nil];
+#if ICLOUD_ENABLD
+    LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+    
+    if (appDelegate.use_iCloud) {
+        // 【必須】サンドボックス・コンテナに Library.xml を取得する。
+        [appDelegate.iCloudStorage requestListing:kLibXMLName];
+    }
+#endif
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -558,4 +579,31 @@ heightForFooterInSection:(NSInteger)section {
                       keyboardRect:endFrame
                           duration:duration];
 }
+
+#pragma mark - iCloud 用リスナーのコールバック
+
+#if ICLOUD_ENABLD
+- (void) iCloudListDownloadCompleted:(id)sender {
+    
+    // iCloud との授受に使用するデータのパス
+    NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
+    NSData *iCloudData = [NSData dataWithContentsOfFile:agentPath];
+    
+    if (iCloudData) {
+        NSData *fileData = [NSData dataWithContentsOfFile:kLibXMLPath];
+        
+        if (fileData) {
+            if ([fileData isEqualToData:iCloudData] == NO) {
+                [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
+                DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
+            }
+        } else {
+            [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
+            DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
+        }
+    }
+    self.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+    [_tableView reloadData];
+}
+#endif
 @end

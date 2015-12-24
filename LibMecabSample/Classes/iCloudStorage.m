@@ -547,21 +547,36 @@
     NSArray *queryResults = [_query results];
     BOOL readyToGetList = ([queryResults count] > 0);
     NSMutableArray *files = [[NSMutableArray alloc] init];
+    NSUInteger compCount = 0;
     
     if (readyToGetList)
     {
         for (NSMetadataItem *result in queryResults) {
             NSURL *url = [result valueForAttribute:NSMetadataItemURLKey];
 
-            if ([self is_iCloudUploaded:url] && [self is_iCloudDownloading:url])
-            {// 過渡状態のファイルがあるので、リスト取得を却下する。
-                DEBUG_LOG(@"%s [%@] のダウンロード中", __func__, url);
+            //
+            [files addObject:[[url path] lastPathComponent]];
+
+            if ([self is_iCloudUploaded:url])
+            {// 過渡状態のファイルがある。
+                if ([self is_iCloudDownloading:url]) {
+                    DEBUG_LOG(@"%s [%@] のダウンロード中", __func__, url);
+                } else {
+                    compCount++;
+                    DEBUG_LOG(@"%s [%@] のダウンロード完了", __func__, url);
+                }
             }
         }
     }
-    if (_inQuery == NO) {
+    if (_inQuery == NO)
+    {// 【例外】クエリーがないので、リスト要求する。
         [delegate iCloudUpdatedNotify:files];
     }
+    if (compCount && [queryResults count]) {
+        [delegate iCloudDownloadCompNotify];
+    }
+    [files release];
+
     if ([_requestTimer isValid] == NO)
     {// リクエスト監視タイマーが有効でない場合は、ステータスバーのインジケータを用いて
      // アップデートがあったことを知らせる。

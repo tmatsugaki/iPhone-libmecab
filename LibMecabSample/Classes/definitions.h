@@ -64,7 +64,8 @@
 #define kPreferencesPath				[kLibraryPath stringByAppendingPathComponent:@"Preferences"]
 // ~/Library/Preferences/jp.mydns.rikki.HinshiMaster.plist には、デフォルトの差分が保持されている！！
 
-extern NSString *iCloudListingNotification;
+extern NSString *iCloudListingProgressNotification;
+extern NSString *iCloudDownloadCompletedNotification;
 extern NSString *iCloudSyncNotification;
 extern NSString *iCloudDeletedNotification;
 

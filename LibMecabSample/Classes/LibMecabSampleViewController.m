@@ -8,12 +8,12 @@
 
 #import "definitions.h"
 #import "LibMecabSampleViewController.h"
-#import "TokensViewController.h"
 #import "Mecab.h"
 #import "Node.h"
 #import "MecabPatch.h"
 #import "Utility.h"
 #import "LibMecabSampleAppDelegate.h"
+#import "FileUtil.h"
 
 //#import "CloudKit/CKContainer.h"
 //#import "CloudKit/CKRecordID.h"
@@ -32,9 +32,10 @@
 @synthesize patch=_patch;
 @synthesize mecab=_mecab;
 @synthesize nodes=_nodes;
-@synthesize sentenceItems=_sentenceItems;
+@synthesize listItems=_listItems;
 @synthesize shortFormat=_shortFormat;
 @synthesize patchedResult=_patchedResult;
+@synthesize tokensViewController=_tokensViewController;
 
 #pragma mark - IBAction
 
@@ -48,8 +49,8 @@
     {// ダイアグノシス
         NSUInteger i;
 
-        for (i = 0; i < [_sentenceItems count]; i++) {
-            NSMutableDictionary *sentenceDic = _sentenceItems[i];
+        for (i = 0; i < [_listItems count]; i++) {
+            NSMutableDictionary *sentenceDic = _listItems[i];
             NSString *sentence = sentenceDic[@"sentence"];
 
             DEBUG_LOG(@"**********************************************************************\n");
@@ -92,7 +93,7 @@
 
 #if REPLACE_OBJECT
             sentenceDic[@"modified"] = [NSNumber numberWithBool:mecabPatcher.modified];
-            [_sentenceItems replaceObjectAtIndex:i withObject:sentenceDic];
+            [_listItems replaceObjectAtIndex:i withObject:sentenceDic];
 #endif
         }
     } else {
@@ -158,15 +159,15 @@
         if ([string length]) {
             NSUInteger foundIndex = NSNotFound;
             
-            for (NSUInteger i = 0; i < [_sentenceItems count]; i++) {
-                NSDictionary *dic = _sentenceItems[i];
+            for (NSUInteger i = 0; i < [_listItems count]; i++) {
+                NSDictionary *dic = _listItems[i];
                 if ([dic[@"sentence"] isEqualToString:string]) {
                     foundIndex = i;
                     break;
                 }
             }
             if (foundIndex != NSNotFound) {
-                NSMutableDictionary *dic = _sentenceItems[foundIndex];
+                NSMutableDictionary *dic = _listItems[foundIndex];
 
                 dic[@"modified"] = [NSNumber numberWithBool:mecabPatcher.modified];
             } else {
@@ -175,10 +176,10 @@
                 newDic[@"sentence"] = string;
                 newDic[@"tag"]      = @"";
                 newDic[@"modified"] = [NSNumber numberWithBool:mecabPatcher.modified];
-                [_sentenceItems addObject:newDic];
+                [_listItems addObject:newDic];
 
                 // 文章を追加したので、XML ファイルに反映する。
-                [_sentenceItems writeToFile:kLibXMLPath atomically:YES];
+                [_listItems writeToFile:kLibXMLPath atomically:YES];
 
                 // iCloud
                 LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
@@ -204,13 +205,14 @@
     
     [_textField resignFirstResponder];
 
-    if ([_sentenceItems count])
+    if ([_listItems count])
     {// トークンリストのモーダルダイアログを表示する。
         TokensViewController *viewController = [[TokensViewController alloc] initWithNibName:@"TokensViewController"
                                                                                       bundle:nil
-                                                                              sentencesArray:_sentenceItems];
+                                                                              sentencesArray:_listItems];
         
         [self presentViewController:viewController animated:YES completion:nil];
+        self.tokensViewController = viewController;
         [viewController release];
     }
 }
@@ -249,8 +251,8 @@
 
     NSString *string = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsEvaluatingSentence];
 
-    if ([string length] == 0 && [_sentenceItems count]) {
-        string = ((NSDictionary *) _sentenceItems[0])[@"sentence"];
+    if ([string length] == 0 && [_listItems count]) {
+        string = ((NSDictionary *) _listItems[0])[@"sentence"];
     }
     [_textField setText:[string length] ? string : @""];
     [self parse:self];
@@ -294,16 +296,8 @@
 
 #if ICLOUD_ENABLD
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(iCloudListReceived:)
-                                                 name:iCloudListingNotification
-                                               object:self];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(iCloudSynchronized:)
-                                                 name:iCloudSyncNotification
-                                               object:self];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(iCloudDeleted:)
-                                                 name:iCloudDeletedNotification
+                                             selector:@selector(iCloudListDownloadCompleted:)
+                                                 name:iCloudDownloadCompletedNotification
                                                object:self];
 #endif
 }
@@ -313,16 +307,8 @@
     DEBUG_LOG(@"%s", __func__);
 
     [super viewWillAppear:animated];
-
-    LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
     
-#if ICLOUD_ENABLD
-    if (appDelegate.use_iCloud) {
-        // 【必須】サンドボックス・コンテナに Library.xml を取得する。
-        [appDelegate.iCloudStorage requestListing:kLibXMLName];
-    }
-#endif
-    self.sentenceItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+    self.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
     [self initialParse];
 
 #if (GIVEUP_EDIT_WHEN_SCROLL == 0)
@@ -335,6 +321,21 @@
                                                  name:UIKeyboardWillHideNotification
                                                object:nil];
 #endif
+
+#if ICLOUD_ENABLD
+    LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+    
+    if (appDelegate.use_iCloud) {
+        // 【必須】サンドボックス・コンテナに Library.xml を取得する。
+        [appDelegate.iCloudStorage requestListing:kLibXMLName];
+    }
+#endif
+}
+
+- (void) viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    self.tokensViewController = nil;
 }
 
 - (void) viewWillDisappear:(BOOL)animated {
@@ -510,13 +511,7 @@ heightForFooterInSection:(NSInteger)section {
 
 #if ICLOUD_ENABLD
     [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:iCloudListingNotification
-                                                  object:self];
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:iCloudSyncNotification
-                                                  object:self];
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:iCloudDeletedNotification
+                                                    name:iCloudDownloadCompletedNotification
                                                   object:self];
 #endif
     self.textField = nil;
@@ -529,7 +524,7 @@ heightForFooterInSection:(NSInteger)section {
 
     self.mecab = nil;
 	self.nodes = nil;
-    self.sentenceItems = nil;
+    self.listItems = nil;
 
 //    self.selectedIndexPath = nil;
 	
@@ -641,39 +636,37 @@ heightForFooterInSection:(NSInteger)section {
 #pragma mark - iCloud 用リスナーのコールバック
 
 #if ICLOUD_ENABLD
-- (void) iCloudListReceived:(id)sender {
+// Library.xml を iCloud から取得したファイルに置換する。
+- (void) iCloudListDownloadCompleted:(id)sender {
 
-    DEBUG_LOG(@"%s Library.xml を iCloud から取得したファイルに置換しました。", __func__);
     // iCloud との授受に使用するデータのパス
     NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
-    // Library.xml を iCloud から取得したファイルに置換する。
-    [[NSFileManager defaultManager] removeItemAtPath:kLibXMLPath error:nil];
-    [[NSFileManager defaultManager] copyItemAtPath:agentPath toPath:kLibXMLPath error:nil];
+    NSData *iCloudData = [NSData dataWithContentsOfFile:agentPath];
     
-    self.sentenceItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
-#if 0
-    //
-    UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
-    
-    while (topController.presentedViewController) {
-        topController = topController.presentedViewController;
+    if (iCloudData) {
+        NSData *fileData = [NSData dataWithContentsOfFile:kLibXMLPath];
+        
+        if (fileData) {
+            if ([fileData isEqualToData:iCloudData] == NO) {
+                [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
+                DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
+            }
+        } else {
+            [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
+            DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
+        }
     }
-    if ([topController isKindOfClass:[TokensViewController class]]) {
-        TokensViewController *tokensViewController = (TokensViewController *) topController;
+    self.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
 
-        tokensViewController.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
-        [tokensViewController.tableView reloadData];
+    if (_tokensViewController) {
+        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+        // ユーザーデフォルトの設定が変わったことを LibMecabSampleViewController に通知する。
+        [userInfo setObject:[self class] forKey:@"class"];
+        
+        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudDownloadCompletedNotification
+                                                                                             object:_tokensViewController
+                                                                                           userInfo:userInfo]];
     }
-#endif
-}
-
-- (void) iCloudSynchronized:(id)sender {
-}
-
-- (void) iCloudSyncNotification:(id)sender {
-}
-
-- (void) iCloudDeleted:(id)sender {
 }
 #endif
 @end

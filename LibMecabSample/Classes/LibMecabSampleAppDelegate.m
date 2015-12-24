@@ -21,9 +21,10 @@
 #endif
 @synthesize use_iCloud=_use_iCloud;
 
-NSString *iCloudListingNotification = @"iCloudListing";
-NSString *iCloudSyncNotification    = @"iCloudSync";
-NSString *iCloudDeletedNotification = @"iCloudDeleted";
+NSString *iCloudListingProgressNotification     = @"iCloudListingProgress";
+NSString *iCloudDownloadCompletedNotification   = @"iCloudDownloadCompleted";
+NSString *iCloudSyncNotification                = @"iCloudSync";
+NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 
 #pragma mark - Application lifecycle
 
@@ -504,13 +505,25 @@ NSString *iCloudDeletedNotification = @"iCloudDeleted";
 
 // syncToLocal 後に呼ばれる。
 - (void) iCloudListReceivedNotify:(NSUInteger)numTunes {
-    DEBUG_LOG(@"【iCloud】%s [%lu]個のファイルを受信しました。", __func__, (unsigned long)numTunes);
+    DEBUG_LOG(@"【iCloud】%s [%lu]個のファイルを受信を開始しました。", __func__, (unsigned long)numTunes);
     
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
     // ユーザーデフォルトの設定が変わったことを LibMecabSampleViewController に通知する。
     [userInfo setObject:[self class] forKey:@"class"];
     
-    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudListingNotification
+    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudListingProgressNotification
+                                                                                         object:_viewController
+                                                                                       userInfo:userInfo]];
+}
+
+- (void) iCloudDownloadCompNotify {
+    DEBUG_LOG(@"【iCloud】%s 全ファイルの受信が完了しました。", __func__);
+    
+    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+    // ユーザーデフォルトの設定が変わったことを LibMecabSampleViewController に通知する。
+    [userInfo setObject:[self class] forKey:@"class"];
+    
+    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudDownloadCompletedNotification
                                                                                          object:_viewController
                                                                                        userInfo:userInfo]];
 }

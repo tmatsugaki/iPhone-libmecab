@@ -20,8 +20,11 @@
 - (void) iCloudModifyNotify:(NSString *)fileName completion:(BOOL)completion;
 - (void) iCloudDeleteNotify:(NSString *)fileName completion:(BOOL)completion;
 // iCloud ストレージコンテンツ更新のノーティファイ（ローカル／リモート）
-- (void) iCloudUpdatedNotify:(NSArray *)files;     // readyToGetList == YES の場合は一連の更新が完了して、リスト作成に適したことを通知する。
+// ダウンロードが開始した。
 - (void) iCloudListReceivedNotify:(NSUInteger)numTunes;
+- (void) iCloudUpdatedNotify:(NSArray *)files;      // readyToGetList == YES の場合は一連の更新が完了して、リスト作成に適したことを通知する。
+// ダウンロードが終了した。
+- (void) iCloudDownloadCompNotify;
 // iCloud ストレージ変更結果（ファイル受信）のノーティファイ（リモートのみ）
 - (void) iCloudSynchronizedNotify:(NSString *)fileName;
 @end
