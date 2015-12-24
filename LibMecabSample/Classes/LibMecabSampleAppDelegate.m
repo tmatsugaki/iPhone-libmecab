@@ -19,14 +19,14 @@
 @synthesize listingCountByUpdate=_listingCountByUpdate;
 @synthesize use_iCloud=_use_iCloud;
 
-NSString * const iCloudListingNotification                  = @"iCloudListing";
-NSString * const iCloudSyncNotification                     = @"iCloudSync";
-NSString * const iCloudDeletedNotification                  = @"iCloudDeleted";
+NSString *iCloudListingNotification = @"iCloudListing";
+NSString *iCloudSyncNotification    = @"iCloudSync";
+NSString *iCloudDeletedNotification = @"iCloudDeleted";
 
 #pragma mark - Application lifecycle
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
-    
+
     // Override point for customization after application launch.
 
     // Add the view controller's view to the window and display.
@@ -36,12 +36,10 @@ NSString * const iCloudDeletedNotification                  = @"iCloudDeleted";
     // 罫線を突き抜けさせる。
     [[UITableViewCell appearance] setSeparatorInset:UIEdgeInsetsZero];
 
-    [self createDocumentFolder];
-    [self create_iCloudFolder];
-    [self createXMLFolder];
-    [self createWorkFolder];
-    [self init_iCloud];
-
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(defaultsObserver:)
+                                                 name:NSUserDefaultsDidChangeNotification
+                                               object:nil];
     return YES;
 }
 
@@ -81,6 +79,9 @@ NSString * const iCloudDeletedNotification                  = @"iCloudDeleted";
      Called when the application is about to terminate.
      See also applicationDidEnterBackground:.
      */
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:NSUserDefaultsDidChangeNotification
+                                                  object:nil];
 }
 
 
@@ -93,7 +94,6 @@ NSString * const iCloudDeletedNotification                  = @"iCloudDeleted";
 }
 
 #pragma mark - 使い捨て（キャッシュ）ファイル用のディレクトリ
-
 /*
  * キャッシュには Documents, xml, iCloud, work のフォルダを作成する。
  */
@@ -181,6 +181,14 @@ NSString * const iCloudDeletedNotification                  = @"iCloudDeleted";
     
     DEBUG_LOG(@"%s", __func__);
     
+    // ユーザーに公開しているデフォルトを設定する。
+    [self setupByPreferences];
+
+    [self createDocumentFolder];
+    [self create_iCloudFolder];
+    [self createXMLFolder];
+    [self createWorkFolder];
+
 #if (!TARGET_IPHONE_SIMULATOR)
     // 【注意】iCloud をサポートしている場合はコンテナ・ドキュメントURLを取得する。
     self.ubiquityContainerURL = [self ubiquitousDocumentsDirectoryURL];
@@ -188,6 +196,72 @@ NSString * const iCloudDeletedNotification                  = @"iCloudDeleted";
     if (_ubiquityContainerURL) {
         self.iCloudStorage = [[iCloudStorage alloc] initWithURL:_ubiquityContainerURL];
         _iCloudStorage.delegate = self;
+    }
+#endif
+}
+
+- (void) saveTo_iCloud {
+    
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#else
+    // iCloud との授受に使用するデータのパス
+    NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
+
+    DEBUG_LOG(@"実体があるパス：%@", kLibXMLPath);
+    DEBUG_LOG(@"媒介者のパス　：%@", agentPath);
+
+    if ([[NSFileManager defaultManager] fileExistsAtPath:agentPath] == NO)
+    {// 【新規の場合】
+        // クローン作成
+        [[NSFileManager defaultManager] copyItemAtPath:kLibXMLPath toPath:agentPath error:nil];
+
+        // iCloud領域 へのペーストは、常時 iCloud の管理対象にするようアサインする。
+        // 【注意】iCloud 用の例外的な処理。
+        // 【効果】管理対象外のファイルを強制的に管理対象にする。
+        (void) [self enqueue_iCloudPublish:agentPath];
+    } else
+    {// 【変更の場合】
+     // 【管理対象】上書きであるので、iCloud に管理対象に変更があったことをアサインする。
+        (void) [self enqueue_iCloudModify:agentPath
+                                     data:[[[NSFileManager defaultManager] contentsAtPath:kLibXMLPath] copy]];
+    }
+#endif
+}
+
+- (void) loadFrom_iCloud {
+    
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#else
+    // ディレクトリをトラバースして当該ページに属する情報だけをアーカイブする。
+    NSString *xmlPath = [NSString stringWithFormat:@"%@/%@", kDocumentPath, kLibXMLName];
+    NSString *targetPath = nil;
+    NSString *tempPath = nil;   // 作業対象はココ！！
+    
+    if (_use_iCloud)
+    {
+        targetPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
+        tempPath = xmlPath;
+    } else {
+        targetPath = xmlPath;
+        tempPath = targetPath;
+    }
+    DEBUG_LOG(@"ターゲットのパス %@", targetPath);
+    DEBUG_LOG(@"作業用　　のパス %@", tempPath);
+    if (_use_iCloud) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:targetPath])
+        {// 【管理対象】上書きであるので、iCloud に管理対象に変更があったことをアサインする。
+            (void) [self enqueue_iCloudModify:targetPath
+                                                data:[[[NSFileManager defaultManager] contentsAtPath:tempPath] copy]];
+        } else {
+            // iCloud領域 へのペーストは、常時 iCloud の管理対象にするようアサインする。
+            // 【注意】iCloud 用の例外的な処理。
+            // 【効果】管理対象外のファイルを強制的に管理対象にする。
+            // テンポラリXMLファイルを正式名称にリネームする。
+            [[NSFileManager defaultManager] moveItemAtPath:tempPath toPath:targetPath error:nil];
+            (void) [self enqueue_iCloudPublish:targetPath];
+        }
     }
 #endif
 }
@@ -243,62 +317,6 @@ NSString * const iCloudDeletedNotification                  = @"iCloudDeleted";
     }
     return invoked;
 }
-
-/*
- - (BOOL) enqueue_iCloudPublishHier:(NSString *)path {
- 
- BOOL invoked = NO;
- 
- if (_iCloud) {
- NSString *sandboxDocFolder = [iCloudStorage sandboxContainerDocPath];
- NSString *fileName = [path lastPathComponent];
- BOOL isDirectory = NO;
- 
- if ([path hasPrefix:iCloudFolder])
- {// iCloud が使用可能で、path がサンドボックスコンテナ内なら
- if ([FileUtil fileExistsAtPath:path isDirectory:&isDirectory]) {
- if (isDirectory)
- {// サンドボックス・コンテナのファイル
- int documentPlace = kDocumentPlaceDefault;
- NSRange range;
- 
- range = [path rangeOfString:kCachedDocumentPath];
- if (range.location != NSNotFound) {
- documentPlace = kDocumentPlaceCached;
- } else {
- range = [path rangeOfString:k_iCloudDocumentPath];
- if (range.location != NSNotFound) {
- documentPlace = kDocumentPlace_iCloud;
- }
- }
- NSArray *files = [FileUtil dirFileSpecs:path];
- 
- for (FileSpec *spec in files) {
- //
- [_iCloud getAllAttributes:spec.path fileSpec:spec];
- 
- [self enqueue_iCloudPublishHier:spec.path];
- }
- } else {
- NSURL *url = [NSURL fileURLWithPath:path
- isDirectory:isDirectory];
- if (url)
- {// ユビタスか否かはユビキティー・コンテナを見ないと分からん。
- if ([[NSFileManager defaultManager] isUbiquitousItemAtURL:url] == NO)
- {// iCloud へのファイル転送をキューイングする。
- FileRepresentation *fileRepresentation = [[[FileRepresentation alloc] initWithFileName:fileName
- url:url] autorelease];
- [_iCloud moveFileToiCloud:fileRepresentation];
- invoked = YES;
- }
- }
- }
- }
- }
- }
- return invoked;
- }
- */
 
 - (BOOL) enqueue_iCloudStopPublishing:(NSString *)path {
     
@@ -363,8 +381,8 @@ NSString * const iCloudDeletedNotification                  = @"iCloudDeleted";
                 {// ユーザーアプリからでなく、システムツールでファイルを消すと、サンドボックスコンテナにファイルは
                     // 有る事は間違いないが、ユビキタスでない孤児になっている模様！！
                     // なので、削除する。
-//                    [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
-                    DEBUG_LOG(@"%s", __func__);
+                    [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+                    DEBUG_LOG(@"%s 孤児ファイルです。", __func__);
                 }
             }
         }
@@ -444,7 +462,7 @@ NSString * const iCloudDeletedNotification                  = @"iCloudDeleted";
 
 - (void) iCloudManageNotify:(NSString *)fileName
                  completion:(BOOL)completion {
-    DEBUG_LOG(@"【iCloud】%s \"%@\" が管理対象にする様要請しました。状況[%@]", __func__, fileName, completion ? @"エラーなし" : @"エラー");
+    DEBUG_LOG(@"【iCloud】%s \"%@\" を管理対象にする様要請しました。状況[%@]", __func__, fileName, completion ? @"エラーなし" : @"エラー");
 }
 
 - (void) iCloudUnmanageNotify:(NSString *)fileName
@@ -496,11 +514,11 @@ NSString * const iCloudDeletedNotification                  = @"iCloudDeleted";
     DEBUG_LOG(@"【iCloud】%s [%lu]個のファイルを受信しました。", __func__, (unsigned long)numTunes);
     
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-    // ユーザーデフォルトの設定が変わったことを通知する。
+    // ユーザーデフォルトの設定が変わったことを LibMecabSampleViewController に通知する。
     [userInfo setObject:[self class] forKey:@"class"];
     
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudListingNotification
-                                                                                         object:self
+                                                                                         object:_viewController
                                                                                        userInfo:userInfo]];
 }
 
@@ -532,6 +550,69 @@ NSString * const iCloudDeletedNotification                  = @"iCloudDeleted";
     [_iCloudStorage release];
     
     [super dealloc];
+}
+
+#pragma mark - Defauls Observer
+
+- (void) defaultsObserver:(NSNotification *)notification {
+    
+    [self setupByPreferences];
+}
+
+- (void) setupByPreferences {
+    
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:kUse_iCloudKey] == nil)
+    {
+        @try {
+            // no default values have been set, create them here based on what's in our Settings bundle info
+            //
+            NSString *settingsBundlePath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"Settings.bundle"];
+            NSString *rootFinalPath = [settingsBundlePath stringByAppendingPathComponent:@"Root.plist"];
+            NSDictionary *rootSettingsDict = [NSDictionary dictionaryWithContentsOfFile:rootFinalPath];
+            NSArray *rootPrefSpecifierArray = [rootSettingsDict objectForKey:@"PreferenceSpecifiers"];
+            
+            NSNumber *use_iCloudDefault = [NSNumber numberWithBool:YES];    // iCloud 使用する
+            
+            for (NSDictionary *prefItem in rootPrefSpecifierArray)
+            {
+                NSString *keyValueStr = [prefItem objectForKey:@"Key"];
+                id defaultValue = [prefItem objectForKey:@"DefaultValue"];
+                
+                DEBUG_LOG(@"%s %@=%@", __func__, keyValueStr, defaultValue);
+                if (keyValueStr)
+                {
+                    if ([keyValueStr isEqualToString:kUse_iCloudKey]) {
+                        use_iCloudDefault = defaultValue;
+                    }
+                }
+            }
+            // since no default values have been set (i.e. no preferences file created), create it here
+            NSDictionary *defaultsDic = [NSDictionary dictionaryWithObjectsAndKeys:use_iCloudDefault, kUse_iCloudKey, nil];
+            
+            [[NSUserDefaults standardUserDefaults] registerDefaults:defaultsDic];
+            if ([[NSUserDefaults standardUserDefaults] synchronize]) {
+                DEBUG_LOG(@"UserDefaults synchronize OK");
+            } else {
+                DEBUG_LOG(@"UserDefaults synchronize NG");
+            }
+        }
+        @catch (NSException *exception) {
+            DEBUG_LOG(@"%s デフォルト破壊（設定で例外発生）：Line#:%d %@", __func__, __LINE__, exception);
+            // 再度登録を促す。
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUse_iCloudKey];
+            return;
+        }
+    } else {
+        @try {
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+        @catch (NSException *exception) {
+            DEBUG_LOG(@"%s デフォルト破壊（シンクできない）Line#:%d %@", __func__, __LINE__, exception);
+            // 再度登録を促す。
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUse_iCloudKey];
+        }
+    }
+    self.use_iCloud = [[NSUserDefaults standardUserDefaults] boolForKey:kUse_iCloudKey];
 }
 
 @end

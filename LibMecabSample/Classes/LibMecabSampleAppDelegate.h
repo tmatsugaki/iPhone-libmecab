@@ -25,18 +25,21 @@
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet LibMecabSampleViewController *viewController;
 @property (nonatomic, retain) iCloudStorage *iCloudStorage;
-@property (strong, nonatomic) NSURL *ubiquityContainerURL;
+@property (retain, nonatomic) NSURL *ubiquityContainerURL;
 @property (assign, nonatomic) NSInteger listingCountByUpdate;
 @property (assign, nonatomic) BOOL use_iCloud;
 
 // iCloud
+- (void) init_iCloud;
+- (void) saveTo_iCloud;
+- (void) loadFrom_iCloud;
+
 - (void) requestLoad:(NSString *)path;                                          // パスはサンドボックスコンテナ内であること
 - (BOOL) enqueue_iCloudPublish:(NSString *)path;                                // パスはサンドボックスコンテナ内であること
-//- (BOOL) enqueue_iCloudPublishHier:(NSString *)path;                          // パスはサンドボックスコンテナ内であること
-- (BOOL) enqueue_iCloudStopPublishing:(NSString *)path;                         // パスはサンドボックスコンテナ内であること
+//- (BOOL) enqueue_iCloudStopPublishing:(NSString *)path;                         // パスはサンドボックスコンテナ内であること
 - (BOOL) enqueue_iCloudModify:(NSString *)path data:(NSData *)data;             // パスはサンドボックスコンテナ内であること
-- (BOOL) enqueue_iCloudDelete:(NSString *)path;                                 // パスはサンドボックスコンテナ内であること
-- (void) get_iCloudAttributes:(NSString *)path fileSpec:(FileSpec *)fileSpec;   // パスはサンドボックスコンテナ内であること
+//- (BOOL) enqueue_iCloudDelete:(NSString *)path;                                 // パスはサンドボックスコンテナ内であること
+//- (void) get_iCloudAttributes:(NSString *)path fileSpec:(FileSpec *)fileSpec;   // パスはサンドボックスコンテナ内であること
 
 @end
 

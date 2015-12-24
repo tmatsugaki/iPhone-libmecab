@@ -80,6 +80,10 @@
 #define k_iCloudDocumentPath			[kCachedDocumentRoot stringByAppendingPathComponent:ICLOUD_FOLDER_NAME]
 #define kCachedWorkPath                 [kCachedDocumentRoot stringByAppendingPathComponent:WORK_FOLDER_NAME]
 
+extern NSString *iCloudListingNotification;
+extern NSString *iCloudSyncNotification;
+extern NSString *iCloudDeletedNotification;
+
 //#define DEFAULT_USE_ICLOUD_KEY          @"use_iCloud"
 #define DEFAULT_ICLOUD_DOC_UPDATED_KEY  @"iCloudDocUpdated"
 

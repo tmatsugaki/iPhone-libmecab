@@ -642,9 +642,11 @@ static MecabPatch *sharedManager = nil;
         if (lastNode) {
             NSString *gokanStr = [self gokanString:lastNode];
 
-            if (([gokanStr isEqualToString:@"ナイ形容詞"] && [MecabPatch isKeiyoushi:[node partOfSpeech]]) ||
-                [MecabPatch isFuzokugo:[node partOfSpeech]])
-            {// 付属語（助詞、助動詞）
+            // 語幹の連結は、原則的に付属語が続く場合。
+            // 例外：「ない」形容詞
+            if ([MecabPatch isFuzokugo:[node partOfSpeech]] ||
+                ([gokanStr isEqualToString:@"ナイ形容詞"] && [MecabPatch isKeiyoushi:[node partOfSpeech]]))
+            {// 付属語（助詞、助動詞）か、ナイ形容詞
                 NSString *surface = node.surface;
 
                 if ([gokanStr length]) {

@@ -95,9 +95,6 @@
             [_sentenceItems replaceObjectAtIndex:i withObject:sentenceDic];
 #endif
         }
-#if REPLACE_OBJECT
-        [_sentenceItems writeToFile:kLibXMLPath atomically:YES];
-#endif
     } else {
         self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:string]];
         
@@ -179,11 +176,17 @@
                 newDic[@"tag"]      = @"";
                 newDic[@"modified"] = [NSNumber numberWithBool:mecabPatcher.modified];
                 [_sentenceItems addObject:newDic];
-            }
-            [_sentenceItems writeToFile:kLibXMLPath atomically:YES];
-            // iCloud
-            [self save];
 
+                // 文章を追加したので、XML ファイルに反映する。
+                [_sentenceItems writeToFile:kLibXMLPath atomically:YES];
+
+                // iCloud
+                LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+
+                if (appDelegate.use_iCloud) {
+                    [appDelegate saveTo_iCloud];
+                }
+            }
             [[NSUserDefaults standardUserDefaults] setObject:string forKey:kDefaultsEvaluatingSentence];
         } else {
             [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsEvaluatingSentence];
@@ -253,9 +256,12 @@
 
 - (void)viewDidLoad {
 
-//    DEBUG_LOG(@"%s", __func__);
+    DEBUG_LOG(@"%s", __func__);
 
     [super viewDidLoad];
+
+    LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+    [appDelegate init_iCloud];
     
     [_tableView setBackgroundColor:kTableViewBackgroundColor];
 
@@ -264,9 +270,7 @@
     
     if ([[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsPatchMode] == nil) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kDefaultsPatchMode];
-    }
-//    [self setupByPreferences];
-    
+    }    
     [_tableView becomeFirstResponder];
 
     self.mecab = [[Mecab new] autorelease];
@@ -282,13 +286,33 @@
     if ([_tableView respondsToSelector:@selector(layoutMargins)]) {
         _tableView.layoutMargins = UIEdgeInsetsZero;
     }
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(iCloudListReceived:)
+                                                 name:iCloudListingNotification
+                                               object:self];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(iCloudSynchronized:)
+                                                 name:iCloudSyncNotification
+                                               object:self];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(iCloudDeleted:)
+                                                 name:iCloudDeletedNotification
+                                               object:self];
 }
 
 - (void) viewWillAppear:(BOOL)animated {
 
-//    DEBUG_LOG(@"%s", __func__);
+    DEBUG_LOG(@"%s", __func__);
 
     [super viewWillAppear:animated];
+
+    LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+    
+    if (appDelegate.use_iCloud) {
+        // 【必須】サンドボックス・コンテナに Library.xml を取得する。
+        [appDelegate.iCloudStorage requestListing:kLibXMLName];
+    }
 
     self.sentenceItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
     [self initialParse];
@@ -363,7 +387,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         }
         cell.delegate = self;
         if (_patchedResult) {
-            if (([self nthPhrase:indexPath.row] % 2) == 0) {
+            if (([self phraseNth:indexPath.row] % 2) == 0) {
                 [cell.contentView setBackgroundColor:kJiritsugoCellColor];
             } else {
                 [cell.contentView setBackgroundColor:kFuzokugoCellColor];
@@ -420,7 +444,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         }
         cell.delegate = self;
         if (_patchedResult) {
-            if (([self nthPhrase:indexPath.row] % 2) == 0) {
+            if (([self phraseNth:indexPath.row] % 2) == 0) {
                 [cell.contentView setBackgroundColor:kJiritsugoCellColor];
             } else {
                 [cell.contentView setBackgroundColor:kFuzokugoCellColor];
@@ -476,6 +500,16 @@ heightForFooterInSection:(NSInteger)section {
 
 - (void)dealloc {
 
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:iCloudListingNotification
+                                                  object:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:iCloudSyncNotification
+                                                  object:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:iCloudDeletedNotification
+                                                  object:self];
+
     self.textField = nil;
     self.tableView = nil;
     self.nodeCell = nil;
@@ -498,63 +532,6 @@ heightForFooterInSection:(NSInteger)section {
 - (BOOL) textFieldShouldReturn:(UITextField *)textFld {
     [_textField resignFirstResponder];
     return NO;
-}
-
-#pragma mark - UITextFieldDelegate
-
-- (void) setupByPreferences {
-
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:kUse_iCloudKey] == nil)
-    {
-        @try {
-            // no default values have been set, create them here based on what's in our Settings bundle info
-            //
-            NSString *settingsBundlePath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"Settings.bundle"];
-            NSString *rootFinalPath = [settingsBundlePath stringByAppendingPathComponent:@"Root.plist"];
-            NSDictionary *rootSettingsDict = [NSDictionary dictionaryWithContentsOfFile:rootFinalPath];
-            NSArray *rootPrefSpecifierArray = [rootSettingsDict objectForKey:@"PreferenceSpecifiers"];
-            
-            NSNumber *use_iCloudDefault = [NSNumber numberWithBool:YES];    // iCloud 使用する
-            
-            for (NSDictionary *prefItem in rootPrefSpecifierArray)
-            {
-                NSString *keyValueStr = [prefItem objectForKey:@"Key"];
-                id defaultValue = [prefItem objectForKey:@"DefaultValue"];
-                
-                DEBUG_LOG(@"%s %@=%@", __func__, keyValueStr, defaultValue);
-                if (keyValueStr)
-                {
-                    if ([keyValueStr isEqualToString:kUse_iCloudKey]) {
-                        use_iCloudDefault = defaultValue;
-                    }
-                }
-            }
-            // since no default values have been set (i.e. no preferences file created), create it here
-            NSDictionary *defaultsDic = [NSDictionary dictionaryWithObjectsAndKeys:use_iCloudDefault, kUse_iCloudKey, nil];
-            
-            [[NSUserDefaults standardUserDefaults] registerDefaults:defaultsDic];
-            if ([[NSUserDefaults standardUserDefaults] synchronize]) {
-                DEBUG_LOG(@"UserDefaults synchronize OK");
-            } else {
-                DEBUG_LOG(@"UserDefaults synchronize NG");
-            }
-        }
-        @catch (NSException *exception) {
-            DEBUG_LOG(@"%s デフォルト破壊（設定で例外発生）：Line#:%d %@", __func__, __LINE__, exception);
-            // 再度登録を促す。
-            [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUse_iCloudKey];
-            return;
-        }
-    } else {
-        @try {
-            [[NSUserDefaults standardUserDefaults] synchronize];
-        }
-        @catch (NSException *exception) {
-            DEBUG_LOG(@"%s デフォルト破壊（シンクできない）Line#:%d %@", __func__, __LINE__, exception);
-            // 再度登録を促す。
-            [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUse_iCloudKey];
-        }
-    }
 }
 
 #pragma mark - UIKeyboard
@@ -636,7 +613,7 @@ heightForFooterInSection:(NSInteger)section {
                       withRowAnimation:UITableViewRowAnimationFade];
 }
 
-- (NSUInteger) nthPhrase:(NSUInteger)index {
+- (NSUInteger) phraseNth:(NSUInteger)index {
 
     NSUInteger nth = 0;
 
@@ -652,47 +629,41 @@ heightForFooterInSection:(NSInteger)section {
     return nth;
 }
 
-#pragma mark - for Data Management
+#pragma mark - iCloud 用リスナーのコールバック
 
-- (void) save {
+- (void) iCloudListReceived:(id)sender {
+
+    DEBUG_LOG(@"%s Library.xml を iCloud から取得したファイルに置換しました。", __func__);
+    // iCloud との授受に使用するデータのパス
+    NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
+    // Library.xml を iCloud から取得したファイルに置換する。
+    [[NSFileManager defaultManager] removeItemAtPath:kLibXMLPath error:nil];
+    [[NSFileManager defaultManager] copyItemAtPath:agentPath toPath:kLibXMLPath error:nil];
     
-#if TARGET_IPHONE_SIMULATOR
-    return NO;
-#else
-    LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
-
-    // ディレクトリをトラバースして当該ページに属する情報だけをアーカイブする。
-    NSString *xmlPath = [NSString stringWithFormat:@"%@/%@", kDocumentPath, kLibXMLName];
-    NSString *targetPath = nil;
-    NSString *tempPath = nil;   // 作業対象はココ！！
+    self.sentenceItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+#if 0
+    //
+    UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
     
-    appDelegate.use_iCloud = YES;
-
-    if (appDelegate.use_iCloud)
-    {
-        targetPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
-        tempPath = xmlPath;
-    } else {
-        targetPath = xmlPath;
-        tempPath = targetPath;
+    while (topController.presentedViewController) {
+        topController = topController.presentedViewController;
     }
-    DEBUG_LOG(@"ターゲットのパス %@", targetPath);
-    DEBUG_LOG(@"作業用　　のパス %@", tempPath);
+    if ([topController isKindOfClass:[TokensViewController class]]) {
+        TokensViewController *tokensViewController = (TokensViewController *) topController;
 
-    if (appDelegate.use_iCloud) {
-        if ([[NSFileManager defaultManager] fileExistsAtPath:targetPath])
-        {// 【管理対象】上書きであるので、iCloud に管理対象に変更があったことをアサインする。
-            (void) [appDelegate enqueue_iCloudModify:targetPath
-                                                data:[[[NSFileManager defaultManager] contentsAtPath:tempPath] copy]];
-        } else {
-            // iCloud領域 へのペーストは、常時 iCloud の管理対象にするようアサインする。
-            // 【注意】iCloud 用の例外的な処理。
-            // 【効果】管理対象外のファイルを強制的に管理対象にする。
-            // テンポラリXMLファイルを正式名称にリネームする。
-            [[NSFileManager defaultManager] moveItemAtPath:tempPath toPath:targetPath error:nil];
-            (void) [appDelegate enqueue_iCloudPublish:targetPath];
-        }
+        tokensViewController.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+        [tokensViewController.tableView reloadData];
     }
 #endif
 }
+
+- (void) iCloudSynchronized:(id)sender {
+}
+
+- (void) iCloudSyncNotification:(id)sender {
+}
+
+- (void) iCloudDeleted:(id)sender {
+}
+
 @end

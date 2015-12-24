@@ -24,10 +24,6 @@
 - (void) requestCompleted:(NSString *)message;
 - (void) requestTimerStart;
 - (void) requestTimerFired:(NSTimer *)timer;
-//- (void) failureDetectTimer1Start;
-//- (void) failureDetectTimer1Fired:(NSTimer *)timer;
-//- (void) failureDetectTimer2Start;
-//- (void) failureDetectTimer2Fired:(NSTimer *)timer;
 @end
 
 @implementation iCloudStorage
@@ -43,8 +39,8 @@
     if (self != nil)
 	{
         self.ubiquityDocumentURL = ubiquityContainerURL;
-        self.fileList = [[NSMutableArray alloc] init];
-#if (ICLOUD_ENABLD == ON)
+        self.fileList = [[[NSMutableArray alloc] init] autorelease];
+#if (ICLOUD_ENABLD == 1)
         // オブザーバーを設定する。
         NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
         [notificationCenter addObserver:self
@@ -68,8 +64,8 @@
                     options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld)
                      context:NULL];
 #endif
-        self.corruptedLevel1Paths = [[NSMutableArray alloc] init];
-        self.corruptedLevel2Paths = [[NSMutableArray alloc] init];
+        self.corruptedLevel1Paths = [[[NSMutableArray alloc] init] autorelease];
+        self.corruptedLevel2Paths = [[[NSMutableArray alloc] init] autorelease];
     }
 	return self;
 }
@@ -101,7 +97,20 @@
 	DEBUG_LOG(@"%s", __func__);
 #endif
 
-#if (ICLOUD_ENABLD == ON)
+    self.query = nil;
+    self.ubiquityDocumentURL = nil;
+    self.fileList = nil;
+    self.currentPath = nil;
+    self.error = nil;
+    self.error1 = nil;
+    self.error2 = nil;
+    self.corruptedLevel1Paths = nil;
+    self.corruptedLevel2Paths = nil;
+    self.requestTimer = nil;
+
+    [super dealloc];
+    
+#if (ICLOUD_ENABLD == 1)
     // オブザーバーを破棄する。
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     [notificationCenter removeObserver:self
@@ -155,7 +164,7 @@
     
     NSString *sandboxContainerDocPath = nil;
     
-#if (ICLOUD_FALLBACK_STORE_IN_CACHE == ON)
+#if (ICLOUD_FALLBACK_STORE_IN_CACHE == 1)
     // サンドボックスコンテナは、キャッシュに持つ。（こちらが望ましい。）
     // Inbox や iCloud から取得したファイルをここで操作する。
     // 【サンドボックスコンテナ】/var/mobile/Applications/XXXX-XXXX-XXXX-XXXX-XXXX/Library/Caches/iCloud/
@@ -219,31 +228,29 @@
 // 【注意】initWithURL で NSMetadataQueryDidUpdateNotification が来る訳ではない！！
 //       NSMetadataQueryDidUpdateNotification は startQuery の結果発生する。
 // リクエスト①
-- (void) requestListing:(NSString *)path {
+- (void) requestListing:(NSString *)fileName {
 
     self.inQuery = YES;
     // 全ての起点はリスト要求？
     _downloadProgress = 0.0;
-    self.failureFile1 = nil;
-    self.failureFile2 = nil;
     self.error = nil;
     self.error1 = nil;
     self.error2 = nil;
 
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     // ステータスバーのインジケータのアニメーションは NSMetadataQueryDidStartGatheringNotification のコールバックにて開始。
 
-    self.query = [[NSMetadataQuery alloc] init];
+    self.query = [[[NSMetadataQuery alloc] init] autorelease];
     // iCloud コンテナの Documents 配下のディレクトリを取得する。
     [_query setSearchScopes:[NSArray arrayWithObjects:NSMetadataQueryUbiquitousDocumentsScope, nil]];
     
-    if (path == nil)
+    if (fileName == nil)
     {// ls -R / と同意
         [_query setPredicate:[NSPredicate predicateWithFormat:@"%K like '*.*'", NSMetadataItemFSNameKey]];
     } else
     {// ls /to_path と同意（今の所、未使用）
 //        [_query setPredicate:[NSPredicate predicateWithFormat:@"%K like \"%@*\"", NSMetadataItemURLKey, [self sandboxURL:path]]];
-        [_query setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", NSMetadataItemFSNameKey, [path lastPathComponent]]];
+        [_query setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", NSMetadataItemFSNameKey, [fileName lastPathComponent]]];
     }
 //    [_query setPredicate:[NSPredicate predicateWithFormat:@"%K like '*.*'", NSMetadataItemPathKey]];
     [_query startQuery];
@@ -500,10 +507,10 @@
 
     [_fileList removeAllObjects];
 
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     NSArray *queryResults = [_query results];
 
-    DEBUG_LOG(@"%s %d records received.", __func__, [queryResults count]);
+    DEBUG_LOG(@"%s %lu records received.", __func__, (unsigned long)[queryResults count]);
 
     if ([queryResults count]) {
         for (NSMetadataItem *result in queryResults) {
@@ -531,7 +538,7 @@
 // NSMetadataQueryDidUpdateNotification は離散的に大抵複数回発生する。
 - (void) updatedCallback {
 
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     DEBUG_LOG(@"iCloud updated!!");
 #endif
 
@@ -543,60 +550,14 @@
     
     if (readyToGetList)
     {
-#if (ICLOUD_UPDATE_ONCE == ON)
         for (NSMetadataItem *result in queryResults) {
             NSURL *url = [result valueForAttribute:NSMetadataItemURLKey];
+
             if ([self is_iCloudUploaded:url] && [self is_iCloudDownloading:url])
             {// 過渡状態のファイルがあるので、リスト取得を却下する。
-                readyToGetList = NO;
-//                break;
-            }
-            // 以下を追加したので、上の　break を削除した。
-            if ([self is_iCloudDownloading:url]) {
-#if 0
-                if (_downloadProgress == [self iCloudDownloadedPercent:url])
-                {// 【フェイル】レベル1のフェイル検知＆リカバリ。
-                 // ダウンロード中であるにも拘らず、進捗が無いファイルはレベル1フェイル
-                 // Uploaded と Downloaded の数は一致せず後でゆっくり処置することは
-                 // 不可能なので、ここで処理（iCloud 管理ファイルを削除）する。
-                    self.failureFile1 = [url path];
-                    [self level1FailureRecovery:_failureFile1];
-                }
-                _downloadProgress = [self iCloudDownloadedPercent:url];
-#else
-                if (_downloadProgress == ((NSNumber *) [result valueForAttribute:NSMetadataUbiquitousItemPercentDownloadedKey]).floatValue)
-                {
-                    self.failureFile1 = [url path];
-                    [self level1FailureRecovery:_failureFile1];
-                }
-                _downloadProgress = ((NSNumber *) [result valueForAttribute:NSMetadataUbiquitousItemPercentDownloadedKey]).floatValue;
-#endif
+                DEBUG_LOG(@"%s [%@] のダウンロード中", __func__, url);
             }
         }
-#else
-        NSUInteger downloadedCount = 0;
-        for (NSMetadataItem *result in queryResults) {
-            NSURL *url = [result valueForAttribute:NSMetadataItemURLKey];
-            if ([self is_iCloudDownloaded:url]) {
-                downloadedCount++;
-            }
-            if ([self is_iCloudDownloading:url]) {
-                if (((NSNumber *) [result valueForAttribute:NSMetadataUbiquitousItemPercentDownloadedKey]).floatValue)
-                {// 【フェイル】レベル1のフェイル検知。
-                 // ダウンロード中であるにも拘らず、進捗が無いファイルはレベル1フェイル
-                    self.failureFile1 = [url path];
-                    [self level1FailureRecovery:_failureFile1];
-                }
-                _downloadProgress = ((NSNumber *) [result valueForAttribute:NSMetadataUbiquitousItemPercentDownloadedKey]).floatValue;
-            }
-            [files addObject:[url.path lastPathComponent]];
-        }
-        if (_downloadedCount == downloadedCount)
-        {// Albatros と違って、大抵ダウンロードされたファイル数に遷移がないので、全ての更新をリスト取得に適切なタイミングとする。
-//            readyToGetList = NO;
-        }
-        _downloadedCount = downloadedCount;
-#endif
     }
     if (_inQuery == NO) {
         [delegate iCloudUpdatedNotify:files];
@@ -607,12 +568,6 @@
         [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
         [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
     }
-    // 更新イベントにより、最終的にダウンロードがコンプリートするまでの監視タイマー2を起動する。
-    // 障害１.ダウンロードがコンプリートせず、継続的に更新イベントが通知される。
-    // 障害２.上記障害１.の対応で サンドボックス・コンテナのファイルを消しても、更新イベントの通知は停止
-    //       するものの、クエリーの結果のファイル数とダンロード完了ファイルの数が異なったままになる。
-//    [self failureDetectTimer1Start];
-//    [self failureDetectTimer2Start];
 }
 
 #pragma mark - Utils
@@ -809,7 +764,7 @@
 
 - (BOOL) downloadFileIfNotAvailable:(NSURL *)file {
     
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     
 //    DEBUG_LOG(@"%s %@", __func__, [file path]);
     
@@ -860,7 +815,7 @@
 
 - (BOOL) is_iCloudStored:(NSURL *)file {
     
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     
 //    DEBUG_LOG(@"%s %@", __func__, [file path]);
     
@@ -885,7 +840,7 @@
 
 - (BOOL) is_iCloudDownloaded:(NSURL *)file {
     
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     
 //    DEBUG_LOG(@"%s %@", __func__, [file path]);
     
@@ -915,7 +870,7 @@
 
 - (BOOL) is_iCloudDownloading:(NSURL *)file {
     
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     
 //    DEBUG_LOG(@"%s %@", __func__, [file path]);
     
@@ -946,7 +901,7 @@
 /* Deprecated in iOS 6.0
 - (CGFloat) iCloudDownloadedPercent:(NSURL *)file {
     
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     
 //    DEBUG_LOG(@"%s %@", __func__, [file path]);
     
@@ -978,7 +933,7 @@
 
 - (BOOL) is_iCloudUploaded:(NSURL *)file {
     
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     
 //    DEBUG_LOG(@"%s %@", __func__, [file path]);
     
@@ -1008,7 +963,7 @@
 
 - (BOOL) is_iCloudUploading:(NSURL *)file {
     
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     
 //    DEBUG_LOG(@"%s %@", __func__, [file path]);
     
@@ -1039,7 +994,7 @@
 /* Deprecated in iOS 6.0
 - (CGFloat) iCloudUploadedPercent:(NSURL *)file {
     
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     
 //    DEBUG_LOG(@"%s %@", __func__, [file path]);
     
@@ -1071,7 +1026,7 @@
 
 - (NSNumber *) iCloudFileSize:(NSURL *)file {
     
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     
 //  DEBUG_LOG(@"%s %@", __func__, [file path]);
     
@@ -1099,7 +1054,7 @@
 
 - (NSDate *) iCloudFileCreationDate:(NSURL *)file {
     
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     
 //  DEBUG_LOG(@"%s %@", __func__, [file path]);
     
@@ -1127,7 +1082,7 @@
 
 - (NSDate *) iCloudFileModificationDate:(NSURL *)file {
     
-#if (ICLOUD_ENABLD == ON)
+#if (ICLOUD_ENABLD == 1)
     
 //  DEBUG_LOG(@"%s %@", __func__, [file path]);
     
@@ -1166,7 +1121,7 @@
     self.requestTimer = nil;
 
     _networkRequestCount--;
-    DEBUG_LOG(@"リクエスト数--:%d", _networkRequestCount);
+    DEBUG_LOG(@"リクエスト数--:%ld", (long)_networkRequestCount);
     
     if (_networkRequestCount <= 0) {
         // ステータスバーのインジケータのアニメーションを停止。
@@ -1202,7 +1157,7 @@
         // ステータスバーのインジケータのアニメーションを開始。
         [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
         _networkRequestCount++;
-        DEBUG_LOG(@"リクエスト数++:%d", _networkRequestCount);
+        DEBUG_LOG(@"リクエスト数++:%ld", (long)_networkRequestCount);
     }
 }
 
@@ -1240,165 +1195,4 @@
         }
     }
 }
-
-#if 0
-// 30秒のタイマーを生成し、リクエストの完了を監視する。
-// 【注意】timerWithTimeInterval の target で指定した親方（iCloud）は任意のタイミングで生成
-//       廃棄される。よって、iCloud の生成・廃棄のシーンに際しては、予め NSTimer を
-//       invalidate して nil にすること。cf.setupByPreferences
-- (void) failureDetectTimer1Start {
-    
-    DEBUG_LOG(@"%s", __func__);
-
-    if ([NSThread isMainThread] == NO)
-    {// timerWithTimeInterval はスレッドセーフでないので、メインスレッドで実行させる。
-        [self performSelectorOnMainThread:@selector(failureDetectTimer1Start)
-                               withObject:nil
-                            waitUntilDone:YES]; // 同期する。
-    } else {
-        if ([_failureDetectTimer1 isValid]) {
-            [_failureDetectTimer1 invalidate];
-        }
-        self.failureDetectTimer1 = [NSTimer timerWithTimeInterval:30.0
-                                                           target:self
-                                                         selector:@selector(failureDetectTimer1Fired:)
-                                                         userInfo:nil
-                                                          repeats:NO];
-        [[NSRunLoop currentRunLoop] addTimer:_failureDetectTimer1
-                                     forMode:NSDefaultRunLoopMode];
-    }
-}
-
-// ダウンロードが完了しなかった場合の処理
-// 【注意】timerWithTimeInterval の target で指定した親方（iCloud）は任意のタイミングで生成
-//       廃棄される。よって、iCloud の生成・廃棄のシーンに際しては、予め NSTimer を
-//       invalidate して nil にすること。cf.setupByPreferences
-- (void) failureDetectTimer1Fired:(NSTimer *)timer {
-    
-    DEBUG_LOG(@"%s", __func__);
-
-    if ([NSThread isMainThread] == NO)
-    {// NSTimer をメインスレッドでインストールしたので、invalidate はメインスレッドで実行する。
-        [self performSelectorOnMainThread:@selector(failureDetectTimer1Fired:)
-                               withObject:timer
-                            waitUntilDone:YES]; // 同期する。
-    } else {
-        if (timer == _failureDetectTimer1) {
-            if ([_failureDetectTimer1 isValid]) {
-                [_failureDetectTimer1 invalidate];
-            }
-            self.failureDetectTimer1 = nil;
-        }
-    }
-}
-
-// 30秒のタイマーを生成し、リクエストの完了を監視する。
-// 【注意】timerWithTimeInterval の target で指定した親方（iCloud）は任意のタイミングで生成
-//       廃棄される。よって、iCloud の生成・廃棄のシーンに際しては、予め NSTimer を
-//       invalidate して nil にすること。cf.setupByPreferences
-- (void) failureDetectTimer2Start {
-    
-    DEBUG_LOG(@"%s", __func__);
-
-    if ([NSThread isMainThread] == NO)
-    {// timerWithTimeInterval はスレッドセーフでないので、メインスレッドで実行させる。
-        [self performSelectorOnMainThread:@selector(failureDetectTimer2Start)
-                               withObject:nil
-                            waitUntilDone:YES]; // 同期する。
-    } else {
-        if ([_failureDetectTimer2 isValid]) {
-            [_failureDetectTimer2 invalidate];
-        }
-        self.failureDetectTimer2 = [NSTimer timerWithTimeInterval:30.0
-                                                           target:self
-                                                         selector:@selector(failureDetectTimer2Fired:)
-                                                         userInfo:nil
-                                                          repeats:NO];
-        [[NSRunLoop currentRunLoop] addTimer:_failureDetectTimer2
-                                     forMode:NSDefaultRunLoopMode];
-    }
-}
-
-// ダウンロードが完了しなかった場合の処理
-// 【注意】timerWithTimeInterval の target で指定した親方（iCloud）は任意のタイミングで生成
-//       廃棄される。よって、iCloud の生成・廃棄のシーンに際しては、予め NSTimer を
-//       invalidate して nil にすること。cf.setupByPreferences
-- (void) failureDetectTimer2Fired:(NSTimer *)timer {
-    
-    DEBUG_LOG(@"%s", __func__);
-
-    if ([NSThread isMainThread] == NO)
-    {// NSTimer をメインスレッドでインストールしたので、invalidate はメインスレッドで実行する。
-        [self performSelectorOnMainThread:@selector(failureDetectTimer2Fired:)
-                               withObject:timer
-                            waitUntilDone:YES]; // 同期する。
-    } else {
-        if (timer == _failureDetectTimer2) {
-            if ([_failureDetectTimer2 isValid]) {
-                [_failureDetectTimer2 invalidate];
-            }
-            self.failureDetectTimer2 = nil;
-            // 【フェイル】最後の更新イベントの通知から 30秒経過しても、ダウンロード完了になっていないので
-            // 　　　　　　レベル2のフェイルを検知した。
-            if (_error) {
-                NSArray *tokens = [_error.description componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"'"]];
-                
-                if ([tokens count] > 1) {
-                    self.failureFile2 = [tokens objectAtIndex:1];
-                }
-            }
-        }
-    }
-}
-#endif
-
-#pragma mark - Error Recovery
-
-// ひっきりなしに「ダウンロードできねえ！！」と五月蝿いので、直接 iCloud 管理ファイルを削除する
-// ことで、レベル２フェイルに移行させる。
-// path は iCloud 管理ファイル？
-- (void) level1FailureRecovery:(NSString *)path {
-    
-#if (ERROR_RECOVERY == ON)
-    DEBUG_LOG(@"【致命的エラー】レベル1のフェイルを検知したので、「%@」を処置した。", path);
-
-    @try {
-//        NSString *fileName = [path lastPathComponent];
-//        NSString *iCloudMusicPath = [k_iCloudMusicFolderPath stringByAppendingPathComponent:fileName];
-//        NSString *localMusicPath = [k_localMusicFolderPath stringByAppendingPathComponent:fileName];
-//
-//        [FileUtil removeItemAtPath:[[self sandboxURL:iCloudMusicPath] path]];
-//        [FileUtil removeItemAtPath:[[self sandboxURL:localMusicPath] path]];
-    }
-    @catch (NSException *exception) {
-#if (LOG || ERR_LOG)
-        DEBUG_LOG(@"%s Line#:%d %@", __func__, __LINE__, exception);
-#endif
-    }
-#endif
-}
-
-// iCloud 管理ファイルを削除してもダメ、アンマネージを依頼してもダメ。
-// どうするか？
-// path は iCloud 管理ファイルである。
-- (void) level2FailureRecovery:(NSString *)path {
-
-#if (ERROR_RECOVERY == ON)
-    DEBUG_LOG(@"【致命的エラー】レベル2のフェイルを検知したので、「%@」を処置した。", path);
-
-    @try {
-        NSURL *url = [NSURL fileURLWithPath:path];
-        FileRepresentation *fileRepresentation = [[[FileRepresentation alloc] initWithFileName:[path lastPathComponent]
-                                                                                           url:url] autorelease];
-        
-        [self deleteFile:fileRepresentation];
-    }
-    @catch (NSException *exception) {
-#if (LOG || ERR_LOG)
-        DEBUG_LOG(@"%s Line#:%d %@", __func__, __LINE__, exception);
-#endif
-    }
-#endif
-}
-
 @end

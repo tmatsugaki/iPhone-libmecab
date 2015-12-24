@@ -7,6 +7,7 @@
 
 #import "TokensViewController.h"
 #import "Utility.h"
+#import "LibMecabSampleAppDelegate.h"
 
 @implementation TokensViewController
 
@@ -292,6 +293,13 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
             // 文章を削除したので、XML ファイルに反映する。
             [_listItems writeToFile:kLibXMLPath atomically:YES];
 
+            // iCloud
+            LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+
+            if (appDelegate.use_iCloud) {
+                [appDelegate saveTo_iCloud];
+            }
+
 #if DELETE_ANIMATION
             CGContextRef context = UIGraphicsGetCurrentContext();
             
@@ -354,6 +362,12 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
             // 文章を移動したので、XML ファイルに反映する。
             [_listItems writeToFile:kLibXMLPath atomically:YES];
 
+            // iCloud
+            LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+
+            if (appDelegate.use_iCloud) {
+                [appDelegate saveTo_iCloud];
+            }
             [[NSUserDefaults standardUserDefaults] setObject:dic[@"sentence"] forKey:kDefaultsEvaluatingSentence];
 
             [dic release];

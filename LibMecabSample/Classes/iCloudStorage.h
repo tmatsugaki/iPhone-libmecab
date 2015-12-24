@@ -27,30 +27,6 @@
 @end
 
 @interface iCloudStorage : NSObject {
-#if 0
-//    NSMetadataQuery *_query;
-    id _query;
-    BOOL _inQuery;
-    NSURL *_documentsDir;       // 
-    NSMutableArray *_fileList;  // FileRepresentation のアレイ
-    NSString *_currentPath;
-    int _networkRequestCount;       
-    NSTimer *_requestTimer;         // 
-    CGFloat _downloadProgress;      // 
-    NSString *_failureFile1;        // 
-    NSString *_failureFile2;        // 未使用（_error2 を使用する）
-//    NSTimer *_failureDetectTimer1;  // 未使用
-//    NSTimer *_failureDetectTimer2;  // 未使用
-    NSUInteger _downloadedCount;
-    NSError *_error;
-    NSError *_error1;               // 未使用（failureFile1 を使用する）
-    NSError *_error2;               // 
-    // Level1:長時間に渡って【アップロード済み】且つ【未ダウンロード】のファイルがあって、継続的に update がある致命的なケース。
-    // 【対策】
-    NSMutableArray *_corruptedLevel1Paths;
-    // Level2:Level1 処理を実施したが、downloadFileIfNotAvailable で依然エラーが発生しているファイルがあるケース。
-    NSMutableArray *_corruptedLevel2Paths;
-#endif
 }
 @property (nonatomic, strong) id query;
 @property (nonatomic, assign) BOOL inQuery;
@@ -65,8 +41,6 @@
 @property (nonatomic, strong) NSTimer *requestTimer;
 @property (nonatomic, assign) CGFloat downloadProgress;
 @property (nonatomic, assign) NSUInteger downloadedCount;
-@property (nonatomic, strong) NSString *failureFile1;
-@property (nonatomic, strong) NSString *failureFile2;
 @property (nonatomic, assign) NSInteger networkRequestCount;
 @property (nonatomic, assign) id <iCloudStorageDelegate> delegate;
 
@@ -106,7 +80,4 @@
 - (NSNumber *) iCloudFileSize:(NSURL *)file;
 - (NSDate *) iCloudFileCreationDate:(NSURL *)file;
 - (NSDate *) iCloudFileModificationDate:(NSURL *)file;
-
-- (void) level1FailureRecovery:(NSString *)path;
-- (void) level2FailureRecovery:(NSString *)path;
 @end
