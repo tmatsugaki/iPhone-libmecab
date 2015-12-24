@@ -1,6 +1,6 @@
 //
 //  FileSpec.m
-//  Yardbird
+//  HinshiMaster
 //
 //  Created by matsu on 10/11/11.
 //  Copyright 2010 家事手伝い. All rights reserved.

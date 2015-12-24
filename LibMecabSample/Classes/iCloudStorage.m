@@ -535,15 +535,13 @@
 }
 
 // NSMetadataQueryDidFinishGatheringNotification の後に、
-// NSMetadataQueryDidUpdateNotification は離散的に大抵複数回発生する。
+// NSMetadataQueryDidUpdateNotification はプログレス表示用に複数回発生する。
 - (void) updatedCallback {
 
 #if (ICLOUD_ENABLD == 1)
-    DEBUG_LOG(@"iCloud updated!!");
+    DEBUG_LOG(@"iCloud 更新イベント!!");
 #endif
 
-    // Albatross/Yardbird は過渡状態が不要なので、こちら。
-    // ダウンロード可能なファイルを全てダウンロードするので、ディレクトリは全てが整ってから作成する。
     NSArray *queryResults = [_query results];
     BOOL readyToGetList = ([queryResults count] > 0);
     NSMutableArray *files = [[NSMutableArray alloc] init];
@@ -554,7 +552,6 @@
         for (NSMetadataItem *result in queryResults) {
             NSURL *url = [result valueForAttribute:NSMetadataItemURLKey];
 
-            //
             [files addObject:[[url path] lastPathComponent]];
 
             if ([self is_iCloudUploaded:url])

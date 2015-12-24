@@ -210,24 +210,21 @@
 			isa = PBXGroup;
 			children = (
 				089AFE991C0407A500BA5F98 /* definitions.h */,
-				1D3623240D0F684500981E51 /* LibMecabSampleAppDelegate.h */,
-				1D3623250D0F684500981E51 /* LibMecabSampleAppDelegate.m */,
-				28D7ACF60DDB3853001CB0EB /* LibMecabSampleViewController.h */,
-				28D7ACF70DDB3853001CB0EB /* LibMecabSampleViewController.m */,
-				13C86E6912C87B77006F2369 /* NodeCell.h */,
-				13C86E6A12C87B77006F2369 /* NodeCell.m */,
-				085FC0821C25E30300B3A8E7 /* SmallNodeCell.h */,
-				085FC0831C25E30300B3A8E7 /* SmallNodeCell.m */,
-				089AFE8A1C03359000BA5F98 /* TokensViewController.h */,
-				089AFE8B1C03359000BA5F98 /* TokensViewController.m */,
-				089AFE8D1C03359700BA5F98 /* TokenCell.h */,
-				089AFE8E1C03359700BA5F98 /* TokenCell.m */,
+				0818B0C41C2C48BC00037E73 /* Core */,
+				0818B0C51C2C48FA00037E73 /* Patch */,
+				0818B0C61C2C491200037E73 /* Add On */,
+				0818B0C21C2C48B000037E73 /* iCloud */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		0818B0C21C2C48B000037E73 /* iCloud */ = {
+			isa = PBXGroup;
+			children = (
 				0844B2011C2A33D10098F232 /* NSString+TM.h */,
 				0844B2021C2A33D10098F232 /* NSString+TM.m */,
 				084A465A1C205EA1005C73F0 /* Utility.h */,
 				084A465B1C205EA1005C73F0 /* Utility.m */,
-				084A465F1C206682005C73F0 /* MecabPatch.h */,
-				084A46601C206682005C73F0 /* MecabPatch.m */,
 				0844B1FD1C2A33290098F232 /* FileUtil.h */,
 				0844B1FE1C2A33290098F232 /* FileUtil.m */,
 				0844B1F91C2A33000098F232 /* FileSpec.h */,
@@ -237,7 +234,42 @@
 				0844B1F01C2A30980098F232 /* iCloudStorage.h */,
 				0844B1F11C2A30980098F232 /* iCloudStorage.m */,
 			);
-			path = Classes;
+			name = iCloud;
+			sourceTree = "<group>";
+		};
+		0818B0C41C2C48BC00037E73 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				1D3623240D0F684500981E51 /* LibMecabSampleAppDelegate.h */,
+				1D3623250D0F684500981E51 /* LibMecabSampleAppDelegate.m */,
+				28D7ACF60DDB3853001CB0EB /* LibMecabSampleViewController.h */,
+				28D7ACF70DDB3853001CB0EB /* LibMecabSampleViewController.m */,
+				13C86E6912C87B77006F2369 /* NodeCell.h */,
+				13C86E6A12C87B77006F2369 /* NodeCell.m */,
+				085FC0821C25E30300B3A8E7 /* SmallNodeCell.h */,
+				085FC0831C25E30300B3A8E7 /* SmallNodeCell.m */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		0818B0C51C2C48FA00037E73 /* Patch */ = {
+			isa = PBXGroup;
+			children = (
+				084A465F1C206682005C73F0 /* MecabPatch.h */,
+				084A46601C206682005C73F0 /* MecabPatch.m */,
+			);
+			name = Patch;
+			sourceTree = "<group>";
+		};
+		0818B0C61C2C491200037E73 /* Add On */ = {
+			isa = PBXGroup;
+			children = (
+				089AFE8A1C03359000BA5F98 /* TokensViewController.h */,
+				089AFE8B1C03359000BA5F98 /* TokensViewController.m */,
+				089AFE8D1C03359700BA5F98 /* TokenCell.h */,
+				089AFE8E1C03359700BA5F98 /* TokenCell.m */,
+			);
+			name = "Add On";
 			sourceTree = "<group>";
 		};
 		13C86E5612C87B30006F2369 /* Mecab */ = {
