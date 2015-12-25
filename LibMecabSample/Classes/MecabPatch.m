@@ -1040,13 +1040,13 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
-// 【補助形容詞化】事前のトークンが連用形の形容詞／形容動詞の場合の「ない」は補助形容詞。
+// 【補助形容詞化】事前のトークンが連用形の形容詞／形容動詞の場合の「ない」「ほしい」「よい（いい）」は補助形容詞。
 /*
+ -------------------------------------------------------------------------------
  補助形容詞とされるものには、「ない」「ほしい」「よい（いい）」などがあります。
  専門的に研究するのでなければ（中学生や高校生ならば）、この三つを覚えておけば十分です。
- 
- 「ない」は、形容詞や形容動詞、助動詞「だ」の連用形、あるいは
- それらに副助詞の付いた形に接続します。
+ -------------------------------------------------------------------------------
+ 「ない」は、形容詞や形容動詞、助動詞「だ」の連用形、あるいはそれらに副助詞の付いた形に接続します。
  [例] 楽しく（は）ない、静かで（は）ない、おもしろく（も）ない、元気で（も）ない、私で（も）ない
  
  「ほしい」は、動詞の連用形に接続助詞「て（で）」や、それに副助詞の付いた形に接続します。
@@ -1056,10 +1056,11 @@ static MecabPatch *sharedManager = nil;
  あるいはそれに副助詞の付いた形に接続します。
  [例] 帰って（も）よい、つまらなくて（も）よい、危険で(も)よい、あなたで（も）よい
  -------------------------------------------------------------------------------
- 前に、形容詞・形容動詞の連用形（「～く」「～で」）、接続助詞「て（で）」、
- 副助詞（「は・も」など）があれば補助形容詞、というのが見分けるコツです。
+ 前に、形容詞・形容動詞の連用形（「～く」「～で」）、接続助詞「て（で）」、副助詞（「は・も」など）があれば
+ 補助形容詞、というのが見分けるコツです。
  -------------------------------------------------------------------------------
  もっと機械的にいえば、直前に「く・で・て・」か副助詞があれば補助形容詞、ということになります。
+ -------------------------------------------------------------------------------
  */
 // ※動詞／形容詞／形容動詞に導かれる、補助形容詞「ほしい」「ない」の現状は下記。
 // ○動詞+てほしい eg.「きてほしい」
@@ -1077,36 +1078,10 @@ static MecabPatch *sharedManager = nil;
         if (node.visible == NO) {
             continue;
         }
-        if (lastNode) {
-#if 0
-            if ([[node partOfSpeech] isEqualToString:@"助動詞"] &&
-                [[node pronunciation] isEqualToString:@"ナイ"])
+        if (lastNode)
+        {
+            if ([hojyoKeiyoshiSuffixes member:[node pronunciation]])
             {
-                NSString *lastPartOfSpeech = [lastNode partOfSpeech];
-                NSString *lastUseOfType = [lastNode useOfType];
-                
-                if (([lastPartOfSpeech isEqualToString:@"形容詞"] || [lastPartOfSpeech isEqualToString:@"形容動詞"])
-                    && [lastUseOfType length] >= 2 && [[lastUseOfType substringToIndex:2] isEqualToString:@"連用"]
-                    ) // 連用形の形容詞／形容動詞に連なる場合は補助形容詞。
-                {// 形容詞／形容動詞＋補助形容詞（ない）
-                    // 修正された。
-                    _modified = YES;
-
-                    [node setPartOfSpeech:@"形容詞"];
-                    [node setPartOfSpeechSubtype1:@"補助形容詞"];
-                    [node setInflection:@"形容詞／形容動詞に連なる"];
-                    node.modified = YES;
-#if LOG_PATCH
-                    DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
-#endif
-                }
-            }
-#else
-/*
- 前に、形容詞・形容動詞の連用形（「～く」「～で」）、接続助詞「て（で）」、副助詞（「は・も」など）があれば補助形容詞
- というのが見分けるコツです。
- */
-            if ([hojyoKeiyoshiSuffixes member:[node pronunciation]]) {
                 if ([[node partOfSpeech] isEqualToString:@"形容詞"] || [[node partOfSpeech] isEqualToString:@"助動詞"])
                 {// 和布蕪に「助動詞」と誤認されるのもある。
                     NSString *lastPartOfSpeech = [lastNode partOfSpeech];
@@ -1132,7 +1107,6 @@ static MecabPatch *sharedManager = nil;
                     }
                 }
             }
-#endif
         }
         lastNode = node;
     }
