@@ -63,23 +63,23 @@ static MecabPatch *sharedManager = nil;
     NSString *lastSubType2 = [node partOfSpeechSubtype2];
     NSString *lastSubType3 = [node partOfSpeechSubtype3];
     NSString *baseToken = @"語幹";
-    NSString *gokanStr = nil;
+    NSString *lastGokanStr = nil;
     NSUInteger baseTokenLength = [baseToken length];
     
     if ([lastSubType1 length] > baseTokenLength &&
         [[lastSubType1 substringFromIndex:[lastSubType1 length] - baseTokenLength] isEqualToString:baseToken])
     {
-        gokanStr = [lastSubType1 substringToIndex:[lastSubType1 length] - baseTokenLength];
+        lastGokanStr = [lastSubType1 substringToIndex:[lastSubType1 length] - baseTokenLength];
     } else if ([lastSubType2 length] > baseTokenLength &&
                [[lastSubType2 substringFromIndex:[lastSubType2 length] - baseTokenLength] isEqualToString:baseToken])
     {
-        gokanStr = [lastSubType2 substringToIndex:[lastSubType2 length] - baseTokenLength];
+        lastGokanStr = [lastSubType2 substringToIndex:[lastSubType2 length] - baseTokenLength];
     } else if ([lastSubType3 length] > baseTokenLength &&
                [[lastSubType3 substringFromIndex:[lastSubType3 length] - baseTokenLength] isEqualToString:baseToken])
     {
-        gokanStr = [lastSubType3 substringToIndex:[lastSubType3 length] - baseTokenLength];
+        lastGokanStr = [lastSubType3 substringToIndex:[lastSubType3 length] - baseTokenLength];
     }
-    return gokanStr;
+    return lastGokanStr;
 }
 
 // 【注意】必須の処理
@@ -122,6 +122,11 @@ static MecabPatch *sharedManager = nil;
 + (BOOL) isFuzokugo:(NSString *)hinshi {
     return ([hinshi isEqualToString:@"助詞"] ||
             [hinshi isEqualToString:@"助動詞"]);
+}
+
++ (BOOL) isRenyo:(NSString *)useOfType {
+    return ([useOfType length] >= 2 &&
+            [[useOfType substringToIndex:2] isEqualToString:@"連用"]);
 }
 
 - (BOOL) isEndOfSentence:(NSUInteger)nextIndex {
@@ -450,10 +455,10 @@ static MecabPatch *sharedManager = nil;
 
                 if ([pronunciation isEqualToString:@"ガ"] || [pronunciation isEqualToString:@"ノ"])
                 {// 格助詞「が」「の」
-                    NSString *gokanStr = [self gokanString:lastNode];
+                    NSString *lastGokanStr = [self gokanString:lastNode];
                     
-                    if ([gokanStr length]) {
-                        if ([gokanStr isEqualToString:@"ナイ形容詞"] &&
+                    if ([lastGokanStr length]) {
+                        if ([lastGokanStr isEqualToString:@"ナイ形容詞"] &&
                             [[nextNode originalForm] isEqualToString:@"ない"])
                         {
                             node.visible = NO;
@@ -640,16 +645,16 @@ static MecabPatch *sharedManager = nil;
         }
     start:
         if (lastNode) {
-            NSString *gokanStr = [self gokanString:lastNode];
+            NSString *lastGokanStr = [self gokanString:lastNode];
 
             // 語幹の連結は、原則的に付属語が続く場合。
             // 例外：「ない」形容詞
             if ([MecabPatch isFuzokugo:[node partOfSpeech]] ||
-                ([gokanStr isEqualToString:@"ナイ形容詞"] && [MecabPatch isKeiyoushi:[node partOfSpeech]]))
+                ([lastGokanStr isEqualToString:@"ナイ形容詞"] && [MecabPatch isKeiyoushi:[node partOfSpeech]]))
             {// 付属語（助詞、助動詞）か、ナイ形容詞
                 NSString *surface = node.surface;
 
-                if ([gokanStr length]) {
+                if ([lastGokanStr length]) {
                     if ([surface isEqualToString:@"でも"] &&
                         [[node partOfSpeechSubtype1] isEqualToString:@"副助詞"]) // 【注意】ここは絶対に「副助詞」
                     {
@@ -694,13 +699,13 @@ static MecabPatch *sharedManager = nil;
                         NSString *pronunciation = [node pronunciation];
                         NSString *originalForm = [node originalForm];
                         
-                        if ([gokanStr isEqualToString:@"ナイ形容詞"] &&
+                        if ([lastGokanStr isEqualToString:@"ナイ形容詞"] &&
                             [originalForm isEqualToString:@"ない"] == NO)
                         {// ただし、「だらしがない」などは patch_before_merge_GOKAN にて前処理ずみ。
                             inhibitNai = YES;
                             DEBUG_LOG(@"条件を満たさない「ナイ形容詞」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
                         } else if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
-                                   [gokanStr isEqualToString:@"形容動詞"])
+                                   [lastGokanStr isEqualToString:@"形容動詞"])
                         {
                             if ([originalForm isEqualToString:@"らしい"]) {
                                 inhibitRashii = YES;
@@ -726,7 +731,7 @@ static MecabPatch *sharedManager = nil;
                             DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
 #ifdef DEBUG
-                            if ([gokanStr length] && node.modified) {
+                            if ([lastGokanStr length] && node.modified) {
                                 DEBUG_LOG(@"!!!!");
                             }
 #endif
@@ -743,21 +748,16 @@ static MecabPatch *sharedManager = nil;
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                             [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
                             [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
-                            if ([gokanStr isEqualToString:@"ナイ形容詞"]) {
+                            if ([lastGokanStr isEqualToString:@"ナイ形容詞"]) {
                                 [node setPartOfSpeech:@"形容詞"];
                                 [node setPartOfSpeechSubtype1:@"自立"];
                                 [node setInflection:@"形容詞・アウオ段"];
                                 node.modified = YES;
                             } else {
-                                [node setPartOfSpeech:gokanStr];
+                                [node setPartOfSpeech:lastGokanStr];
                                 [node setInflection:[@"" stringByAppendingString:[node inflection]]];
                                 node.modified = YES;
                             }
-//                            if (changeIntoAdverb) {
-//                                [node setPartOfSpeech:@"副詞"];
-//                                [node setPartOfSpeechSubtype1:@"助詞副詞化"];
-//                                node.modified = YES;
-//                            }
                             // ゴミ処理
                             if ([[node partOfSpeech] isEqualToString:@"形容動詞"] &&
                                 ([[node partOfSpeechSubtype1] isEqualToString:@"格助詞"] || [[node partOfSpeechSubtype1] isEqualToString:@"終助詞"]))
@@ -1041,7 +1041,26 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 【補助形容詞化】事前のトークンが連用形の形容詞／形容動詞の場合の「ない」は補助形容詞。
-//
+/*
+ 補助形容詞とされるものには、「ない」「ほしい」「よい（いい）」などがあります。
+ 専門的に研究するのでなければ（中学生や高校生ならば）、この三つを覚えておけば十分です。
+ 
+ 「ない」は、形容詞や形容動詞、助動詞「だ」の連用形、あるいは
+ それらに副助詞の付いた形に接続します。
+ [例] 楽しく（は）ない、静かで（は）ない、おもしろく（も）ない、元気で（も）ない、私で（も）ない
+ 
+ 「ほしい」は、動詞の連用形に接続助詞「て（で）」や、それに副助詞の付いた形に接続します。
+ [例] 教えてほしい
+ 
+ 「よい」は、用言や助動詞「だ」の連用形に接続助詞「て（で）」の付いた形、
+ あるいはそれに副助詞の付いた形に接続します。
+ [例] 帰って（も）よい、つまらなくて（も）よい、危険で(も)よい、あなたで（も）よい
+ -------------------------------------------------------------------------------
+ 前に、形容詞・形容動詞の連用形（「～く」「～で」）、接続助詞「て（で）」、
+ 副助詞（「は・も」など）があれば補助形容詞、というのが見分けるコツです。
+ -------------------------------------------------------------------------------
+ もっと機械的にいえば、直前に「く・で・て・」か副助詞があれば補助形容詞、ということになります。
+ */
 // ※動詞／形容詞／形容動詞に導かれる、補助形容詞「ほしい」「ない」の現状は下記。
 // ○動詞+てほしい eg.「きてほしい」
 // -形容詞+ほしい
@@ -1050,16 +1069,18 @@ static MecabPatch *sharedManager = nil;
 // ×形容詞+ない eg.「かわいくない」
 // ×形容動詞+ない eg.「きれいでない」
 //
-- (void) patch_HOJO_KEIYOUSHI_NAI {
+- (void) patch_HOJO_KEIYOUSHI {
     Node *lastNode = nil;
+    NSSet *hojyoKeiyoshiSuffixes = [NSSet setWithObjects:@"ナイ", @"ホシイ", @"ヨイ", nil];
     
     for (Node *node in _nodes) {
         if (node.visible == NO) {
             continue;
         }
         if (lastNode) {
+#if 0
             if ([[node partOfSpeech] isEqualToString:@"助動詞"] &&
-                [[node originalForm] isEqualToString:@"ない"])
+                [[node pronunciation] isEqualToString:@"ナイ"])
             {
                 NSString *lastPartOfSpeech = [lastNode partOfSpeech];
                 NSString *lastUseOfType = [lastNode useOfType];
@@ -1080,6 +1101,38 @@ static MecabPatch *sharedManager = nil;
 #endif
                 }
             }
+#else
+/*
+ 前に、形容詞・形容動詞の連用形（「～く」「～で」）、接続助詞「て（で）」、副助詞（「は・も」など）があれば補助形容詞
+ というのが見分けるコツです。
+ */
+            if ([hojyoKeiyoshiSuffixes member:[node pronunciation]]) {
+                if ([[node partOfSpeech] isEqualToString:@"形容詞"] || [[node partOfSpeech] isEqualToString:@"助動詞"])
+                {// 和布蕪に「助動詞」と誤認されるのもある。
+                    NSString *lastPartOfSpeech = [lastNode partOfSpeech];
+                    NSString *lastPartOfSpeechSubtype1 = [lastNode partOfSpeechSubtype1];
+                    NSString *lastUseOfType = [lastNode useOfType];
+                    BOOL isRenyo = [MecabPatch isRenyo:lastUseOfType];
+                    
+                    if ((([lastPartOfSpeech isEqualToString:@"形容詞"] || [lastPartOfSpeech isEqualToString:@"形容動詞"]) && isRenyo) ||
+                        ([lastPartOfSpeechSubtype1 isEqualToString:@"接続助詞"] && ([[lastNode pronunciation] isEqualToString:@"テ"] || [[lastNode pronunciation] isEqualToString:@"デ"])) ||
+                        ([lastPartOfSpeechSubtype1 isEqualToString:@"係助詞"] && ([[lastNode pronunciation] isEqualToString:@"ワ"] || [[lastNode pronunciation] isEqualToString:@"モ"]))
+                    ) // 連用形の形容詞／形容動詞に連なる場合は補助形容詞。
+                    {// 形容詞／形容動詞＋補助形容詞（ない）
+                        // 修正された。
+                        _modified = YES;
+                        
+                        [node setPartOfSpeech:@"形容詞"];
+                        [node setPartOfSpeechSubtype1:@"補助形容詞"];
+                        [node setInflection:@"形・形動の連用(く/で),接助(て|で)"];
+                        node.modified = YES;
+#if LOG_PATCH
+                        DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
+#endif
+                    }
+                }
+            }
+#endif
         }
         lastNode = node;
     }
@@ -1501,12 +1554,11 @@ static MecabPatch *sharedManager = nil;
         if (lastNode) {
             if ([[node partOfSpeech] isEqualToString:@"助詞"])
             {
-                NSString *gokanStr = [self gokanString:lastNode];
+                NSString *lastGokanStr = [self gokanString:lastNode];
 
-                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
-                    [gokanStr isEqualToString:@"形容動詞"])
+                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] && [lastGokanStr isEqualToString:@"形容動詞"])
                 {// 形容動詞＋助詞（に）は形容動詞
-                    BOOL isRenyou = [node.surface isEqualToString:@"に"];
+                    BOOL isRenyo = [node.surface isEqualToString:@"に"];
                     lastNode.visible = NO;
                     
                     // マージする。
@@ -1516,7 +1568,7 @@ static MecabPatch *sharedManager = nil;
                     [node setOriginalForm:[[lastNode originalForm] stringByAppendingString:@"だ"]];
 //                    [node setInflection:@"伝聞"];
                     [node setPartOfSpeech:@"形容動詞"];
-                    if (isRenyou) {
+                    if (isRenyo) {
                         [node setUseOfType:@"連用形"];
                     }
                     node.modified = YES;

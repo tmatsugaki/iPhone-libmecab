@@ -81,7 +81,7 @@
             [mecabPatcher patch_TAIGEN_DA];
             [mecabPatcher patch_NANODA_NO];
 //            [mecabPatcher patch_KANDOSHI_SOU];
-            [mecabPatcher patch_HOJO_KEIYOUSHI_NAI];
+            [mecabPatcher patch_HOJO_KEIYOUSHI];
             [mecabPatcher patch_TAIGEN_RASHII];
             [mecabPatcher patch_TOMO];
             [mecabPatcher patch_TOMO_KUTEN];
@@ -125,7 +125,7 @@
             [mecabPatcher patch_TAIGEN_DA];
             [mecabPatcher patch_NANODA_NO];
 //            [mecabPatcher patch_KANDOSHI_SOU];
-            [mecabPatcher patch_HOJO_KEIYOUSHI_NAI];
+            [mecabPatcher patch_HOJO_KEIYOUSHI];
             [mecabPatcher patch_TAIGEN_RASHII];
             [mecabPatcher patch_TOMO];
             [mecabPatcher patch_TOMO_KUTEN];

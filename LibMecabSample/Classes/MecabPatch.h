@@ -36,13 +36,14 @@
 - (void) patch_merge_GACHI_GIMI_YASUI;      // 語幹のマージに先立つこと！！
 - (void) patch_merge_N;
 - (void) patch_merge_JIMI;
+//
 - (void) patch_merge_GOKAN;
 - (void) patch_merge_MEISHI;
 - (void) patch_detect_FUKUSHI;
 - (void) patch_TAIGEN_DA;
 - (void) patch_NANODA_NO;
 - (void) patch_KANDOSHI_SOU;
-- (void) patch_HOJO_KEIYOUSHI_NAI;
+- (void) patch_HOJO_KEIYOUSHI;
 - (void) patch_TAIGEN_RASHII;
 - (void) patch_TOMO;
 - (void) patch_TOMO_KUTEN;
