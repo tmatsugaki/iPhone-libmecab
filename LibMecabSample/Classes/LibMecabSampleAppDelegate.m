@@ -43,6 +43,13 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
                                              selector:@selector(defaultsObserver:)
                                                  name:NSUserDefaultsDidChangeNotification
                                                object:nil];
+
+// 以下を実施しても requestListing のレスポンスが緩慢なまま！！
+#if 0
+    NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
+    // サンドボックスコンテナのファイルを削除する。
+    [[NSFileManager defaultManager] removeItemAtPath:agentPath error:nil];
+#endif
     return YES;
 }
 

@@ -171,7 +171,7 @@
     // 【ユビキティコンテナ】/private/var/mobile/Library/Mobile Documents/F42S2EFB55~org~dyndns~rikki~Yadrbirds/Documents/
     sandboxContainerDocPath = k_iCloudDocumentPath;
 #else
-    // iCloud にダブルで保存されてしまうので、良くない！！
+    // 【デバッグ用】iCloud にダブルでバックアップされてしまうので、良くない！！
     sandboxContainerDocPath = [kDocumentPath stringByAppendingPathComponent:ICLOUD_FOLDER_NAME];
 #endif
     return sandboxContainerDocPath;
