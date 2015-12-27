@@ -221,18 +221,16 @@
 		0818B0C21C2C48B000037E73 /* iCloud */ = {
 			isa = PBXGroup;
 			children = (
-				0844B2011C2A33D10098F232 /* NSString+TM.h */,
-				0844B2021C2A33D10098F232 /* NSString+TM.m */,
-				084A465A1C205EA1005C73F0 /* Utility.h */,
-				084A465B1C205EA1005C73F0 /* Utility.m */,
-				0844B1FD1C2A33290098F232 /* FileUtil.h */,
-				0844B1FE1C2A33290098F232 /* FileUtil.m */,
-				0844B1F91C2A33000098F232 /* FileSpec.h */,
-				0844B1FA1C2A33000098F232 /* FileSpec.m */,
-				0844B1F51C2A32DD0098F232 /* FileRepresentation.h */,
-				0844B1F61C2A32DD0098F232 /* FileRepresentation.m */,
 				0844B1F01C2A30980098F232 /* iCloudStorage.h */,
 				0844B1F11C2A30980098F232 /* iCloudStorage.m */,
+				0844B1F51C2A32DD0098F232 /* FileRepresentation.h */,
+				0844B1F61C2A32DD0098F232 /* FileRepresentation.m */,
+				0844B1F91C2A33000098F232 /* FileSpec.h */,
+				0844B1FA1C2A33000098F232 /* FileSpec.m */,
+				0844B1FD1C2A33290098F232 /* FileUtil.h */,
+				0844B1FE1C2A33290098F232 /* FileUtil.m */,
+				0844B2011C2A33D10098F232 /* NSString+TM.h */,
+				0844B2021C2A33D10098F232 /* NSString+TM.m */,
 			);
 			name = iCloud;
 			sourceTree = "<group>";
@@ -270,6 +268,16 @@
 				089AFE8E1C03359700BA5F98 /* TokenCell.m */,
 			);
 			name = "Add On";
+			sourceTree = "<group>";
+		};
+		08B73B751C300F9900E2D199 /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				084A465A1C205EA1005C73F0 /* Utility.h */,
+				084A465B1C205EA1005C73F0 /* Utility.m */,
+			);
+			name = Util;
+			path = Classes;
 			sourceTree = "<group>";
 		};
 		13C86E5612C87B30006F2369 /* Mecab */ = {
@@ -329,6 +337,7 @@
 				08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */,
 				089AFE951C03F51A00BA5F98 /* folder.png */,
 				080E96DDFE201D6D7F000001 /* Classes */,
+				08B73B751C300F9900E2D199 /* Util */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,

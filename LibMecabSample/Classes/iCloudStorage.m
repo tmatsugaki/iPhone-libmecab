@@ -480,11 +480,12 @@
     }
 }
 
+// 直接 iCloud のエージェントファイルを指定してダウンロードする。
 - (void) requestLoad:(NSString *)path {
     
     for (FileRepresentation *fileToGet in _fileList) {
-//        DEBUG_LOG(@"1.%@", [fileToGet.url relativePath]);
-//        DEBUG_LOG(@"2.%@", path);
+        DEBUG_LOG(@"1.%@", [fileToGet.url relativePath]);
+        DEBUG_LOG(@"2.%@", path);
         
         if ([[self sandboxPath:fileToGet.url] isEqualToString:path]) {
             fileToGet.request = kFileReplDownloadReuested;
@@ -522,9 +523,9 @@
         [self syncToLocal];
     }
     // 孤児のファイルを消す。
-    // 【注意】無い筈のファイルをせがむアノ現象は、コレが原因。
+    // 【注意】無い筈のファイルをせがんでプログレスが継続するアノ現象は、孤児のファイルが原因！！
     if ([self removeOrphanFiles]) {
-        [delegate iCloudDeleteNotify:@"Backup.zip" completion:YES];
+        [delegate iCloudDeleteNotify:kLibXMLName completion:YES];
     }
 
     [delegate iCloudListReceivedNotify:[queryResults count]];
@@ -650,6 +651,7 @@
     }
 }
 
+// iCloud 上のファイルが更新されたので、ローカルへのダウンロードを促す。
 - (void) syncToLocal {
 
     // 取得したファイルをローカルに反映する。
@@ -778,7 +780,7 @@
     
 #if (ICLOUD_ENABLD == 1)
     
-//    DEBUG_LOG(@"%s %@", __func__, [file path]);
+    DEBUG_LOG(@"%s %@", __func__, [file path]);
     
     NSNumber *isIniCloud = nil;
     BOOL result = YES; // 【注意】Return YES as long as an explicit download was not started.
@@ -787,9 +789,10 @@
     if ([file getResourceValue:&isIniCloud
                         forKey:NSURLIsUbiquitousItemKey
                          error:&error]) {
-        // If the item is in iCloud, see if it is downloaded.
+        // If the item is in iCloud, see its progress of downloading.
         if (error == nil) {
             if ([isIniCloud boolValue]) {
+#if 1
                 NSNumber *isDownloaded = nil;
                 
                 if ([file getResourceValue:&isDownloaded
@@ -803,6 +806,33 @@
                         }
                     }
                 }
+#else
+                NSNumber *downloadedPercentage = nil;
+                NSNumber *isDownloaded = nil;
+                BOOL downloadCompleted = NO;
+                
+                [file getResourceValue:&downloadedPercentage
+                                forKey:NSMetadataUbiquitousItemPercentDownloadedKey
+                                 error:&error];
+                if (error == nil && [downloadedPercentage floatValue] == 100.0) {
+                    downloadCompleted = YES;
+                }
+                if (downloadCompleted == NO) {
+                    [file getResourceValue:&isDownloaded
+                                    forKey:NSMetadataUbiquitousItemIsDownloadedKey
+                                     error:&error];
+                    if (error == nil && [isDownloaded boolValue] == YES) {
+                        downloadCompleted = YES;
+                    }
+                }
+                if (downloadCompleted == NO) {
+                    // Download the file.
+                    [[NSFileManager defaultManager] startDownloadingUbiquitousItemAtURL:file error:&error];
+                    if (error == nil) {
+                        result = NO;
+                    }
+                }
+#endif
             }
         }
     }

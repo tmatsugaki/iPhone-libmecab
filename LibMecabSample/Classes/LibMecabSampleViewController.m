@@ -329,6 +329,11 @@
         // 【必須】サンドボックス・コンテナに Library.xml を取得する。
         [appDelegate.iCloudStorage requestListing:kLibXMLName];
     }
+#if 0
+    NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
+    
+    [appDelegate requestLoad:agentPath];
+#endif
 #endif
 }
 

@@ -43,13 +43,6 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
                                              selector:@selector(defaultsObserver:)
                                                  name:NSUserDefaultsDidChangeNotification
                                                object:nil];
-
-// 以下を実施しても requestListing のレスポンスが緩慢なまま！！
-#if 0
-    NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
-    // サンドボックスコンテナのファイルを削除する。
-    [[NSFileManager defaultManager] removeItemAtPath:agentPath error:nil];
-#endif
     return YES;
 }
 
@@ -511,8 +504,8 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 }
 
 // syncToLocal 後に呼ばれる。
-- (void) iCloudListReceivedNotify:(NSUInteger)numTunes {
-    DEBUG_LOG(@"【iCloud】%s [%lu]個のファイルを受信を開始しました。", __func__, (unsigned long)numTunes);
+- (void) iCloudListReceivedNotify:(NSUInteger)numFiles {
+    DEBUG_LOG(@"【iCloud】%s [%lu]個のファイルを受信を開始しました。", __func__, (unsigned long)numFiles);
     
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
     // ユーザーデフォルトの設定が変わったことを LibMecabSampleViewController に通知する。
