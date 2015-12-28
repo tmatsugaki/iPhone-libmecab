@@ -200,6 +200,35 @@ static MecabPatch *sharedManager = nil;
 
 // 謝りの検出
 // 【注意】語幹の連結後に実行すること！！
+- (void) patch_fix_HISASHIBURI {
+    
+    for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
+        if ([[node partOfSpeech] isEqualToString:@"名詞"])
+        {
+            BOOL fix = NO;
+            
+            if ([[node pronunciation] isEqualToString:@"ヒサシブリ"])
+            {// 動詞
+                fix = YES;
+            }
+            if (fix) {
+                // マージする。
+                _modified = YES;
+#if LOG_PATCH
+                DEBUG_LOG(@"%s 「%@」:(%@)→(%@)", __func__, node.surface, [node partOfSpeechSubtype1], @"形容動詞語幹");
+#endif
+                [node setPartOfSpeechSubtype1:@"形容動詞語幹"];
+                node.modified = YES;
+            }
+        }
+    }
+}
+
+// 謝りの検出
+// 【注意】語幹の連結後に実行すること！！
 - (void) patch_fix_RARERU {
     
     for (Node *node in _nodes) {
@@ -747,7 +776,11 @@ static MecabPatch *sharedManager = nil;
                             }
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                             [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
-                            [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                            if ([lastGokanStr isEqualToString:@"形容動詞"]) {
+                                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:@"だ"]];
+                            } else {
+                                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                            }
                             if ([lastGokanStr isEqualToString:@"ナイ形容詞"]) {
                                 [node setPartOfSpeech:@"形容詞"];
                                 [node setPartOfSpeechSubtype1:@"自立"];
@@ -759,11 +792,12 @@ static MecabPatch *sharedManager = nil;
                                 node.modified = YES;
                             }
                             // ゴミ処理
-                            if ([[node partOfSpeech] isEqualToString:@"形容動詞"] &&
-                                ([[node partOfSpeechSubtype1] isEqualToString:@"格助詞"] || [[node partOfSpeechSubtype1] isEqualToString:@"終助詞"]))
+                            if ([[node partOfSpeech] isEqualToString:@"形容動詞"])
                             {
-                                [node setPartOfSpeechSubtype1:@"+"];
-                                node.modified = YES;
+                                if ([[node partOfSpeechSubtype1] isEqualToString:@"格助詞"] || [[node partOfSpeechSubtype1] isEqualToString:@"終助詞"]) {
+                                    [node setPartOfSpeechSubtype1:@"+"];
+                                    node.modified = YES;
+                                }
                             }
                         } else if (inhibitRashii) {
                             _modified = YES;

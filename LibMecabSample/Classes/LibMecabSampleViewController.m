@@ -64,6 +64,7 @@
             [mecabPatcher setModified:NO];
             // 【注意】必須！！
             [mecabPatcher preProcess];
+            [mecabPatcher patch_fix_HISASHIBURI];
             [mecabPatcher patch_fix_RARERU];
             [mecabPatcher patch_merge_HIJIRITSU_MEISHI];
             // マージ
@@ -106,6 +107,7 @@
         [mecabPatcher setModified:NO];
         // 【注意】必須！！
         [mecabPatcher preProcess];
+        [mecabPatcher patch_fix_HISASHIBURI];
         [mecabPatcher patch_fix_RARERU];
 
         if (_patch.on) {

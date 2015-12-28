@@ -64,7 +64,7 @@
 
 #if RELOAD_WHEN_TOGGLE_EDIT
         // 4S とか遅い機種では障害が発生するので中止した。
-//        [_tableView reloadData];
+        [_tableView reloadData];
 #else
         [_tableView setNeedsLayout];
         [_tableView setNeedsDisplay];
