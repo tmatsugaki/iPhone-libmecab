@@ -246,4 +246,140 @@
                                       reverse:false];
 }
 
+- (NSString *) convertSuperScription {
+    
+    NSString *str = self;
+    
+    str = [str replacedString:@"⁰" withString:@"0"];
+    str = [str replacedString:@"¹" withString:@"1"];
+    str = [str replacedString:@"²" withString:@"2"];
+    str = [str replacedString:@"³" withString:@"3"];
+    str = [str replacedString:@"⁴" withString:@"4"];
+    str = [str replacedString:@"⁵" withString:@"5"];
+    str = [str replacedString:@"⁶" withString:@"6"];
+    str = [str replacedString:@"⁷" withString:@"7"];
+    str = [str replacedString:@"⁸" withString:@"8"];
+    str = [str replacedString:@"⁹" withString:@"9"];
+    
+    return str;
+}
+
+- (NSString *) encodeURL:(NSStringEncoding)encoding
+{
+#if 0
+    // これでは全く足りない。
+    return [[self stringByAddingPercentEscapesUsingEncoding:encoding] convertSuperScription];
+#elif 1
+    // stringByAddingPercentEscapesUsingEncoding する。（:/?&=; は外す！！）
+    // 【注意】ディレクトリ／ファイルに ":/?&=;" は使用できない！！
+    NSString *urlStr = [self stringByAddingPercentEscapesUsingEncoding:encoding];
+    NSArray *escapeChars = [NSArray arrayWithObjects:
+                            @"@" ,
+                            @"+" ,
+                            @"$" ,@"," ,@"[" ,
+                            @"]" ,@"#" ,@"!" ,
+                            @"'" ,@"(" ,@")" ,
+                            @"*" ,nil];
+    
+    NSArray *replaceChars = [NSArray arrayWithObjects:
+                             @"%40" ,
+                             @"%2B" ,
+                             @"%24" ,@"%2C" ,@"%5B" ,
+                             @"%5D" ,@"%23" ,@"%21" ,
+                             @"%27" ,@"%28" ,@"%29" ,
+                             @"%2A" ,nil];
+    
+    // 取りこぼしの通常の文字列を %エスケープ文字列に置換する。
+    for (int i = 0; i < [escapeChars count]; i++) {
+        urlStr = [urlStr replacedString:[escapeChars objectAtIndex:i]
+                             withString:[replaceChars objectAtIndex:i]];
+    }
+    return [urlStr convertSuperScription];
+#elif 1
+    // stringByAddingPercentEscapesUsingEncoding する。（:/&=; は外す！！）
+    NSString *urlStr = [self stringByAddingPercentEscapesUsingEncoding:encoding];
+    NSArray *escapeChars = [NSArray arrayWithObjects:
+                            @"@" ,@"?",
+                            @"+" ,
+                            @"$" ,@"," ,@"[" ,
+                            @"]" ,@"#" ,@"!" ,
+                            @"'" ,@"(" ,@")" ,
+                            @"*" ,nil];
+    
+    NSArray *replaceChars = [NSArray arrayWithObjects:
+                             @"%40" ,@"%3F" ,
+                             @"%2B" ,
+                             @"%24" ,@"%2C" ,@"%5B" ,
+                             @"%5D" ,@"%23" ,@"%21" ,
+                             @"%27" ,@"%28" ,@"%29" ,
+                             @"%2A" ,nil];
+    
+    NSURL *url = urlStr ? [NSURL URLWithString:urlStr] : nil;
+    if (url) {
+        NSString *scheme = [url scheme];
+        NSString *host = [url host];
+        NSString *path = [url path];
+        NSNumber *port = [url port];
+        NSString *query = [url query];
+        // 取りこぼしの通常の文字列を %エスケープ文字列に置換する。
+        for (int i = 0; i < [escapeChars count]; i++) {
+            host = [host replacedString:[escapeChars objectAtIndex:i]
+                             withString:[replaceChars objectAtIndex:i]];
+        }
+        for (int i = 0; i < [escapeChars count]; i++) {
+            path = [path replacedString:[escapeChars objectAtIndex:i]
+                             withString:[replaceChars objectAtIndex:i]];
+        }
+        for (int i = 0; i < [escapeChars count]; i++) {
+            query = [query replacedString:[escapeChars objectAtIndex:i]
+                               withString:[replaceChars objectAtIndex:i]];
+        }
+        if (port) {
+            if (query) {
+                urlStr = [NSString stringWithFormat:@"%@://%@:%d%@?%@", scheme, host, port.intValue, path, query];
+            } else {
+                urlStr = [NSString stringWithFormat:@"%@://%@:%d%@", scheme, host, port.intValue, path];
+            }
+        } else {
+            if (query) {
+                urlStr = [NSString stringWithFormat:@"%@://%@%@?%@", scheme, host, path, query];
+            } else {
+                urlStr = [NSString stringWithFormat:@"%@://%@%@", scheme, host, path];
+            }
+        }
+        urlStr = [self stringByAddingPercentEscapesUsingEncoding:encoding];
+    }
+    return [urlStr convertSuperScription];
+#else
+    // これはやり過ぎ！！
+    NSArray *escapeChars = [NSArray arrayWithObjects:
+                            @";" ,@"/" ,@"?" ,
+                            @":" ,@"@" ,@"&" ,
+                            @"=" ,@"+" ,@"$" ,
+                            @"," ,@"[" ,@"]" ,
+                            @"#" ,@"!" ,@"'" ,
+                            @"(" ,@")" ,@"*" ,
+                            nil];
+    
+    NSArray *replaceChars = [NSArray arrayWithObjects:
+                             @"%3B" ,@"%2F" ,@"%3F" ,
+                             @"%3A" ,@"%40" ,@"%26" ,
+                             @"%3D" ,@"%2B" ,@"%24" ,
+                             @"%2C" ,@"%5B" ,@"%5D" ,
+                             @"%23" ,@"%21" ,@"%27" ,
+                             @"%28" ,@"%29" ,@"%2A" ,
+                             nil];
+    
+    NSMutableString *encodedString = [[[self stringByAddingPercentEscapesUsingEncoding:encoding] mutableCopy] autorelease];
+    
+    for (int i = 0; i < [escapeChars count]; i++) {
+        [encodedString replaceOccurrencesOfString:[escapeChars objectAtIndex:i]
+                                       withString:[replaceChars objectAtIndex:i]
+                                          options:NSLiteralSearch
+                                            range:NSMakeRange(0, [encodedString length])];
+    }
+    return [[NSString stringWithString:encodedString] convertSuperScription];
+#endif
+}
+
 @end

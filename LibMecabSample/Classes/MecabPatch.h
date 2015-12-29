@@ -27,7 +27,7 @@
 + (BOOL) isFuzokugo:(NSString *)hinshi;
 
 - (void) preProcess;
-- (void) patch_fix_HISASHIBURI;
+- (void) patch_fix_KEIYODOSHI;
 - (void) patch_fix_RARERU;
 - (void) patch_merge_HIJIRITSU_MEISHI;
 - (void) patch_merge_DOSHI;

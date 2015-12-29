@@ -54,7 +54,7 @@
 
 - (void) doubleTapAction:(id) sender {
     
-//    [delegate toggleCellSize:self];
+    [delegate showWikiPage:self];
 }
 
 - (void)dealloc {

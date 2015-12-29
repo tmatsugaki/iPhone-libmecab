@@ -37,4 +37,6 @@
 - (NSString *) stringKatakanaToLatin;
 // ローマ字→カタカナ
 - (NSString *) stringLatinToKatakana;
+
+- (NSString *) encodeURL:(NSStringEncoding)encoding;
 @end

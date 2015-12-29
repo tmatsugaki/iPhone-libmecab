@@ -14,6 +14,7 @@
 @required
 // アクション
 - (void) toggleCellSize:(UITableViewCell *)cell;
+- (void) showWikiPage:(UITableViewCell *)cell;
 @end
 
 @interface NodeCell : UITableViewCell {

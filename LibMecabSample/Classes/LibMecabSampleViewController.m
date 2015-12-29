@@ -14,6 +14,7 @@
 #import "Utility.h"
 #import "LibMecabSampleAppDelegate.h"
 #import "FileUtil.h"
+#import "NSString+TM.h"
 
 //#import "CloudKit/CKContainer.h"
 //#import "CloudKit/CKRecordID.h"
@@ -64,7 +65,7 @@
             [mecabPatcher setModified:NO];
             // 【注意】必須！！
             [mecabPatcher preProcess];
-            [mecabPatcher patch_fix_HISASHIBURI];
+            [mecabPatcher patch_fix_KEIYODOSHI];
             [mecabPatcher patch_fix_RARERU];
             [mecabPatcher patch_merge_HIJIRITSU_MEISHI];
             // マージ
@@ -107,10 +108,11 @@
         [mecabPatcher setModified:NO];
         // 【注意】必須！！
         [mecabPatcher preProcess];
-        [mecabPatcher patch_fix_HISASHIBURI];
-        [mecabPatcher patch_fix_RARERU];
 
         if (_patch.on) {
+            // 致命的な欠点を無くす処理
+            [mecabPatcher patch_fix_KEIYODOSHI];
+            [mecabPatcher patch_fix_RARERU];
             // マージ
             [mecabPatcher patch_merge_HIJIRITSU_MEISHI];
             [mecabPatcher patch_merge_DOSHI];
@@ -622,6 +624,57 @@ heightForFooterInSection:(NSInteger)section {
     node.detailed = ! node.detailed;
     [_tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
                       withRowAnimation:UITableViewRowAnimationFade];
+}
+
+- (void) showWikiPage:(UITableViewCell *)cell {
+    
+    NSSet *hinshiSet = [NSSet setWithObjects:@"名詞",
+                                             @"代名詞",
+                                             @"動詞",
+                                             @"形容詞",
+                                             @"形容動詞",
+                                             @"副詞",
+                                             @"連体詞",
+                                             @"感動詞",
+                                             @"接続詞",
+                                             @"助詞",
+                                             @"格助詞",
+                                             @"並列助詞",
+                                             @"副助詞",
+                                             @"係助詞",
+                                             @"接続助詞",
+                                             @"終助詞",
+                                             @"間投助詞",
+                                             @"準体言助詞",
+                                             @"準体助詞",
+                                             @"助動詞", nil];
+    NSIndexPath *indexPath = [_tableView indexPathForCell:cell];
+    Node *node = _nodes[indexPath.row];
+    NSString *partOfSpeech = [node partOfSpeech];
+    NSString *partOfSpeechSubtype1 = [node partOfSpeechSubtype1];
+    NSString *partOfSpeechSubtype2 = [node partOfSpeechSubtype2];
+    NSString *partOfSpeechSubtype3 = [node partOfSpeechSubtype3];
+    NSString *hinshi = nil;
+    
+    if ([hinshiSet member:partOfSpeechSubtype3]) {
+        hinshi = partOfSpeechSubtype3;
+    } else if ([hinshiSet member:partOfSpeechSubtype2]) {
+        hinshi = partOfSpeechSubtype2;
+    } else if ([hinshiSet member:partOfSpeechSubtype1]) {
+        hinshi = partOfSpeechSubtype1;
+    } else if ([hinshiSet member:partOfSpeech]) {
+        hinshi = partOfSpeech;
+    }
+    
+    if ([hinshi length]) {
+        NSString *urlStr = [@"https://ja.wikipedia.org/wiki/" stringByAppendingString:[hinshi encodeURL:NSUTF8StringEncoding]];
+        // URL エンコードしないこと！！
+        NSURL *url = [NSURL URLWithString:urlStr];
+        
+        if (url && [[UIApplication sharedApplication] canOpenURL:url]) {
+            [[UIApplication sharedApplication] openURL:url];
+        }
+    }
 }
 
 - (NSUInteger) phraseNth:(NSUInteger)index {

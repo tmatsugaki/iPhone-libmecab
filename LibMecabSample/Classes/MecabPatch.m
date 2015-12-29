@@ -198,23 +198,20 @@ static MecabPatch *sharedManager = nil;
 
 #pragma mark - Patch (マージ)
 
-// 謝りの検出
-// 【注意】語幹の連結後に実行すること！！
-- (void) patch_fix_HISASHIBURI {
+// 誤りの訂正
+// 【注意】語幹の連結前に実行すること！！
+- (void) patch_fix_KEIYODOSHI {
     
+    NSSet *keiyodoshiSuffixes = [NSSet setWithObjects:@"ヒサシブリ", nil];
+
     for (Node *node in _nodes) {
         if (node.visible == NO) {
             continue;
         }
         if ([[node partOfSpeech] isEqualToString:@"名詞"])
         {
-            BOOL fix = NO;
-            
-            if ([[node pronunciation] isEqualToString:@"ヒサシブリ"])
+            if ([keiyodoshiSuffixes member:[node pronunciation]])
             {// 動詞
-                fix = YES;
-            }
-            if (fix) {
                 // マージする。
                 _modified = YES;
 #if LOG_PATCH
@@ -227,7 +224,7 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
-// 謝りの検出
+// 誤りの訂正
 // 【注意】語幹の連結後に実行すること！！
 - (void) patch_fix_RARERU {
     
@@ -237,13 +234,8 @@ static MecabPatch *sharedManager = nil;
         }
         if ([[node partOfSpeech] isEqualToString:@"動詞"])
         {
-            BOOL fix = NO;
-            
             if ([[node originalForm] isEqualToString:@"られる"])
             {// 動詞
-                fix = YES;
-            }
-            if (fix) {
                 // マージする。
                 _modified = YES;
 #if LOG_PATCH
@@ -996,7 +988,7 @@ static MecabPatch *sharedManager = nil;
         if (node.visible == NO) {
             continue;
         }
-        if ([node.surface isEqualToString:@"の"] &&
+        if (([node.surface isEqualToString:@"の"] || [node.surface isEqualToString:@"から"]) &&
             [[node partOfSpeech] isEqualToString:@"名詞"])
         {
             if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"])
