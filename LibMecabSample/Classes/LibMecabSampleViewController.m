@@ -443,7 +443,8 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         }
         if ([partOfSpeech isEqualToString:@"助詞"] ||
             [partOfSpeech isEqualToString:@"助動詞"] ||
-            [partOfSpeech isEqualToString:@"記号"]) {
+            [partOfSpeech isEqualToString:@"記号"] ||
+            [partOfSpeech isEqualToString:@"フィラー"]) {
             cell.partOfSpeechLabel.textColor = [UIColor colorWithRed:255 green:0 blue:255 alpha:0.4];
         } else {
             cell.partOfSpeechLabel.textColor = [UIColor magentaColor];
@@ -485,7 +486,8 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         // 品詞のカラーリング
         if ([partOfSpeech isEqualToString:@"助詞"] ||
             [partOfSpeech isEqualToString:@"助動詞"] ||
-            [partOfSpeech isEqualToString:@"記号"]) {
+            [partOfSpeech isEqualToString:@"記号"] ||
+            [partOfSpeech isEqualToString:@"フィラー"]) {
             cell.partOfSpeechLabel.textColor = [UIColor colorWithRed:1.0 green:0.0 blue:1.0 alpha:0.4];
         } else {
             cell.partOfSpeechLabel.textColor = [UIColor magentaColor];
@@ -685,7 +687,9 @@ heightForFooterInSection:(NSInteger)section {
         Node *node = _nodes[i];
 
         if (node.visible &&
-            ([[node partOfSpeech] isEqualToString:@"記号"] == NO && [MecabPatch isFuzokugo:[node partOfSpeech]] == NO))
+            ([[node partOfSpeech] isEqualToString:@"記号"] == NO &&
+             [[node partOfSpeech] isEqualToString:@"フィラー"] == NO &&
+             [MecabPatch isFuzokugo:[node partOfSpeech]] == NO))
         {
             nth++;
         }
