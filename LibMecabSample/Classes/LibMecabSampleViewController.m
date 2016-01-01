@@ -172,8 +172,16 @@
             }
             if (foundIndex != NSNotFound) {
                 NSMutableDictionary *dic = _listItems[foundIndex];
+                BOOL changed = ((NSNumber *) dic[@"modified"]).boolValue != mecabPatcher.modified;
 
                 dic[@"modified"] = [NSNumber numberWithBool:mecabPatcher.modified];
+#if REPLACE_OBJECT
+                if (changed) {
+                    [_listItems replaceObjectAtIndex:foundIndex withObject:dic];
+                    // パース結果、変更フラグに遷移があったので、XML ファイルに反映する。
+                    [_listItems writeToFile:kLibXMLPath atomically:YES];
+                }
+#endif
             } else {
                 NSMutableDictionary *newDic = [[[NSMutableDictionary alloc] init] autorelease];
 
