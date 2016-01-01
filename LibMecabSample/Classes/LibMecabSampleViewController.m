@@ -180,6 +180,14 @@
                     [_listItems replaceObjectAtIndex:foundIndex withObject:dic];
                     // パース結果、変更フラグに遷移があったので、XML ファイルに反映する。
                     [_listItems writeToFile:kLibXMLPath atomically:YES];
+#if ICLOUD_ENABLD
+                    // iCloud に反映する。
+                    LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+
+                    if (appDelegate.use_iCloud) {
+                        [appDelegate saveTo_iCloud];
+                    }
+#endif
                 }
 #endif
             } else {
@@ -193,10 +201,10 @@
                 // 文章を追加したので、XML ファイルに反映する。
                 [_listItems writeToFile:kLibXMLPath atomically:YES];
 
-                // iCloud
+#if ICLOUD_ENABLD
+                // iCloud に反映する。
                 LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
 
-#if ICLOUD_ENABLD
                 if (appDelegate.use_iCloud) {
                     [appDelegate saveTo_iCloud];
                 }
@@ -721,7 +729,9 @@ heightForFooterInSection:(NSInteger)section {
         if (fileData) {
             if ([fileData isEqualToData:iCloudData] == NO) {
                 [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
+#if (ICLOUD_LOG == 1)
                 DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
+#endif
             }
         } else {
             [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];

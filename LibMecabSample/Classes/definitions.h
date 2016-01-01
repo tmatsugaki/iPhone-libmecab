@@ -52,6 +52,7 @@
   iCloud 関係
  */
 #define ICLOUD_ENABLD                       1
+#define ICLOUD_LOG                          0
 #define ICLOUD_FALLBACK_STORE_IN_CACHE      1
 
 #define kDocumentRoot					NSHomeDirectory()

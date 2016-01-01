@@ -511,8 +511,9 @@
 #if (ICLOUD_ENABLD == 1)
     NSArray *queryResults = [_query results];
 
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s %lu records received.", __func__, (unsigned long)[queryResults count]);
-
+#endif
     if ([queryResults count]) {
         for (NSMetadataItem *result in queryResults) {
             NSString *fileName = [result valueForAttribute:NSMetadataItemFSNameKey];
@@ -539,7 +540,7 @@
 // NSMetadataQueryDidUpdateNotification はプログレス表示用に複数回発生する。
 - (void) updatedCallback {
 
-#if (ICLOUD_ENABLD == 1)
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"iCloud 更新イベント!!");
 #endif
 
@@ -780,8 +781,10 @@
     
 #if (ICLOUD_ENABLD == 1)
     
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s %@", __func__, [file path]);
-    
+#endif
+
     NSNumber *isIniCloud = nil;
     BOOL result = YES; // 【注意】Return YES as long as an explicit download was not started.
     
@@ -1155,7 +1158,9 @@
 // リクエスト完了時の処理
 - (void) requestCompleted:(NSString *)message {
     
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"リクエスト完了[%@]", message);
+#endif
 
     if ([_requestTimer isValid]) {
         [_requestTimer invalidate];
@@ -1163,8 +1168,9 @@
     self.requestTimer = nil;
 
     _networkRequestCount--;
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"リクエスト数--:%ld", (long)_networkRequestCount);
-    
+#endif
     if (_networkRequestCount <= 0) {
         // ステータスバーのインジケータのアニメーションを停止。
         [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
@@ -1178,7 +1184,9 @@
 //       invalidate して nil にすること。cf.setupByPreferences
 - (void) requestTimerStart {
 
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s", __func__);
+#endif
 
     if ([NSThread isMainThread] == NO)
     {// timerWithTimeInterval はスレッドセーフでないので、メインスレッドで実行させる。
@@ -1199,7 +1207,10 @@
         // ステータスバーのインジケータのアニメーションを開始。
         [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
         _networkRequestCount++;
+
+#if (ICLOUD_LOG == 1)
         DEBUG_LOG(@"リクエスト数++:%ld", (long)_networkRequestCount);
+#endif
     }
 }
 

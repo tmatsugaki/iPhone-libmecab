@@ -18,7 +18,7 @@
 
 - (id) initWithFileName:(NSString *)fileName
                     url:(NSURL *)url {
-#if (LOG == ON)
+#if (ICLOUD_LOG == 1)
 	DEBUG_LOG(@"%s", __func__);
 #endif
     

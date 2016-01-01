@@ -315,10 +315,10 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
             // 文章を削除したので、XML ファイルに反映する。
             [_listItems writeToFile:kLibXMLPath atomically:YES];
 
-            // iCloud
+#if ICLOUD_ENABLD
+            // iCloud に反映する。
             LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
 
-#if ICLOUD_ENABLD
             if (appDelegate.use_iCloud) {
                 [appDelegate saveTo_iCloud];
             }
@@ -386,10 +386,10 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
             // 文章を移動したので、XML ファイルに反映する。
             [_listItems writeToFile:kLibXMLPath atomically:YES];
 
-            // iCloud
+#if ICLOUD_ENABLD
+            // iCloud に反映する。
             LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
 
-#if ICLOUD_ENABLD
             if (appDelegate.use_iCloud) {
                 [appDelegate saveTo_iCloud];
             }
@@ -596,11 +596,15 @@ heightForFooterInSection:(NSInteger)section {
         if (fileData) {
             if ([fileData isEqualToData:iCloudData] == NO) {
                 [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
+#if (ICLOUD_LOG == 1)
                 DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
+#endif
             }
         } else {
             [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
+#if (ICLOUD_LOG == 1)
             DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
+#endif
         }
     }
     self.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];

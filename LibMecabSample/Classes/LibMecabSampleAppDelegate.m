@@ -109,7 +109,7 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 // キャッシュディレクトリ(Library/Caches/Documents/)を構築する。
 - (BOOL) createDocumentFolder {
     
-#if (LOG == ON)
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s", __func__);
 #endif
     NSString *toPath = kCachedDocumentPath;
@@ -127,7 +127,7 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 // キャッシュディレクトリ(Library/Caches/xml/)を構築する。
 - (BOOL) createXMLFolder {
     
-#if (LOG == ON)
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s", __func__);
 #endif
     NSString *toPath = kCachedXMLPath;
@@ -145,7 +145,7 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 // キャッシュディレクトリ(Library/Caches/work/)を構築する。
 - (BOOL) createWorkFolder {
     
-#if (LOG == ON)
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s", __func__);
 #endif
     NSString *toPath = kCachedWorkPath;
@@ -163,7 +163,7 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 #if ICLOUD_ENABLD
 - (BOOL) create_iCloudFolder {
     
-#if (LOG == ON)
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s", __func__);
 #endif
     // サンドボックス・コンテナ(~/Documents/.iCloud/ または Library/Caches/Documents/iCloud)を構築する。
@@ -182,8 +182,9 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 #pragma mark - iCloud Utility
 - (void) init_iCloud {
     
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s", __func__);
-    
+#endif
     // ユーザーに公開しているデフォルトを設定する。
     [self setupByPreferences];
 
@@ -195,7 +196,10 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 #if (!TARGET_IPHONE_SIMULATOR)
     // 【注意】iCloud をサポートしている場合はコンテナ・ドキュメントURLを取得する。
     self.ubiquityContainerURL = [self ubiquitousDocumentsDirectoryURL];
+
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"Ubiquity Container URL: %@", [_ubiquityContainerURL relativePath]);
+#endif
     if (_ubiquityContainerURL) {
         self.iCloudStorage = [[iCloudStorage alloc] initWithURL:_ubiquityContainerURL];
         _iCloudStorage.delegate = self;
@@ -443,7 +447,9 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 - (NSURL *) ubiquitousContainerURL {
     
     NSURL *ubiquitousContainerURL = [[NSFileManager defaultManager] URLForUbiquityContainerIdentifier:UbiquityContainerIdentifier];
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s %@", __func__, ubiquitousContainerURL);
+#endif
     return ubiquitousContainerURL;
 }
 
@@ -457,7 +463,9 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
     if (ubiquitousContainerURL) {
         dirURL = [ubiquitousContainerURL URLByAppendingPathComponent:@"Documents"];
     }
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s %@", __func__, dirURL);
+#endif
     return dirURL;
 }
 
@@ -465,23 +473,30 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 
 - (void) iCloudManageNotify:(NSString *)fileName
                  completion:(BOOL)completion {
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"【iCloud】%s \"%@\" を管理対象にする様要請しました。状況[%@]", __func__, fileName, completion ? @"エラーなし" : @"エラー");
+#endif
 }
 
 - (void) iCloudUnmanageNotify:(NSString *)fileName
                    completion:(BOOL)completion {
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"【iCloud】%s \"%@\" を管理対象からの除外を要請しました。状況[%@]", __func__, fileName, completion ? @"エラーなし" : @"エラー");
+#endif
 }
 
 - (void) iCloudModifyNotify:(NSString *)fileName
                  completion:(BOOL)completion {
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"【iCloud】%s \"%@\" の更新を要請しました。状況[%@]", __func__, fileName, completion ? @"エラーなし" : @"エラー");
+#endif
 }
 
 - (void) iCloudDeleteNotify:(NSString *)fileName
                  completion:(BOOL)completion {
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"【iCloud】%s \"%@\" の削除を要請しました。状況[%@]", __func__, fileName, completion ? @"エラーなし" : @"エラー");
-    
+#endif
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
     //
     [userInfo setObject:[self class] forKey:@"class"];
@@ -493,8 +508,12 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 
 - (void) iCloudUpdatedNotify:(NSArray *)files {
     
-    if ([files count]) {
+    if ([files count])
+    {
+#if (ICLOUD_LOG == 1)
         DEBUG_LOG(@"【iCloud】%s [%lu]個のファイルが更新されましたので、リスト要求をします。", __func__, (unsigned long)[files count]);
+#endif
+
         for (NSUInteger i = 0; i < [files count]; i++) {
             DEBUG_LOG(@"%02lu[%@]", (unsigned long)i, files[i]);
         }
@@ -505,8 +524,11 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 
 // syncToLocal 後に呼ばれる。
 - (void) iCloudListReceivedNotify:(NSUInteger)numFiles {
+
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"【iCloud】%s [%lu]個のファイルを受信を開始しました。", __func__, (unsigned long)numFiles);
-    
+#endif
+
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
     // ユーザーデフォルトの設定が変わったことを LibMecabSampleViewController に通知する。
     [userInfo setObject:[self class] forKey:@"class"];
@@ -517,8 +539,10 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 }
 
 - (void) iCloudDownloadCompNotify {
+
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"【iCloud】%s 全ファイルの受信が完了しました。", __func__);
-    
+#endif
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
     // ユーザーデフォルトの設定が変わったことを LibMecabSampleViewController に通知する。
     [userInfo setObject:[self class] forKey:@"class"];
@@ -529,8 +553,10 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 }
 
 - (void) iCloudSynchronizedNotify:(NSString *)fileName {
+
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"【iCloud】%s \"%@\" が同期されました。", __func__, fileName);
-    
+#endif
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
     // ユーザーデフォルトの設定が変わったことを通知する。
     [userInfo setObject:[self class] forKey:@"class"];
