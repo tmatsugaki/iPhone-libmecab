@@ -46,13 +46,16 @@
 #define kFuzokugoCellColor          [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.05]
 #define kSelectionColor             [UIColor colorWithRed:0.8 green:0.9 blue:1.0 alpha:0.5]
 
+#define kEnabledTextColor           [UIColor colorWithRed:0.0/256.0 green:122.0/256.0 blue:255.0/256.0 alpha:1.0]
+#define kDisabledTextColor          [UIColor lightGrayColor]
+
 #define kDoubleTapDetectPeriod      0.3   // 【変更不可】0.25 秒以内にタップがされればダブルタップと見なす。
 
 /*
   iCloud 関係
  */
 #define ICLOUD_ENABLD                       1
-#define ICLOUD_LOG                          0
+#define ICLOUD_LOG                          1
 #define ICLOUD_FALLBACK_STORE_IN_CACHE      1
 
 #define kDocumentRoot					NSHomeDirectory()

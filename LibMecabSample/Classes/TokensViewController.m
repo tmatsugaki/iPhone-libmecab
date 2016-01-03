@@ -118,7 +118,7 @@
                                        target:self
                                        action:@selector(cancel:)] autorelease];
     _myNavigationItem.leftBarButtonItem.possibleTitles = [NSSet setWithObjects:@"閉じる", nil];
-    _myNavigationItem.leftBarButtonItem.tintColor = [UIColor colorWithRed:0.0/256.0 green:122.0/256.0 blue:255.0/256.0 alpha:1.0];
+    _myNavigationItem.leftBarButtonItem.tintColor = kEnabledTextColor;
     // ナビゲーションアイテムの初期化（編集ボタン）
     _myNavigationItem.rightBarButtonItem
     = [[[UIBarButtonItem alloc] initWithTitle:@"編集"
@@ -126,7 +126,7 @@
                                        target:self
                                        action:@selector(toggleEdit:)] autorelease];
     _myNavigationItem.rightBarButtonItem.possibleTitles = [NSSet setWithObjects:@"編集", @"完了", nil];
-    _myNavigationItem.rightBarButtonItem.tintColor = [UIColor colorWithRed:0.0/256.0 green:122.0/256.0 blue:255.0/256.0 alpha:1.0];
+    _myNavigationItem.rightBarButtonItem.tintColor = kEnabledTextColor;
 
     //
     NSString *searchingToken = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsSearchingToken];

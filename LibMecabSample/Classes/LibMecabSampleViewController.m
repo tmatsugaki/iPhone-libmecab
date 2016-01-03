@@ -330,6 +330,8 @@
     
     self.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
 
+    [_examples setTitleColor:kEnabledTextColor forState:UIControlStateNormal];
+    [_examples setTitleColor:kDisabledTextColor forState:UIControlStateDisabled];
     // 文例ボタンをアクティベート化する。
     [_examples setEnabled:[_listItems count] > 0];
     
@@ -743,6 +745,8 @@ heightForFooterInSection:(NSInteger)section {
         }
     }
     self.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+    // 文例ボタンをアクティベート化する。
+    [_examples setEnabled:[_listItems count] > 0];
 
     if (_tokensViewController) {
         NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
