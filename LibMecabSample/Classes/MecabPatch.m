@@ -759,12 +759,21 @@ static MecabPatch *sharedManager = nil;
                             if ([[lastLastNode partOfSpeech] isEqualToString:@"名詞"] &&
                                 [[lastNode partOfSpeech] isEqualToString:@"名詞"])
                             {
-                                DEBUG_LOG(@"語幹マージ中に連なった名詞を検知した！！");
-                                lastLastNode.visible = NO;
-
-                                [lastNode setSurface:[[lastLastNode surface]             stringByAppendingString:[lastNode surface]]];
-                                [lastNode setPronunciation:[[lastLastNode pronunciation] stringByAppendingString:[lastNode pronunciation]]];
-                                [lastNode setOriginalForm:[[lastLastNode originalForm]   stringByAppendingString:[lastNode originalForm]]];
+                                if ([lastGokanStr isEqualToString:@"助動詞"] == NO)
+                                {// 「〜的だ」「〜がちだ」「〜そうだ」
+                                    DEBUG_LOG(@"語幹マージ中に連なった名詞を検知した！！");
+                                    lastLastNode.visible = NO;
+                                    
+#if LOG_PATCH
+                                    DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)+「%@」(%@)", __func__, lastLastNode.surface, [lastLastNode partOfSpeech], lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+#endif
+                                    [lastNode setSurface:[[lastLastNode surface]             stringByAppendingString:[lastNode surface]]];
+                                    [lastNode setPronunciation:[[lastLastNode pronunciation] stringByAppendingString:[lastNode pronunciation]]];
+                                    [lastNode setOriginalForm:[[lastLastNode originalForm]   stringByAppendingString:[lastNode originalForm]]];
+                                } else
+                                {// 「馬鹿[名詞:形容動詞語幹]そう[名詞:助動詞語幹]だ[助動詞]」が助動詞になるのを防ぐ。
+                                    DEBUG_LOG(@"語幹マージ中に連なった名詞を検知したが、２つ目の名詞が助動詞語幹なのでマージしない！！");
+                                }
                             }
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                             [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
@@ -793,6 +802,9 @@ static MecabPatch *sharedManager = nil;
                             }
                         } else if (inhibitRashii) {
                             _modified = YES;
+#if LOG_PATCH
+                            DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
+#endif
                             [lastNode setPartOfSpeech:@"形容動詞"];
                             [lastNode setOriginalForm:[[lastNode originalForm] stringByAppendingString:@"だ"]];
                             lastNode.modified = YES;
@@ -1528,6 +1540,9 @@ static MecabPatch *sharedManager = nil;
                     [node setOriginalForm:@"そうだ"];
                     [node setInflection:@"伝聞"];
                     node.modified = YES;
+#if LOG_PATCH
+                    DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
+#endif
                 }
                 if ([[lastNode partOfSpeech] isEqualToString:@"副詞"] &&
                     [lastNode.surface isEqualToString:@"そう"])
@@ -1541,6 +1556,9 @@ static MecabPatch *sharedManager = nil;
                     [node setOriginalForm:@"そうだ"];
                     [node setInflection:@"様相"];
                     node.modified = YES;
+#if LOG_PATCH
+                    DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
+#endif
                 }
             }
         }
@@ -1578,6 +1596,9 @@ static MecabPatch *sharedManager = nil;
                         [node setUseOfType:@"連用形"];
                     }
                     node.modified = YES;
+#if LOG_PATCH
+                    DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
+#endif
                 }
             }
         }

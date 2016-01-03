@@ -28,6 +28,21 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 
 #pragma mark - Application lifecycle
 
+- (id) init {
+    
+    self = [super init];
+    if (self != nil)
+    {
+        // ユーザーに公開しているデフォルトを設定する。
+        [self setupByPreferences];
+
+#if ICLOUD_ENABLD
+        [self init_iCloud];
+#endif
+    }
+    return self;
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
 
     // Override point for customization after application launch.
@@ -185,9 +200,6 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 #if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s", __func__);
 #endif
-    // ユーザーに公開しているデフォルトを設定する。
-    [self setupByPreferences];
-
     [self createDocumentFolder];
     [self create_iCloudFolder];
     [self createXMLFolder];
@@ -215,8 +227,10 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
     // iCloud との授受に使用するデータのパス
     NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
 
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"実体があるパス：%@", kLibXMLPath);
     DEBUG_LOG(@"媒介者のパス　：%@", agentPath);
+#endif
 
     if ([[NSFileManager defaultManager] fileExistsAtPath:agentPath] == NO)
     {// 【新規の場合】
@@ -254,8 +268,11 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
         targetPath = xmlPath;
         tempPath = targetPath;
     }
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"ターゲットのパス %@", targetPath);
     DEBUG_LOG(@"作業用　　のパス %@", tempPath);
+#endif
+
     if (_use_iCloud) {
         if ([[NSFileManager defaultManager] fileExistsAtPath:targetPath])
         {// 【管理対象】上書きであるので、iCloud に管理対象に変更があったことをアサインする。
@@ -275,8 +292,10 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 
 - (void) requestLoad:(NSString *)path {
     
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s", __func__);
-    
+#endif
+
     if (_iCloudStorage) {
         [_iCloudStorage requestLoad:path];
     }
@@ -285,8 +304,10 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 // ダウンロードパス＋ファイル名でのアクセスを考慮しているので注意！！
 - (BOOL) enqueue_iCloudPublish:(NSString *)path {
     
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s", __func__);
-    
+#endif
+
     BOOL invoked = NO;
     
     if (_iCloudStorage) {
@@ -327,8 +348,10 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 
 - (BOOL) enqueue_iCloudStopPublishing:(NSString *)path {
     
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s", __func__);
-    
+#endif
+
     BOOL invoked = NO;
     
     if (_iCloudStorage) {
@@ -364,8 +387,10 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 - (BOOL) enqueue_iCloudModify:(NSString *)path
                          data:(NSData *)data {
     
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s", __func__);
-    
+#endif
+
     BOOL delegated = NO;
     
     if (_iCloudStorage) {
@@ -399,8 +424,10 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 
 - (BOOL) enqueue_iCloudDelete:(NSString *)path {
     
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s", __func__);
-    
+#endif
+
     BOOL invoked = NO;
     
     if (_iCloudStorage) {
@@ -432,8 +459,10 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 
 - (void) get_iCloudAttributes:(NSString *)path fileSpec:(FileSpec *)fileSpec {
     
+#if (ICLOUD_LOG == 1)
     DEBUG_LOG(@"%s", __func__);
-    
+#endif
+
     if (_iCloudStorage) {
         [_iCloudStorage get_iCloudAttributes:path
                                     fileSpec:fileSpec];
@@ -515,7 +544,9 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 #endif
 
         for (NSUInteger i = 0; i < [files count]; i++) {
+#if (ICLOUD_LOG == 1)
             DEBUG_LOG(@"%02lu[%@]", (unsigned long)i, files[i]);
+#endif
         }
         // 更新があったので、リスト要求する。
         [_iCloudStorage requestListing:files[0]];
@@ -585,6 +616,8 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
     [self setupByPreferences];
 }
 
+// ユーザーに公開しているデフォルトを設定する。
+// 【defaultsObserver の主処理】
 - (void) setupByPreferences {
     
     if ([[NSUserDefaults standardUserDefaults] objectForKey:kUse_iCloudKey] == nil)

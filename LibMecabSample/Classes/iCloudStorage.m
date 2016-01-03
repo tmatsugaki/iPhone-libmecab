@@ -31,7 +31,7 @@
 @synthesize delegate;
 
 - (id) initWithURL:(NSURL *)ubiquityContainerURL {
-#if (LOG == ON)
+#if (ICLOUD_LOG == 1)
 //	DEBUG_LOG(@"%s %@", __func__, [documentsDir absoluteString]);
 #endif
     
@@ -131,7 +131,7 @@
 //
 + (NSURL *) ubiquityContainerURL {
     
-#if (LOG == ON)
+#if (ICLOUD_LOG == 1)
 	DEBUG_LOG(@"%s", __func__);
 #endif
     
@@ -146,7 +146,7 @@
 //
 + (NSURL *) ubiquityDocumentsURL {
     
-#if (LOG == ON)
+#if (ICLOUD_LOG == 1)
 	DEBUG_LOG(@"%s", __func__);
 #endif
     

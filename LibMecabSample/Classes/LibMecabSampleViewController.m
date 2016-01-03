@@ -285,9 +285,9 @@
     [super viewDidLoad];
 
 #if ICLOUD_ENABLD
-    LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
-
-    [appDelegate init_iCloud];
+//    LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+//
+//    [appDelegate init_iCloud];
 #endif
 
     [_tableView setBackgroundColor:kTableViewBackgroundColor];
