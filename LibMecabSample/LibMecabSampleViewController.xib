@@ -62,9 +62,12 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="2mW-bO-ZIZ">
-                    <rect key="frame" x="9" y="28" width="36" height="36"/>
+                    <rect key="frame" x="8" y="31" width="36" height="30"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <state key="normal" image="folder.png"/>
+                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                    <state key="normal" title="文例">
+                        <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                    </state>
                     <connections>
                         <action selector="openTokensView:" destination="-1" eventType="touchUpInside" id="qA7-be-Dyc"/>
                     </connections>
@@ -74,7 +77,4 @@
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
         </view>
     </objects>
-    <resources>
-        <image name="folder.png" width="128" height="128"/>
-    </resources>
 </document>

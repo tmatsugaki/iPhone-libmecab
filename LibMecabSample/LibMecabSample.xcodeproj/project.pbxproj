@@ -45,7 +45,6 @@
 		0851E9FF1C0C9675006C2932 /* unk.dic in Resources */ = {isa = PBXBuildFile; fileRef = 13C86E9412C87C9D006F2369 /* unk.dic */; };
 		0851EA001C0C9675006C2932 /* TokenCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 089AFE851C03353400BA5F98 /* TokenCell.xib */; };
 		0851EA011C0C9675006C2932 /* mecabrc in Resources */ = {isa = PBXBuildFile; fileRef = 13C86F6D12C8871C006F2369 /* mecabrc */; };
-		0851EA021C0C9675006C2932 /* folder.png in Resources */ = {isa = PBXBuildFile; fileRef = 089AFE951C03F51A00BA5F98 /* folder.png */; };
 		0851EA041C0C9675006C2932 /* TokensViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 089AFE8B1C03359000BA5F98 /* TokensViewController.m */; };
 		0851EA051C0C9675006C2932 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		0851EA061C0C9675006C2932 /* LibMecabSampleAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* LibMecabSampleAppDelegate.m */; };
@@ -68,7 +67,6 @@
 		089AFE891C03353900BA5F98 /* TokensViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 089AFE881C03353900BA5F98 /* TokensViewController.xib */; };
 		089AFE8C1C03359000BA5F98 /* TokensViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 089AFE8B1C03359000BA5F98 /* TokensViewController.m */; };
 		089AFE8F1C03359700BA5F98 /* TokenCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 089AFE8E1C03359700BA5F98 /* TokenCell.m */; };
-		089AFE961C03F51A00BA5F98 /* folder.png in Resources */ = {isa = PBXBuildFile; fileRef = 089AFE951C03F51A00BA5F98 /* folder.png */; };
 		08B0BCA11C02B19100D5A21C /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */; };
 		13C86E5B12C87B30006F2369 /* Mecab.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C86E5812C87B30006F2369 /* Mecab.m */; };
 		13C86E5C12C87B30006F2369 /* Node.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C86E5A12C87B30006F2369 /* Node.m */; };
@@ -138,7 +136,6 @@
 		089AFE8B1C03359000BA5F98 /* TokensViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TokensViewController.m; sourceTree = "<group>"; };
 		089AFE8D1C03359700BA5F98 /* TokenCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TokenCell.h; sourceTree = "<group>"; };
 		089AFE8E1C03359700BA5F98 /* TokenCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TokenCell.m; sourceTree = "<group>"; };
-		089AFE951C03F51A00BA5F98 /* folder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folder.png; sourceTree = "<group>"; };
 		089AFE991C0407A500BA5F98 /* definitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = definitions.h; sourceTree = "<group>"; };
 		089AFE9B1C04092100BA5F98 /* HinshiMaster-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "HinshiMaster-Info.plist"; sourceTree = "<group>"; };
 		08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -335,7 +332,6 @@
 				08437FAA1C29BFED009CEF91 /* screenshot2.jpg */,
 				0820F5D81C0D565900E17DD1 /* Settings.bundle */,
 				08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */,
-				089AFE951C03F51A00BA5F98 /* folder.png */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				08B73B751C300F9900E2D199 /* Util */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
@@ -508,7 +504,6 @@
 				0851EA011C0C9675006C2932 /* mecabrc in Resources */,
 				0820F5DA1C0D565900E17DD1 /* Settings.bundle in Resources */,
 				08437FA61C29BFE3009CEF91 /* README.textile in Resources */,
-				0851EA021C0C9675006C2932 /* folder.png in Resources */,
 				085FC0801C25E2BE00B3A8E7 /* SmallNodeCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -537,7 +532,6 @@
 				13C86F6E12C8871C006F2369 /* mecabrc in Resources */,
 				0820F5D91C0D565900E17DD1 /* Settings.bundle in Resources */,
 				08437FA51C29BFE3009CEF91 /* README.textile in Resources */,
-				089AFE961C03F51A00BA5F98 /* folder.png in Resources */,
 				085FC07F1C25E2BE00B3A8E7 /* SmallNodeCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -280,7 +280,7 @@
 
 - (void)viewDidLoad {
 
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     [super viewDidLoad];
 
@@ -324,11 +324,15 @@
 
 - (void) viewWillAppear:(BOOL)animated {
 
-    DEBUG_LOG(@"%s", __func__);
+//    DEBUG_LOG(@"%s", __func__);
 
     [super viewWillAppear:animated];
     
     self.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+
+    // 文例ボタンをアクティベート化する。
+    [_examples setEnabled:[_listItems count] > 0];
+    
     [self initialParse];
 
 #if (GIVEUP_EDIT_WHEN_SCROLL == 0)

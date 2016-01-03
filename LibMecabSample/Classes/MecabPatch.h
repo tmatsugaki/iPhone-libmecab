@@ -26,35 +26,31 @@
 + (BOOL) isKeiyoushi:(NSString *)hinshi;
 + (BOOL) isFuzokugo:(NSString *)hinshi;
 
-- (void) preProcess;
-- (void) patch_fix_KEIYODOSHI;
-- (void) patch_fix_RARERU;
-- (void) patch_merge_HIJIRITSU_MEISHI;
-- (void) patch_merge_DOSHI;
-- (void) patch_merge_FUKUGO_DOSHI;
-- (void) patch_merge_FUKUGO_DOSHI_SAHEN;
+- (void) preProcess;                        // 語幹のマージに先立つこと！！
+- (void) patch_fix_KEIYODOSHI;              // 語幹のマージに先立つこと！！
+- (void) patch_fix_RARERU;                  // 語幹のマージに先立つこと！！
+- (void) patch_merge_HIJIRITSU_MEISHI;      // 語幹のマージに先立つこと！！
+- (void) patch_merge_DOSHI;                 // 語幹のマージに先立つこと！！
+- (void) patch_merge_FUKUGO_DOSHI;          // 語幹のマージに先立つこと！！
+- (void) patch_merge_FUKUGO_DOSHI_SAHEN;    // 語幹のマージに先立つこと！！
 - (void) patch_before_merge_GOKAN;          // 語幹のマージに先立つこと！！
 - (void) patch_merge_GACHI_GIMI_YASUI;      // 語幹のマージに先立つこと！！
-- (void) patch_merge_N;
-- (void) patch_merge_JIMI;
+- (void) patch_merge_N;                     // 語幹のマージに先立つこと！！
+- (void) patch_merge_JIMI;                  // 語幹のマージに先立つこと！！
 //
-- (void) patch_merge_GOKAN;
-- (void) patch_merge_MEISHI;
-- (void) patch_detect_FUKUSHI;
-- (void) patch_TAIGEN_DA;
-- (void) patch_NANODA_NO;
-- (void) patch_KANDOSHI_SOU;
-- (void) patch_HOJO_KEIYOUSHI;
-- (void) patch_TAIGEN_RASHII;
-- (void) patch_TOMO;
-- (void) patch_TOMO_KUTEN;
-- (void) patch_DE_MO;
-- (void) patch_DEMO;
-- (BOOL) patch_DATTE;
-- (void) postProcess;
-// 以下は未使用
-- (void) patch_OLD_FUKUSHI_SO;
-- (void) patch_OLD_SOU;
-- (void) patch_OLD_FUKUSHI_KA;
+- (void) patch_merge_GOKAN;                 // 語幹のマージをする最も重要な処理！！
 
+- (void) patch_merge_MEISHI;                // 語幹のマージ実施後に実施すること！！
+- (void) patch_detect_FUKUSHI;              // 語幹のマージ実施後に実施すること！！
+- (void) patch_TAIGEN_DA;                   // 語幹のマージ実施後に実施すること！！
+- (void) patch_NANODA_NO;                   // 語幹のマージ実施後に実施すること！！
+- (void) patch_KANDOSHI_SOU;                // 語幹のマージ実施後に実施すること！！
+- (void) patch_HOJO_KEIYOUSHI;              // 語幹のマージ実施後に実施すること！！
+- (void) patch_TAIGEN_RASHII;               // 語幹のマージ実施後に実施すること！！
+- (void) patch_TOMO;                        // 語幹のマージ実施後に実施すること！！
+- (void) patch_TOMO_KUTEN;                  // 語幹のマージ実施後に実施すること！！
+- (void) patch_DE_MO;                       // 語幹のマージ実施後に実施すること！！
+- (void) patch_DEMO;                        // 語幹のマージ実施後に実施すること！！
+- (BOOL) patch_DATTE;                       // 語幹のマージ実施後に実施すること！！
+- (void) postProcess;                       // 語幹のマージ実施後に実施すること！！
 @end

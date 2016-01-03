@@ -212,7 +212,7 @@ static MecabPatch *sharedManager = nil;
         {
             if ([keiyodoshiSuffixes member:[node pronunciation]])
             {// 動詞
-                // マージする。
+                // 属性変更する。
                 _modified = YES;
 #if LOG_PATCH
                 DEBUG_LOG(@"%s 「%@」:(%@)→(%@)", __func__, node.surface, [node partOfSpeechSubtype1], @"形容動詞語幹");
@@ -236,10 +236,10 @@ static MecabPatch *sharedManager = nil;
         {
             if ([[node originalForm] isEqualToString:@"られる"])
             {// 動詞
-                // マージする。
+                // 属性変更する。
                 _modified = YES;
 #if LOG_PATCH
-                DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"助動詞");
+                DEBUG_LOG(@"%s 「%@」(%@)→「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"助動詞");
 #endif
                 [node setPartOfSpeech:@"助動詞"];
                 [node setPartOfSpeechSubtype1:@""];
@@ -1222,7 +1222,7 @@ static MecabPatch *sharedManager = nil;
         {
             if ([self isEndOfSentence:i + 1])
             {
-                // 修正された。
+                // 属性変更された。
                 _modified = YES;
 
                 [node setPartOfSpeechSubtype1:@"終助詞"];
@@ -1432,7 +1432,7 @@ static MecabPatch *sharedManager = nil;
                     [node setPartOfSpeechSubtype1:@"終助詞"];
                     [node setPartOfSpeechSubtype2:@""];
                 } else {
-                    DEBUG_LOG(@"!!![名詞]対処が必要か？：「%@」（%@）", node.surface, pronunciation);
+                    DEBUG_LOG(@"!!![名詞]語幹残存：対処が必要か？：「%@」（%@）", node.surface, pronunciation);
                 }
             }
         }
@@ -1440,14 +1440,14 @@ static MecabPatch *sharedManager = nil;
         if ([[node partOfSpeech] isEqualToString:@"形容詞"]) {
             if (gokanStr)
             {// 語幹であると見なされたが未だ名詞であるダメな奴。
-                DEBUG_LOG(@"!!![形容詞]対処が必要か？：「%@」", node.surface);
+                DEBUG_LOG(@"!!![形容詞]語幹残存：対処が必要か？：「%@」", node.surface);
             }
         }
         // 【形容動詞（XXX語幹）】partOfSpeech
         if ([[node partOfSpeech] isEqualToString:@"形容動詞"]) {
             if (gokanStr)
             {// 語幹であると見なされたが未だ名詞であるダメな奴。
-                DEBUG_LOG(@"!!![形容動詞]対処が必要か？：「%@」", node.surface);
+                DEBUG_LOG(@"!!![形容動詞]語幹残存：対処が必要か？：「%@」", node.surface);
             }
         }
         // 【補助動詞】partOfSpeech
@@ -1486,123 +1486,6 @@ static MecabPatch *sharedManager = nil;
                 [node setInflection:str];
             }
         }
-    }
-}
-
-#pragma mark - Patch (未使用)
-
-// 未使用
-// 【副詞】用言に連なる「そう」は全て副詞だが、mecab は名詞を返す。
-- (void) patch_OLD_FUKUSHI_SO {
-    Node *lastNode = nil;
-    
-    for (Node *node in _nodes) {
-        if (node.visible == NO) {
-            continue;
-        }
-        if (lastNode) {
-            if ([MecabPatch isYougen:[lastNode partOfSpeech]] &&
-                [node.surface isEqualToString:@"そう"])
-            {// 用言に連なる「そう」は全て副詞。
-                [node setPartOfSpeech:@"副詞"];
-                [node setPartOfSpeechSubtype1:@""];
-                [node setPartOfSpeechSubtype2:@""];
-                [node setPartOfSpeechSubtype3:@""];
-            }
-        }
-        lastNode = node;
-    }
-}
-
-// 未使用
-// 【伝聞、様相の助動詞】伝聞、様相の「そうです」は助動詞だが、mecab は名詞+助動詞を返す。
-- (void) patch_OLD_SOU {
-    Node *lastNode = nil;
-    
-    for (Node *node in _nodes) {
-        if (node.visible == NO) {
-            continue;
-        }
-        if (lastNode) {
-            if ([[node partOfSpeech] isEqualToString:@"助動詞"])
-            {
-                NSString *pronunciation = [node pronunciation];
-
-                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
-                    [lastNode.surface isEqualToString:@"そう"])
-                {// 伝聞の「そうです」は助動詞
-                    lastNode.visible = NO;
-                    
-                    // マージする。
-                    _modified = YES;
-                    [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
-                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
-                    [node setOriginalForm:@"そうだ"];
-                    [node setInflection:@"伝聞"];
-                    node.modified = YES;
-#if LOG_PATCH
-                    DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
-#endif
-                }
-                if ([[lastNode partOfSpeech] isEqualToString:@"副詞"] &&
-                    [lastNode.surface isEqualToString:@"そう"])
-                {// 様相の「そうです」は助動詞
-                    lastNode.visible = NO;
-                    
-                    // マージする。
-                    _modified = YES;
-                    [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
-                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
-                    [node setOriginalForm:@"そうだ"];
-                    [node setInflection:@"様相"];
-                    node.modified = YES;
-#if LOG_PATCH
-                    DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
-#endif
-                }
-            }
-        }
-        lastNode = node;
-    }
-}
-
-// 未使用
-// 【副詞化】形容動詞＋助詞（に）で副詞化はすべきだが、mecab は名詞+助動詞を返す。
-- (void) patch_OLD_FUKUSHI_KA {
-    Node *lastNode = nil;
-    
-    for (Node *node in _nodes) {
-        if (node.visible == NO) {
-            continue;
-        }
-        if (lastNode) {
-            if ([[node partOfSpeech] isEqualToString:@"助詞"])
-            {
-                NSString *lastGokanStr = [self gokanString:lastNode];
-
-                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] && [lastGokanStr isEqualToString:@"形容動詞"])
-                {// 形容動詞＋助詞（に）は形容動詞
-                    BOOL isRenyo = [node.surface isEqualToString:@"に"];
-                    lastNode.visible = NO;
-                    
-                    // マージする。
-                    _modified = YES;
-                    [node setSurface:[[lastNode surface] stringByAppendingString:[node surface]]];
-                    [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                    [node setOriginalForm:[[lastNode originalForm] stringByAppendingString:@"だ"]];
-//                    [node setInflection:@"伝聞"];
-                    [node setPartOfSpeech:@"形容動詞"];
-                    if (isRenyo) {
-                        [node setUseOfType:@"連用形"];
-                    }
-                    node.modified = YES;
-#if LOG_PATCH
-                    DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
-#endif
-                }
-            }
-        }
-        lastNode = node;
     }
 }
 @end
