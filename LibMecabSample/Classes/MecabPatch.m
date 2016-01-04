@@ -1482,6 +1482,9 @@ static MecabPatch *sharedManager = nil;
                 {// 動詞／形容詞／形容動詞が体言（に連なって／を従えて）いるので「連体形」である。
                     DEBUG_LOG(@"連体化[%@][%@]", node.surface, nextNode.surface);
                     [node setUseOfType:@"連体形"];
+
+// 【注意】終止形の用言が列挙などで連続している場合に上手く機能しないのでペンディングにする。
+//   eg.「身の多い少ないが重大な問題となる。」
 //                } else if ([MecabPatch isYougen:[nextNode partOfSpeech]])
 //                {// 動詞／形容詞／形容動詞が用言（に連なって／を従えて）いるので「連用形」である。。
 //                    DEBUG_LOG(@"連用化[%@][%@]", node.surface, nextNode.surface);
