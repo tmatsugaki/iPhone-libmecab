@@ -852,7 +852,7 @@ static MecabPatch *sharedManager = nil;
                     } else if ([[lastNode partOfSpeech] isEqualToString:@"名詞"]
 //                               && [[node partOfSpeechSubtype1] isEqualToString:@"一般"]
                                )
-                    {// 名詞＆一般名詞が連なっている。
+                    {// 名詞＆一般名詞が連続している。
                         if ([[node partOfSpeechSubtype1] isEqualToString:@"副詞可能"] &&
                             [[node pronunciation] isEqualToString:@"イライ"])
                         {// 「以来」を「今日限り」「それ以上」「する以上」に合わせる。
@@ -1412,14 +1412,18 @@ static MecabPatch *sharedManager = nil;
 // 【終止形／連体形／連用形】
 - (void) postProcess {
     
-    for (Node *node in _nodes) {
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
+
         if (node.visible == NO) {
             continue;
         }
         NSString *useOfType = [node useOfType];
+        NSString *partOfSpeech = [node partOfSpeech];
         NSString *partOfSpeechSubtype1 = [node partOfSpeechSubtype1];
         NSString *inflection = [node inflection];
         NSString *gokanStr = [self gokanString:node];
+        Node *nextNode = [self nextNode:i];
         
         // 【名詞（XXX語幹）】partOfSpeech
         if ([[node partOfSpeech] isEqualToString:@"名詞"]) {
@@ -1470,7 +1474,24 @@ static MecabPatch *sharedManager = nil;
         // 【終止形／連体形／連用形】useOfType
         if ([useOfType isEqualToString:@"基本形"])
         {
-            [node setUseOfType:@"終止形"];
+            if (([partOfSpeech isEqualToString:@"動詞"] ||
+                 [partOfSpeech isEqualToString:@"形容詞"] ||
+                 [partOfSpeech isEqualToString:@"形容動詞"]))
+            {// 動詞／形容詞／形容動詞である。
+                if ([MecabPatch isTaigen:[nextNode partOfSpeech]])
+                {// 動詞／形容詞／形容動詞が体言（に連なって／を従えて）いるので「連体形」である。
+                    DEBUG_LOG(@"連体化[%@][%@]", node.surface, nextNode.surface);
+                    [node setUseOfType:@"連体形"];
+//                } else if ([MecabPatch isYougen:[nextNode partOfSpeech]])
+//                {// 動詞／形容詞／形容動詞が用言（に連なって／を従えて）いるので「連用形」である。。
+//                    DEBUG_LOG(@"連用化[%@][%@]", node.surface, nextNode.surface);
+//                    [node setUseOfType:@"連用形"];
+                } else {
+                    [node setUseOfType:@"終止形"];
+                }
+            } else {
+                [node setUseOfType:@"終止形"];
+            }
         } else if ([useOfType isEqualToString:@"体言接続"])
         {
             [node setUseOfType:@"連体形"];
