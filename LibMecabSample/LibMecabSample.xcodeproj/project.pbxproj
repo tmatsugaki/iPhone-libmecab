@@ -67,6 +67,7 @@
 		089AFE891C03353900BA5F98 /* TokensViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 089AFE881C03353900BA5F98 /* TokensViewController.xib */; };
 		089AFE8C1C03359000BA5F98 /* TokensViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 089AFE8B1C03359000BA5F98 /* TokensViewController.m */; };
 		089AFE8F1C03359700BA5F98 /* TokenCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 089AFE8E1C03359700BA5F98 /* TokenCell.m */; };
+		08AD7A381C43DDBA00464FAE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 08AD7A371C43DDBA00464FAE /* Images.xcassets */; };
 		08B0BCA11C02B19100D5A21C /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */; };
 		13C86E5B12C87B30006F2369 /* Mecab.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C86E5812C87B30006F2369 /* Mecab.m */; };
 		13C86E5C12C87B30006F2369 /* Node.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C86E5A12C87B30006F2369 /* Node.m */; };
@@ -138,6 +139,7 @@
 		089AFE8E1C03359700BA5F98 /* TokenCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TokenCell.m; sourceTree = "<group>"; };
 		089AFE991C0407A500BA5F98 /* definitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = definitions.h; sourceTree = "<group>"; };
 		089AFE9B1C04092100BA5F98 /* HinshiMaster-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "HinshiMaster-Info.plist"; sourceTree = "<group>"; };
+		08AD7A371C43DDBA00464FAE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = HinshiMaster/Images.xcassets; sourceTree = "<group>"; };
 		08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		13C86E5712C87B30006F2369 /* Mecab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mecab.h; sourceTree = "<group>"; };
 		13C86E5812C87B30006F2369 /* Mecab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Mecab.m; sourceTree = "<group>"; };
@@ -356,6 +358,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				08AD7A371C43DDBA00464FAE /* Images.xcassets */,
 				13C86F6D12C8871C006F2369 /* mecabrc */,
 				13C86E8B12C87C93006F2369 /* ipadic */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
@@ -499,6 +502,7 @@
 				0851E9FC1C0C9675006C2932 /* right-id.def in Resources */,
 				0851E9FD1C0C9675006C2932 /* sys.dic in Resources */,
 				0851E9FE1C0C9675006C2932 /* TokensViewController.xib in Resources */,
+				08AD7A381C43DDBA00464FAE /* Images.xcassets in Resources */,
 				0851E9FF1C0C9675006C2932 /* unk.dic in Resources */,
 				0851EA001C0C9675006C2932 /* TokenCell.xib in Resources */,
 				0851EA011C0C9675006C2932 /* mecabrc in Resources */,
@@ -592,6 +596,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "Brand Assets";
 				CODE_SIGN_ENTITLEMENTS = HinshiMaster.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -613,6 +619,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "Brand Assets";
 				CODE_SIGN_ENTITLEMENTS = HinshiMaster.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
