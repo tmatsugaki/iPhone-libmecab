@@ -20,4 +20,4 @@ Mecab およびその関連ファイルについては、各ライブラリー�
 UI/UX が気に入った状態になり次第、AppStore で無償公開します。
 
 h2. 謝辞
-作者の Watanabe Toshinori 様に感謝いたします。
+Mecab 開発者の工藤拓さん、それを iOS に適合された Watanabe Toshinori さんに感謝いたします。
