@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0820F5D91C0D565900E17DD1 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 0820F5D81C0D565900E17DD1 /* Settings.bundle */; };
-		0820F5DA1C0D565900E17DD1 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 0820F5D81C0D565900E17DD1 /* Settings.bundle */; };
 		08437FA51C29BFE3009CEF91 /* README.textile in Resources */ = {isa = PBXBuildFile; fileRef = 08437FA41C29BFE3009CEF91 /* README.textile */; };
 		08437FA61C29BFE3009CEF91 /* README.textile in Resources */ = {isa = PBXBuildFile; fileRef = 08437FA41C29BFE3009CEF91 /* README.textile */; };
 		08437FA81C29BFE8009CEF91 /* screenshot1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 08437FA71C29BFE8009CEF91 /* screenshot1.jpg */; };
@@ -63,6 +61,12 @@
 		085FC0801C25E2BE00B3A8E7 /* SmallNodeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 085FC07E1C25E2BE00B3A8E7 /* SmallNodeCell.xib */; };
 		085FC0841C25E30300B3A8E7 /* SmallNodeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 085FC0831C25E30300B3A8E7 /* SmallNodeCell.m */; };
 		085FC0851C25E30300B3A8E7 /* SmallNodeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 085FC0831C25E30300B3A8E7 /* SmallNodeCell.m */; };
+		087B875C1C4938C300BCDC03 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 087B875B1C4938C300BCDC03 /* Settings.bundle */; };
+		087B875D1C4938C300BCDC03 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 087B875B1C4938C300BCDC03 /* Settings.bundle */; };
+		087B87641C493B1B00BCDC03 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 087B87621C493B1B00BCDC03 /* Localizable.strings */; };
+		087B87651C493B1B00BCDC03 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 087B87621C493B1B00BCDC03 /* Localizable.strings */; };
+		087B87691C493B2900BCDC03 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 087B87671C493B2900BCDC03 /* Localizable.strings */; };
+		087B876A1C493B2900BCDC03 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 087B87671C493B2900BCDC03 /* Localizable.strings */; };
 		089AFE861C03353400BA5F98 /* TokenCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 089AFE851C03353400BA5F98 /* TokenCell.xib */; };
 		089AFE891C03353900BA5F98 /* TokensViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 089AFE881C03353900BA5F98 /* TokensViewController.xib */; };
 		089AFE8C1C03359000BA5F98 /* TokensViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 089AFE8B1C03359000BA5F98 /* TokensViewController.m */; };
@@ -107,7 +111,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0820F5D81C0D565900E17DD1 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		08437FA41C29BFE3009CEF91 /* README.textile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.textile; path = ../README.textile; sourceTree = "<group>"; };
 		08437FA71C29BFE8009CEF91 /* screenshot1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = screenshot1.jpg; path = ../screenshot1.jpg; sourceTree = "<group>"; };
 		08437FAA1C29BFED009CEF91 /* screenshot2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = screenshot2.jpg; path = ../screenshot2.jpg; sourceTree = "<group>"; };
@@ -131,6 +134,9 @@
 		085FC07E1C25E2BE00B3A8E7 /* SmallNodeCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SmallNodeCell.xib; sourceTree = "<group>"; };
 		085FC0821C25E30300B3A8E7 /* SmallNodeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmallNodeCell.h; sourceTree = "<group>"; };
 		085FC0831C25E30300B3A8E7 /* SmallNodeCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SmallNodeCell.m; sourceTree = "<group>"; };
+		087B875B1C4938C300BCDC03 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		087B87631C493B1B00BCDC03 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
+		087B87681C493B2900BCDC03 /* jp */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = jp; path = Localizable.strings; sourceTree = "<group>"; };
 		089AFE851C03353400BA5F98 /* TokenCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TokenCell.xib; sourceTree = "<group>"; };
 		089AFE881C03353900BA5F98 /* TokensViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TokensViewController.xib; sourceTree = "<group>"; };
 		089AFE8A1C03359000BA5F98 /* TokensViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TokensViewController.h; sourceTree = "<group>"; };
@@ -269,6 +275,22 @@
 			name = "Add On";
 			sourceTree = "<group>";
 		};
+		087B87611C493B1B00BCDC03 /* en.lproj */ = {
+			isa = PBXGroup;
+			children = (
+				087B87621C493B1B00BCDC03 /* Localizable.strings */,
+			);
+			path = en.lproj;
+			sourceTree = "<group>";
+		};
+		087B87661C493B2900BCDC03 /* jp.lproj */ = {
+			isa = PBXGroup;
+			children = (
+				087B87671C493B2900BCDC03 /* Localizable.strings */,
+			);
+			path = jp.lproj;
+			sourceTree = "<group>";
+		};
 		08B73B751C300F9900E2D199 /* Util */ = {
 			isa = PBXGroup;
 			children = (
@@ -329,10 +351,12 @@
 				089AFE9B1C04092100BA5F98 /* HinshiMaster-Info.plist */,
 				0851EA181C0C96BE006C2932 /* HinshiMasterDev.entitlements */,
 				0851EA1B1C0C96DF006C2932 /* HinshiMaster.entitlements */,
+				087B87611C493B1B00BCDC03 /* en.lproj */,
+				087B87661C493B2900BCDC03 /* jp.lproj */,
+				087B875B1C4938C300BCDC03 /* Settings.bundle */,
 				08437FA41C29BFE3009CEF91 /* README.textile */,
 				08437FA71C29BFE8009CEF91 /* screenshot1.jpg */,
 				08437FAA1C29BFED009CEF91 /* screenshot2.jpg */,
-				0820F5D81C0D565900E17DD1 /* Settings.bundle */,
 				08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				08B73B751C300F9900E2D199 /* Util */,
@@ -466,6 +490,8 @@
 				Japanese,
 				French,
 				German,
+				en,
+				jp,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			projectDirPath = "";
@@ -500,6 +526,7 @@
 			files = (
 				0851E9F21C0C9675006C2932 /* MainWindow.xib in Resources */,
 				0851E9F31C0C9675006C2932 /* LibMecabSampleViewController.xib in Resources */,
+				087B87651C493B1B00BCDC03 /* Localizable.strings in Resources */,
 				0851E9F41C0C9675006C2932 /* NodeCell.xib in Resources */,
 				0851E9F51C0C9675006C2932 /* char.bin in Resources */,
 				0851E9F61C0C9675006C2932 /* dicrc in Resources */,
@@ -510,6 +537,7 @@
 				0851E9F91C0C9675006C2932 /* matrix.bin in Resources */,
 				0851E9FA1C0C9675006C2932 /* pos-id.def in Resources */,
 				0851E9FB1C0C9675006C2932 /* rewrite.def in Resources */,
+				087B876A1C493B2900BCDC03 /* Localizable.strings in Resources */,
 				0851E9FC1C0C9675006C2932 /* right-id.def in Resources */,
 				0851E9FD1C0C9675006C2932 /* sys.dic in Resources */,
 				0851E9FE1C0C9675006C2932 /* TokensViewController.xib in Resources */,
@@ -517,8 +545,8 @@
 				0851E9FF1C0C9675006C2932 /* unk.dic in Resources */,
 				0851EA001C0C9675006C2932 /* TokenCell.xib in Resources */,
 				0851EA011C0C9675006C2932 /* mecabrc in Resources */,
-				0820F5DA1C0D565900E17DD1 /* Settings.bundle in Resources */,
 				08437FA61C29BFE3009CEF91 /* README.textile in Resources */,
+				087B875D1C4938C300BCDC03 /* Settings.bundle in Resources */,
 				085FC0801C25E2BE00B3A8E7 /* SmallNodeCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -529,6 +557,7 @@
 			files = (
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				2899E5220DE3E06400AC0155 /* LibMecabSampleViewController.xib in Resources */,
+				087B87691C493B2900BCDC03 /* Localizable.strings in Resources */,
 				13C86E5E12C87B3E006F2369 /* NodeCell.xib in Resources */,
 				13C86E9512C87C9D006F2369 /* char.bin in Resources */,
 				13C86E9612C87C9D006F2369 /* dicrc in Resources */,
@@ -540,12 +569,13 @@
 				13C86E9912C87C9D006F2369 /* pos-id.def in Resources */,
 				13C86E9A12C87C9D006F2369 /* rewrite.def in Resources */,
 				13C86E9B12C87C9D006F2369 /* right-id.def in Resources */,
+				087B87641C493B1B00BCDC03 /* Localizable.strings in Resources */,
+				087B875C1C4938C300BCDC03 /* Settings.bundle in Resources */,
 				13C86E9C12C87C9D006F2369 /* sys.dic in Resources */,
 				089AFE891C03353900BA5F98 /* TokensViewController.xib in Resources */,
 				13C86E9D12C87C9D006F2369 /* unk.dic in Resources */,
 				089AFE861C03353400BA5F98 /* TokenCell.xib in Resources */,
 				13C86F6E12C8871C006F2369 /* mecabrc in Resources */,
-				0820F5D91C0D565900E17DD1 /* Settings.bundle in Resources */,
 				08437FA51C29BFE3009CEF91 /* README.textile in Resources */,
 				085FC07F1C25E2BE00B3A8E7 /* SmallNodeCell.xib in Resources */,
 			);
@@ -601,6 +631,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		087B87621C493B1B00BCDC03 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				087B87631C493B1B00BCDC03 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		087B87671C493B2900BCDC03 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				087B87681C493B2900BCDC03 /* jp */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		0851EA141C0C9675006C2932 /* Debug */ = {

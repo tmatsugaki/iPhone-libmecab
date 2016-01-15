@@ -319,6 +319,10 @@
                                              selector:@selector(iCloudListDownloadCompleted:)
                                                  name:iCloudDownloadCompletedNotification
                                                object:self];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(iCloudListDownloadCompleted:)
+                                                 name:iCloudSyncNotification
+                                               object:self];
 #endif
 }
 
@@ -354,12 +358,16 @@
     if (appDelegate.use_iCloud) {
         // 【必須】サンドボックス・コンテナに Library.xml を取得する。
         [appDelegate.iCloudStorage requestListing:kLibXMLName];
+
+        //
+        NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
+
+        BOOL isDirectory;
+        if ([FileUtil fileExistsAtPath:agentPath isDirectory:&isDirectory]) {
+//            DEBUG_LOG(@"%@", array);
+            [self iCloudListDownloadCompleted:nil];
+        }
     }
-#if 0
-    NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
-    
-    [appDelegate requestLoad:agentPath];
-#endif
 #endif
 }
 
@@ -545,6 +553,9 @@ heightForFooterInSection:(NSInteger)section {
 #if ICLOUD_ENABLD
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:iCloudDownloadCompletedNotification
+                                                  object:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:iCloudSyncNotification
                                                   object:self];
 #endif
     self.textField = nil;
@@ -754,6 +765,9 @@ heightForFooterInSection:(NSInteger)section {
         [userInfo setObject:[self class] forKey:@"class"];
         
         [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudDownloadCompletedNotification
+                                                                                             object:_tokensViewController
+                                                                                           userInfo:userInfo]];
+        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudSyncNotification
                                                                                              object:_tokensViewController
                                                                                            userInfo:userInfo]];
     }

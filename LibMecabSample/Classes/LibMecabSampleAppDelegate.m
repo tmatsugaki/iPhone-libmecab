@@ -9,6 +9,7 @@
 #import "definitions.h"
 #import "LibMecabSampleAppDelegate.h"
 #import "LibMecabSampleViewController.h"
+#import "FileUtil.h"
 
 @implementation LibMecabSampleAppDelegate
 
@@ -575,7 +576,7 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
     DEBUG_LOG(@"【iCloud】%s 全ファイルの受信が完了しました。", __func__);
 #endif
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-    // ユーザーデフォルトの設定が変わったことを LibMecabSampleViewController に通知する。
+    // 「文例」が変わったことを LibMecabSampleViewController に通知する。
     [userInfo setObject:[self class] forKey:@"class"];
     
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudDownloadCompletedNotification
@@ -589,11 +590,11 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
     DEBUG_LOG(@"【iCloud】%s \"%@\" が同期されました。", __func__, fileName);
 #endif
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-    // ユーザーデフォルトの設定が変わったことを通知する。
+    // 「文例」が変わったことを LibMecabSampleViewController に通知する。
     [userInfo setObject:[self class] forKey:@"class"];
     
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudSyncNotification
-                                                                                         object:self
+                                                                                         object:_viewController
                                                                                        userInfo:userInfo]];
 }
 #endif

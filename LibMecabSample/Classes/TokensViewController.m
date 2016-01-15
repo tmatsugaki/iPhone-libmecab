@@ -36,6 +36,9 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:iCloudDownloadCompletedNotification
                                                   object:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:iCloudSyncNotification
+                                                  object:self];
 #endif
 
     [super dealloc];
@@ -140,6 +143,10 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(iCloudListDownloadCompleted:)
                                                  name:iCloudDownloadCompletedNotification
+                                               object:self];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(iCloudListDownloadCompleted:)
+                                                 name:iCloudSyncNotification
                                                object:self];
 #endif
 }
