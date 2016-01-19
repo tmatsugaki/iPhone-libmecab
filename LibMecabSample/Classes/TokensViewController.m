@@ -19,6 +19,7 @@
 @synthesize tokenCell=_tokenCell;
 @synthesize rawSentences=_rawSentences;
 @synthesize filteredSentences=_filteredSentences;
+@synthesize smudged=_smudged;
 
 #pragma mark - Life Cycle
 
@@ -65,14 +66,22 @@
         [editButton setStyle:UIBarButtonItemStylePlain];
         [editButton setTitle:@"編集"];
 
-#if RELOAD_WHEN_TOGGLE_EDIT
-        // 4S とか遅い機種では障害が発生するので中止した。
-        [_tableView reloadData];
-#else
-        [_tableView setNeedsLayout];
-        [_tableView setNeedsDisplay];
+#if ICLOUD_ENABLD
+        if (_smudged) {
+            // iCloud に反映する。
+            LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+            
+            if (appDelegate.use_iCloud) {
+                [appDelegate saveTo_iCloud];
+            }
+            _smudged = NO;
+        }
 #endif
     }
+#if RELOAD_WHEN_TOGGLE_EDIT
+    // 4S とか遅い機種では障害が発生するので中止した。
+    [_tableView reloadData];
+#endif
     [_myNavigationItem setRightBarButtonItem:editButton];
 }
 
@@ -149,6 +158,7 @@
                                                  name:iCloudSyncNotification
                                                object:self];
 #endif
+    _smudged = NO;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -323,11 +333,15 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
             [_listItems writeToFile:kLibXMLPath atomically:YES];
 
 #if ICLOUD_ENABLD
-            // iCloud に反映する。
-            LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
-
-            if (appDelegate.use_iCloud) {
-                [appDelegate saveTo_iCloud];
+            if (_tableView.editing == NO) {
+                // iCloud に反映する。
+                LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+                
+                if (appDelegate.use_iCloud) {
+                    [appDelegate saveTo_iCloud];
+                }
+            } else {
+                _smudged = YES;
             }
 #endif
 
@@ -394,12 +408,7 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
             [_listItems writeToFile:kLibXMLPath atomically:YES];
 
 #if ICLOUD_ENABLD
-            // iCloud に反映する。
-            LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
-
-            if (appDelegate.use_iCloud) {
-                [appDelegate saveTo_iCloud];
-            }
+            _smudged = YES;
 #endif
             [[NSUserDefaults standardUserDefaults] setObject:dic[@"sentence"] forKey:kDefaultsEvaluatingSentence];
 
@@ -593,29 +602,34 @@ heightForFooterInSection:(NSInteger)section {
 #if ICLOUD_ENABLD
 - (void) iCloudListDownloadCompleted:(id)sender {
     
-    // iCloud との授受に使用するデータのパス
-    NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
-    NSData *iCloudData = [NSData dataWithContentsOfFile:agentPath];
-    
-    if (iCloudData) {
-        NSData *fileData = [NSData dataWithContentsOfFile:kLibXMLPath];
+    if ([NSThread isMainThread] == NO)
+    {// メインスレッドで実行する。
+        [self performSelectorOnMainThread:@selector(iCloudListDownloadCompleted:) withObject:sender waitUntilDone:YES];
+    } else {
+        // iCloud との授受に使用するデータのパス
+        NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
+        NSData *iCloudData = [NSData dataWithContentsOfFile:agentPath];
         
-        if (fileData) {
-            if ([fileData isEqualToData:iCloudData] == NO) {
+        if (iCloudData) {
+            NSData *fileData = [NSData dataWithContentsOfFile:kLibXMLPath];
+            
+            if (fileData) {
+                if ([fileData isEqualToData:iCloudData] == NO) {
+                    [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
+#if (ICLOUD_LOG == 1)
+                    DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
+#endif
+                }
+            } else {
                 [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
 #if (ICLOUD_LOG == 1)
                 DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
 #endif
             }
-        } else {
-            [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
-#if (ICLOUD_LOG == 1)
-            DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
-#endif
         }
+        self.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+        [_tableView reloadData];
     }
-    self.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
-    [_tableView reloadData];
 }
 #endif
 @end

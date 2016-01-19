@@ -90,6 +90,7 @@
             [mecabPatcher patch_DE_MO];
             [mecabPatcher patch_DEMO];
             [mecabPatcher patch_DATTE];
+            [mecabPatcher patch_FUKUGO_KEIYO_SHI];
             // 用語置換
             [mecabPatcher postProcess];
 
@@ -136,6 +137,7 @@
             [mecabPatcher patch_DE_MO];
             [mecabPatcher patch_DEMO];
             [mecabPatcher patch_DATTE];
+            [mecabPatcher patch_FUKUGO_KEIYO_SHI];
             // 用語置換
             [mecabPatcher postProcess];
         }
@@ -249,9 +251,13 @@
 
 #pragma mark - UIScrollView
 
-#if (GIVEUP_EDIT_WHEN_SCROLL == 1)
+#if (DISPOSE_KEYBOARD_WHEN_SCROLL == 1)
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    [_textField resignFirstResponder];
+    
+    if ([_textField.text length] == 0)
+    {// 解析対象の文字列が空の場合には、キーボードはただの障害物なのでスクロールでキーボードを閉じる。
+        [_textField resignFirstResponder];
+    }
 }
 #endif
 
@@ -341,7 +347,6 @@
     
     [self initialParse];
 
-#if (GIVEUP_EDIT_WHEN_SCROLL == 0)
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(keyboardWillShow:)
                                                  name:UIKeyboardWillShowNotification
@@ -350,7 +355,6 @@
                                              selector:@selector(keyboardWillHide:)
                                                  name:UIKeyboardWillHideNotification
                                                object:nil];
-#endif
 
 #if ICLOUD_ENABLD
     LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
@@ -384,14 +388,12 @@
     // キーボードフォーカスを破棄する。
     [_textField resignFirstResponder];
     
-#if (GIVEUP_EDIT_WHEN_SCROLL == 0)
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIKeyboardWillShowNotification
                                                   object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIKeyboardWillHideNotification
                                                   object:nil];
-#endif
 }
 
 #pragma mark - Table view data source
@@ -736,40 +738,45 @@ heightForFooterInSection:(NSInteger)section {
 // Library.xml を iCloud から取得したファイルに置換する。
 - (void) iCloudListDownloadCompleted:(id)sender {
 
-    // iCloud との授受に使用するデータのパス
-    NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
-    NSData *iCloudData = [NSData dataWithContentsOfFile:agentPath];
-    
-    if (iCloudData) {
-        NSData *fileData = [NSData dataWithContentsOfFile:kLibXMLPath];
+    if ([NSThread isMainThread] == NO)
+    {// メインスレッドで実行する。
+        [self performSelectorOnMainThread:@selector(iCloudListDownloadCompleted:) withObject:sender waitUntilDone:YES];
+    } else {
+        // iCloud との授受に使用するデータのパス
+        NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
+        NSData *iCloudData = [NSData dataWithContentsOfFile:agentPath];
         
-        if (fileData) {
-            if ([fileData isEqualToData:iCloudData] == NO) {
-                [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
+        if (iCloudData) {
+            NSData *fileData = [NSData dataWithContentsOfFile:kLibXMLPath];
+            
+            if (fileData) {
+                if ([fileData isEqualToData:iCloudData] == NO) {
+                    [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
 #if (ICLOUD_LOG == 1)
-                DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
+                    DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
 #endif
+                }
+            } else {
+                [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
+                DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
             }
-        } else {
-            [FileUtil copyItemAtPath:agentPath toPath:kLibXMLPath];
-            DEBUG_LOG(@"%s Library.xml を置換しました。", __func__);
         }
-    }
-    self.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
-    // 文例ボタンをアクティベート化する。
-    [_examples setEnabled:[_listItems count] > 0];
-
-    if (_tokensViewController) {
-        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-        // ユーザーデフォルトの設定が変わったことを LibMecabSampleViewController に通知する。
-        [userInfo setObject:[self class] forKey:@"class"];
+        self.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+        // 文例ボタンをアクティベート化する。
+        [_examples setEnabled:[_listItems count] > 0];
         
-        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudDownloadCompletedNotification
-                                                                                             object:_tokensViewController
-                                                                                           userInfo:userInfo]];
-        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudSyncNotification
-                                                                                             object:_tokensViewController
-                                                                                           userInfo:userInfo]];
+        if (_tokensViewController) {
+            NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+            // ユーザーデフォルトの設定が変わったことを LibMecabSampleViewController に通知する。
+            [userInfo setObject:[self class] forKey:@"class"];
+            
+            [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudDownloadCompletedNotification
+                                                                                                 object:_tokensViewController
+                                                                                               userInfo:userInfo]];
+            [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:iCloudSyncNotification
+                                                                                                 object:_tokensViewController
+                                                                                               userInfo:userInfo]];
+        }
     }
 }
 #endif
