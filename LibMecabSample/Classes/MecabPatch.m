@@ -1449,6 +1449,43 @@ static MecabPatch *sharedManager = nil;
     return asked;
 }
 
+// 【派生形容詞化】
+- (BOOL) patch_HASEI_KEIYO_SHI {
+    Node *lastNode = nil;
+    BOOL asked = NO;
+    
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
+        if (node.visible == NO) {
+            continue;
+        }
+        if (lastNode && [[node partOfSpeech] isEqualToString:@"形容詞"]) {
+            BOOL type1 = [[lastNode partOfSpeech] isEqualToString:@"接頭詞"];
+            
+            if (type1)
+            {
+                lastNode.visible = NO;
+                
+                // マージする。
+                _modified = YES;
+#if LOG_PATCH
+                DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+#endif
+                [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
+                [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                
+                [node setPartOfSpeechSubtype1:@"派生形容詞"];
+                [node setPartOfSpeechSubtype2:@""];
+                [node setInflection:[@"" stringByAppendingString:[node inflection]]];
+                node.modified = YES;
+            }
+        }
+        lastNode = node;
+    }
+    return asked;
+}
+
 #pragma mark - Patch (単なる用語の置換)
 // 【終止形／連体形／連用形】
 - (void) postProcess {

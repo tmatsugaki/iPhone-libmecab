@@ -53,5 +53,6 @@
 - (void) patch_DEMO;                        // 語幹のマージ実施後に実施すること！！
 - (BOOL) patch_DATTE;                       // 語幹のマージ実施後に実施すること！！
 - (BOOL) patch_FUKUGO_KEIYO_SHI;            // 語幹のマージ実施後に実施すること！！
+- (BOOL) patch_HASEI_KEIYO_SHI;             // 語幹のマージ実施後に実施すること！！
 - (void) postProcess;                       // 語幹のマージ実施後に実施すること！！
 @end

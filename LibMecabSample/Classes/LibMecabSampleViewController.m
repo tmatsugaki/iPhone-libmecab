@@ -91,6 +91,7 @@
             [mecabPatcher patch_DEMO];
             [mecabPatcher patch_DATTE];
             [mecabPatcher patch_FUKUGO_KEIYO_SHI];
+            [mecabPatcher patch_HASEI_KEIYO_SHI];
             // 用語置換
             [mecabPatcher postProcess];
 
@@ -138,6 +139,7 @@
             [mecabPatcher patch_DEMO];
             [mecabPatcher patch_DATTE];
             [mecabPatcher patch_FUKUGO_KEIYO_SHI];
+            [mecabPatcher patch_HASEI_KEIYO_SHI];
             // 用語置換
             [mecabPatcher postProcess];
         }
