@@ -368,7 +368,6 @@ static MecabPatch *sharedManager = nil;
                     @catch (NSException *exception) {
                         [node setPronunciation:@"?"];
                     }
-//                    [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
                     [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
                     // 「サ変・スル」を保つ
                     [node setInflection:[lastNode inflection]];
@@ -404,7 +403,6 @@ static MecabPatch *sharedManager = nil;
                 
                 [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                 [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-//                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
                 [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
                 [node setInflection:[NSString stringWithFormat:@"%@&%@", [lastNode inflection], [node inflection]]];
                 node.modified = YES;
@@ -445,7 +443,6 @@ static MecabPatch *sharedManager = nil;
                     
                     [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-//                    [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
                     [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
                     [node setInflection:[NSString stringWithFormat:@"%@", [node inflection]]];
                     node.modified = YES;
@@ -761,7 +758,7 @@ static MecabPatch *sharedManager = nil;
                             {
                                 if ([lastGokanStr isEqualToString:@"助動詞"] == NO)
                                 {// 「〜的だ」「〜がちだ」「〜そうだ」
-                                    DEBUG_LOG(@"語幹マージ中に連なった名詞を検知した！！");
+                                    DEBUG_LOG(@"語幹マージ中に連続した名詞を検知した！！");
                                     lastLastNode.visible = NO;
                                     
 #if LOG_PATCH
@@ -772,7 +769,7 @@ static MecabPatch *sharedManager = nil;
                                     [lastNode setOriginalForm:[[lastLastNode originalForm]   stringByAppendingString:[lastNode originalForm]]];
                                 } else
                                 {// 「馬鹿[名詞:形容動詞語幹]そう[名詞:助動詞語幹]だ[助動詞]」が助動詞になるのを防ぐ。
-                                    DEBUG_LOG(@"語幹マージ中に連なった名詞を検知したが、２つ目の名詞が助動詞語幹なのでマージしない！！");
+                                    DEBUG_LOG(@"語幹マージ中に連続した名詞を検知したが、２つ目の名詞が助動詞語幹なのでマージしない！！");
                                 }
                             }
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
@@ -875,7 +872,8 @@ static MecabPatch *sharedManager = nil;
 #endif
                 } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"] &&
                            [[lastNode partOfSpeechSubtype1] isEqualToString:@"名詞接続"])
-                {// 接頭詞・名詞接続に連なった一般名詞である。
+                {// 派生名詞
+                 // 接頭詞・名詞接続に続いた(一般)名詞である。
 //                    if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
                     {// 直前が名詞接続の接頭詞である。
                         merge = YES;
@@ -1430,7 +1428,7 @@ static MecabPatch *sharedManager = nil;
 #endif
                 [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                 [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
                 
                 [node setPartOfSpeechSubtype1:@"複合形容詞"];
                 [node setPartOfSpeechSubtype2:@""];

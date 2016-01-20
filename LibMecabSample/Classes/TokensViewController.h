@@ -18,6 +18,7 @@
     NSMutableArray *_listItems;
     NSMutableArray *_rawSentences;
     NSMutableArray *_filteredSentences;
+    BOOL _edit_mode;
     BOOL _smudged;
 }
 
@@ -29,6 +30,7 @@
 @property (nonatomic, retain) NSMutableArray *listItems;
 @property (nonatomic, retain) NSMutableArray *rawSentences;
 @property (nonatomic, retain) NSMutableArray *filteredSentences;
+@property (nonatomic, assign) BOOL edit_mode;
 @property (nonatomic, assign) BOOL smudged;
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil sentencesArray:(NSMutableArray *)sentencesArray;

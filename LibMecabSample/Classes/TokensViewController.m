@@ -19,6 +19,7 @@
 @synthesize tokenCell=_tokenCell;
 @synthesize rawSentences=_rawSentences;
 @synthesize filteredSentences=_filteredSentences;
+@synthesize edit_mode=_edit_mode;
 @synthesize smudged=_smudged;
 
 #pragma mark - Life Cycle
@@ -57,6 +58,8 @@
 
     [_tableView setEditing:_tableView.editing == NO animated:YES];
 
+    _edit_mode = _tableView.editing;
+    
     if (_tableView.editing)
     {// ブラウズモード >> 編集モード
         [editButton setStyle:UIBarButtonItemStyleDone];
@@ -158,6 +161,7 @@
                                                  name:iCloudSyncNotification
                                                object:self];
 #endif
+    _edit_mode = NO;
     _smudged = NO;
 }
 
@@ -333,7 +337,7 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
             [_listItems writeToFile:kLibXMLPath atomically:YES];
 
 #if ICLOUD_ENABLD
-            if (_tableView.editing == NO) {
+            if (_edit_mode == NO) {
                 // iCloud に反映する。
                 LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
                 
@@ -422,9 +426,10 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
 - (UITableViewCellEditingStyle) tableView:(UITableView *)tableView
             editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-//    DEBUG_LOG(@"%s", __func__);
+    DEBUG_LOG(@"%s[%d]", __func__, tableView.editing);
 
-    return self.editing ? UITableViewCellEditingStyleNone : UITableViewCellEditingStyleDelete;
+//    return tableView.editing ? UITableViewCellEditingStyleNone : UITableViewCellEditingStyleDelete;
+    return UITableViewCellEditingStyleDelete;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView
