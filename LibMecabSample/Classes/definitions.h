@@ -10,7 +10,7 @@
 #define definitions_h
 
 // 1
-#define LOG_PATCH                       1
+#define LOG_PATCH                       0
 #define DELETE_ANIMATION                1
 #define RELOAD_WHEN_TOGGLE_EDIT         1
 #define REPLACE_OBJECT                  1

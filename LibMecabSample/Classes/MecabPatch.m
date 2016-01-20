@@ -833,20 +833,15 @@ static MecabPatch *sharedManager = nil;
                 BOOL merge = NO;
                 BOOL retainLastSubtype = NO;
                 BOOL adverb = NO;
-//                BOOL jyoshi = [[lastNode partOfSpeech] isEqualToString:@"助詞"];
 
                 if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] ||
-                    [[lastNode partOfSpeech] isEqualToString:@"動詞"]
-//                 || [[lastNode partOfSpeech] isEqualToString:@"助詞"]
+                    [[lastNode partOfSpeech] isEqualToString:@"動詞"] ||
+                    [[lastNode partOfSpeech] isEqualToString:@"形容詞"]
                 )
-                {// 名詞｜動詞
-#ifdef DEBUG
-//                    if ([[lastNode partOfSpeech] isEqualToString:@"助詞"]) {
-//                        DEBUG_LOG(@"%@+%@", lastNode.surface, node.surface);
-//                    }
-#endif
+                {// 名詞｜動詞｜形容詞
                     if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
-                    {// （名詞｜動詞）＆名詞（接尾辞）である。
+                    {// 派生名詞
+                     //（名詞｜動詞｜形容詞）＆名詞（接尾辞）である。
                         merge = YES;
                         retainLastSubtype = YES;
                     } else if ([[lastNode partOfSpeech] isEqualToString:@"名詞"]
@@ -904,11 +899,10 @@ static MecabPatch *sharedManager = nil;
                     [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
                     node.modified = YES;
                     
-//                    if (jyoshi) {
-//                        [node setPartOfSpeech:@"助詞"];
-//                    }
                     if (retainLastSubtype) {
-                        [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
+//                        [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
+                        [node setPartOfSpeechSubtype1:@"派生名詞"];
+                        DEBUG_LOG(@"派生名詞:[%@][%@]", lastNode.surface, node.surface);
                     } else if (adverb) {
                         [node setPartOfSpeech:@"副詞"];
                         [node setPartOfSpeechSubtype1:@""];
