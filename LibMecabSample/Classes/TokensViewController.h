@@ -27,7 +27,7 @@
 @property (nonatomic, retain) IBOutlet UISearchBar *searchBar;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet TokenCell *tokenCell;
-@property (nonatomic, retain) NSMutableArray *listItems;
+@property (nonatomic, assign) NSMutableArray *listItems;
 @property (nonatomic, retain) NSMutableArray *rawSentences;
 @property (nonatomic, retain) NSMutableArray *filteredSentences;
 @property (nonatomic, assign) BOOL edit_mode;

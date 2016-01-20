@@ -742,7 +742,9 @@ heightForFooterInSection:(NSInteger)section {
 
     if ([NSThread isMainThread] == NO)
     {// メインスレッドで実行する。
-        [self performSelectorOnMainThread:@selector(iCloudListDownloadCompleted:) withObject:sender waitUntilDone:YES];
+        [self performSelectorOnMainThread:@selector(iCloudListDownloadCompleted:)
+                               withObject:sender
+                            waitUntilDone:YES];  // 同期する。
     } else {
         // iCloud との授受に使用するデータのパス
         NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];

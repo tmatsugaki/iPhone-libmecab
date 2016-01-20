@@ -30,7 +30,7 @@
     self.myNavigationItem = nil;
     self.searchBar = nil;
     self.tokenCell = nil;
-    self.listItems = nil;
+//    self.listItems = nil;
     self.rawSentences = nil;
     self.filteredSentences = nil;
     
@@ -60,6 +60,8 @@
 
     _edit_mode = _tableView.editing;
     
+    [self becomeFirstResponder];
+    
     if (_tableView.editing)
     {// ブラウズモード >> 編集モード
         [editButton setStyle:UIBarButtonItemStyleDone];
@@ -81,11 +83,12 @@
         }
 #endif
     }
+    [_myNavigationItem setRightBarButtonItem:editButton];
+
 #if RELOAD_WHEN_TOGGLE_EDIT
     // 4S とか遅い機種では障害が発生するので中止した。
     [_tableView reloadData];
 #endif
-    [_myNavigationItem setRightBarButtonItem:editButton];
 }
 
 - (id) initWithNibName:(NSString *)nibNameOrNil
@@ -101,6 +104,7 @@
 
 #pragma mark - UIResponder
 
+#if 0
 - (BOOL) canBecomeFirstResponder {
     return YES;
 }
@@ -108,6 +112,7 @@
 - (BOOL) canResignFirstResponder {
     return YES;
 }
+#endif
 
 #pragma mark - UIViewController
 
@@ -426,7 +431,7 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
 - (UITableViewCellEditingStyle) tableView:(UITableView *)tableView
             editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    DEBUG_LOG(@"%s[%d]", __func__, tableView.editing);
+//    DEBUG_LOG(@"%s[%d]", __func__, tableView.editing);
 
 //    return tableView.editing ? UITableViewCellEditingStyleNone : UITableViewCellEditingStyleDelete;
     return UITableViewCellEditingStyleDelete;
@@ -609,7 +614,9 @@ heightForFooterInSection:(NSInteger)section {
     
     if ([NSThread isMainThread] == NO)
     {// メインスレッドで実行する。
-        [self performSelectorOnMainThread:@selector(iCloudListDownloadCompleted:) withObject:sender waitUntilDone:YES];
+        [self performSelectorOnMainThread:@selector(iCloudListDownloadCompleted:)
+                               withObject:sender
+                            waitUntilDone:YES];  // 同期する。
     } else {
         // iCloud との授受に使用するデータのパス
         NSString *agentPath = [[iCloudStorage sandboxContainerDocPath] stringByAppendingPathComponent:kLibXMLName];
@@ -632,7 +639,8 @@ heightForFooterInSection:(NSInteger)section {
 #endif
             }
         }
-        self.listItems = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+        self.rawSentences = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+        self.listItems = _rawSentences;
         [_tableView reloadData];
     }
 }

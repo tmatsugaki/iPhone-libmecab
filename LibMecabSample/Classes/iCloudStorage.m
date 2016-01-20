@@ -1162,19 +1162,26 @@
     DEBUG_LOG(@"リクエスト完了[%@]", message);
 #endif
 
-    if ([_requestTimer isValid]) {
-        [_requestTimer invalidate];
-    }
-    self.requestTimer = nil;
-
-    _networkRequestCount--;
+    if ([NSThread isMainThread] == NO)
+    {// NSTimer をメインスレッドでインストールしたので、invalidate はメインスレッドで実行する。
+        [self performSelectorOnMainThread:@selector(requestCompleted:)
+                               withObject:message
+                            waitUntilDone:YES];  // 同期する。
+    } else {
+        if ([_requestTimer isValid]) {
+            [_requestTimer invalidate];
+        }
+        self.requestTimer = nil;
+        
+        _networkRequestCount--;
 #if (ICLOUD_LOG == 1)
-    DEBUG_LOG(@"リクエスト数--:%ld", (long)_networkRequestCount);
+        DEBUG_LOG(@"リクエスト数--:%ld", (long)_networkRequestCount);
 #endif
-    if (_networkRequestCount <= 0) {
-        // ステータスバーのインジケータのアニメーションを停止。
-        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
-        _networkRequestCount = 0;
+        if (_networkRequestCount <= 0) {
+            // ステータスバーのインジケータのアニメーションを停止。
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+            _networkRequestCount = 0;
+        }
     }
 }
 
