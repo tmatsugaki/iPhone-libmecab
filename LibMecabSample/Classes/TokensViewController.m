@@ -65,11 +65,11 @@
     if (_tableView.editing)
     {// ブラウズモード >> 編集モード
         [editButton setStyle:UIBarButtonItemStyleDone];
-        [editButton setTitle:@"完了"];
+        [editButton setTitle:NSLocalizedString(@"done", @"完了")];
     } else
     {// 編集モード >> ブラウズモード
         [editButton setStyle:UIBarButtonItemStylePlain];
-        [editButton setTitle:@"編集"];
+        [editButton setTitle:NSLocalizedString(@"edit", @"編集")];
 
 #if ICLOUD_ENABLD
         if (_smudged) {
@@ -131,9 +131,12 @@
     
     [_tableView becomeFirstResponder];
 
+    _myNavigationItem.title = NSLocalizedString(@"examplesLong", @"文例");
+    [_searchBar setPlaceholder:NSLocalizedString(@"require_token", @"検索する文字列を入力してください。")];
+    
     // ナビゲーションアイテムの初期化（閉じるボタン）
     _myNavigationItem.leftBarButtonItem
-    = [[[UIBarButtonItem alloc] initWithTitle:@"閉じる"
+    = [[[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"close", @"閉じる")
                                         style:UIBarButtonItemStylePlain
                                        target:self
                                        action:@selector(cancel:)] autorelease];
@@ -141,11 +144,11 @@
     _myNavigationItem.leftBarButtonItem.tintColor = kEnabledTextColor;
     // ナビゲーションアイテムの初期化（編集ボタン）
     _myNavigationItem.rightBarButtonItem
-    = [[[UIBarButtonItem alloc] initWithTitle:@"編集"
+    = [[[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"edit", @"編集")
                                         style:UIBarButtonItemStylePlain
                                        target:self
                                        action:@selector(toggleEdit:)] autorelease];
-    _myNavigationItem.rightBarButtonItem.possibleTitles = [NSSet setWithObjects:@"編集", @"完了", nil];
+    _myNavigationItem.rightBarButtonItem.possibleTitles = [NSSet setWithObjects:NSLocalizedString(@"edit", @"編集"), NSLocalizedString(@"done", @"完了"), nil];
     _myNavigationItem.rightBarButtonItem.tintColor = kEnabledTextColor;
 
     //

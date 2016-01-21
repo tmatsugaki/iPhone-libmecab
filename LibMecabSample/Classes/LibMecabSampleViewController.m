@@ -28,6 +28,7 @@
 @synthesize tableView=_tableView;
 @synthesize nodeCell=_nodeCell;
 @synthesize smallNodeCell=_smallNodeCell;
+@synthesize optionTitle=_optionTitle;
 @synthesize examples=_examples;
 @synthesize explore=_explore;
 @synthesize patch=_patch;
@@ -292,12 +293,11 @@
 
     [super viewDidLoad];
 
-#if ICLOUD_ENABLD
-//    LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
-//
-//    [appDelegate init_iCloud];
-#endif
-
+    [_examples setTitle:NSLocalizedString(@"examples", @"文例") forState:UIControlStateNormal];
+    [_textField setPlaceholder:NSLocalizedString(@"require_sentence", @"文章を入力してください。")];
+    [_optionTitle setText:NSLocalizedString(@"optionTitle", @"学校文法")];
+    [_explore setTitle:NSLocalizedString(@"parse", @"解析") forState:UIControlStateNormal];
+    
     [_tableView setBackgroundColor:kTableViewBackgroundColor];
 
     _shortFormat = YES;
@@ -567,6 +567,7 @@ heightForFooterInSection:(NSInteger)section {
     self.nodeCell = nil;
     self.smallNodeCell = nil;
     self.examples = nil;
+    self.optionTitle = nil;
     self.explore = nil;
     self.patch = nil;
 

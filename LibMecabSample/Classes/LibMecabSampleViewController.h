@@ -19,6 +19,7 @@
 	UITableView *_tableView;
     NodeCell *_nodeCell;
     SmallNodeCell *_smallNodeCell;
+    UILabel *_optionTitle;
     UIButton *_examples;
 	UIButton *_explore;
 	UISwitch *_patch;
@@ -36,6 +37,7 @@
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet NodeCell *nodeCell;
 @property (nonatomic, retain) IBOutlet SmallNodeCell *smallNodeCell;
+@property (nonatomic, retain) IBOutlet UILabel *optionTitle;
 @property (nonatomic, retain) IBOutlet UIButton *examples;
 @property (nonatomic, retain) IBOutlet UIButton *explore;
 @property (nonatomic, retain) IBOutlet UISwitch *patch;
