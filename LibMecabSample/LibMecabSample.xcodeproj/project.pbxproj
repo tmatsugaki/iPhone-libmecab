@@ -281,21 +281,6 @@
 			name = "Add On";
 			sourceTree = "<group>";
 		};
-		087B87611C493B1B00BCDC03 /* en.lproj */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = en.lproj;
-			sourceTree = "<group>";
-		};
-		087B87661C493B2900BCDC03 /* ja.lproj */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = ja.lproj;
-			path = jp.lproj;
-			sourceTree = "<group>";
-		};
 		08B73B751C300F9900E2D199 /* Util */ = {
 			isa = PBXGroup;
 			children = (
@@ -306,21 +291,23 @@
 			path = Classes;
 			sourceTree = "<group>";
 		};
-		08D3F2491C51285800EEA3A3 /* English.lproj */ = {
+		08D3F2491C51285800EEA3A3 /* en.lproj */ = {
 			isa = PBXGroup;
 			children = (
 				08D3F24A1C51285800EEA3A3 /* InfoPlist.strings */,
 				08D3F24C1C51285800EEA3A3 /* Localizable.strings */,
 			);
+			name = en.lproj;
 			path = English.lproj;
 			sourceTree = "<group>";
 		};
-		08D3F24E1C51285800EEA3A3 /* Japanese.lproj */ = {
+		08D3F24E1C51285800EEA3A3 /* ja.lproj */ = {
 			isa = PBXGroup;
 			children = (
 				08D3F24F1C51285800EEA3A3 /* InfoPlist.strings */,
 				08D3F2511C51285800EEA3A3 /* Localizable.strings */,
 			);
+			name = ja.lproj;
 			path = Japanese.lproj;
 			sourceTree = "<group>";
 		};
@@ -374,11 +361,9 @@
 				089AFE9B1C04092100BA5F98 /* HinshiMaster-Info.plist */,
 				0851EA181C0C96BE006C2932 /* HinshiMasterDev.entitlements */,
 				0851EA1B1C0C96DF006C2932 /* HinshiMaster.entitlements */,
-				08D3F2491C51285800EEA3A3 /* English.lproj */,
-				08D3F24E1C51285800EEA3A3 /* Japanese.lproj */,
+				08D3F2491C51285800EEA3A3 /* en.lproj */,
+				08D3F24E1C51285800EEA3A3 /* ja.lproj */,
 				087B876B1C494ABE00BCDC03 /* Settings.bundle */,
-				087B87611C493B1B00BCDC03 /* en.lproj */,
-				087B87661C493B2900BCDC03 /* ja.lproj */,
 				08437FA41C29BFE3009CEF91 /* README.textile */,
 				08437FA71C29BFE8009CEF91 /* screenshot1.jpg */,
 				08437FAA1C29BFED009CEF91 /* screenshot2.jpg */,
