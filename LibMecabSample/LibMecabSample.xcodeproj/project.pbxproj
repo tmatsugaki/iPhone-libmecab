@@ -7,14 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		082649F01C514976003F6624 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 082649EC1C514976003F6624 /* InfoPlist.strings */; };
-		082649F11C514976003F6624 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 082649EC1C514976003F6624 /* InfoPlist.strings */; };
-		082649F21C514976003F6624 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 082649EE1C514976003F6624 /* Localizable.strings */; };
-		082649F31C514976003F6624 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 082649EE1C514976003F6624 /* Localizable.strings */; };
-		082649F81C51497E003F6624 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 082649F41C51497E003F6624 /* InfoPlist.strings */; };
-		082649F91C51497E003F6624 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 082649F41C51497E003F6624 /* InfoPlist.strings */; };
-		082649FA1C51497E003F6624 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 082649F61C51497E003F6624 /* Localizable.strings */; };
-		082649FB1C51497E003F6624 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 082649F61C51497E003F6624 /* Localizable.strings */; };
 		08437FA51C29BFE3009CEF91 /* README.textile in Resources */ = {isa = PBXBuildFile; fileRef = 08437FA41C29BFE3009CEF91 /* README.textile */; };
 		08437FA61C29BFE3009CEF91 /* README.textile in Resources */ = {isa = PBXBuildFile; fileRef = 08437FA41C29BFE3009CEF91 /* README.textile */; };
 		08437FA81C29BFE8009CEF91 /* screenshot1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 08437FA71C29BFE8009CEF91 /* screenshot1.jpg */; };
@@ -77,6 +69,14 @@
 		089AFE8F1C03359700BA5F98 /* TokenCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 089AFE8E1C03359700BA5F98 /* TokenCell.m */; };
 		08AD7A381C43DDBA00464FAE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 08AD7A371C43DDBA00464FAE /* Images.xcassets */; };
 		08B0BCA11C02B19100D5A21C /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */; };
+		08C7DD7F1C51B70A0087F441 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 08C7DD761C51B70A0087F441 /* InfoPlist.strings */; };
+		08C7DD801C51B70A0087F441 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 08C7DD761C51B70A0087F441 /* InfoPlist.strings */; };
+		08C7DD811C51B70A0087F441 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 08C7DD781C51B70A0087F441 /* Localizable.strings */; };
+		08C7DD821C51B70A0087F441 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 08C7DD781C51B70A0087F441 /* Localizable.strings */; };
+		08C7DD831C51B70A0087F441 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 08C7DD7B1C51B70A0087F441 /* InfoPlist.strings */; };
+		08C7DD841C51B70A0087F441 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 08C7DD7B1C51B70A0087F441 /* InfoPlist.strings */; };
+		08C7DD851C51B70A0087F441 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 08C7DD7D1C51B70A0087F441 /* Localizable.strings */; };
+		08C7DD861C51B70A0087F441 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 08C7DD7D1C51B70A0087F441 /* Localizable.strings */; };
 		13C86E5B12C87B30006F2369 /* Mecab.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C86E5812C87B30006F2369 /* Mecab.m */; };
 		13C86E5C12C87B30006F2369 /* Node.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C86E5A12C87B30006F2369 /* Node.m */; };
 		13C86E5E12C87B3E006F2369 /* NodeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13C86E5D12C87B3E006F2369 /* NodeCell.xib */; };
@@ -115,10 +115,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		082649ED1C514976003F6624 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = InfoPlist.strings; sourceTree = "<group>"; };
-		082649EF1C514976003F6624 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = Localizable.strings; sourceTree = "<group>"; };
-		082649F51C51497E003F6624 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = English; path = InfoPlist.strings; sourceTree = "<group>"; };
-		082649F71C51497E003F6624 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = English; path = Localizable.strings; sourceTree = "<group>"; };
 		08437FA41C29BFE3009CEF91 /* README.textile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.textile; path = ../README.textile; sourceTree = "<group>"; };
 		08437FA71C29BFE8009CEF91 /* screenshot1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = screenshot1.jpg; path = ../screenshot1.jpg; sourceTree = "<group>"; };
 		08437FAA1C29BFED009CEF91 /* screenshot2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = screenshot2.jpg; path = ../screenshot2.jpg; sourceTree = "<group>"; };
@@ -153,6 +149,10 @@
 		089AFE9B1C04092100BA5F98 /* HinshiMaster-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "HinshiMaster-Info.plist"; sourceTree = "<group>"; };
 		08AD7A371C43DDBA00464FAE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = HinshiMaster/Images.xcassets; sourceTree = "<group>"; };
 		08B0BCA01C02B19100D5A21C /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		08C7DD771C51B70A0087F441 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
+		08C7DD791C51B70A0087F441 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
+		08C7DD7C1C51B70A0087F441 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = InfoPlist.strings; sourceTree = "<group>"; };
+		08C7DD7E1C51B70A0087F441 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = Localizable.strings; sourceTree = "<group>"; };
 		13C86E5712C87B30006F2369 /* Mecab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mecab.h; sourceTree = "<group>"; };
 		13C86E5812C87B30006F2369 /* Mecab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Mecab.m; sourceTree = "<group>"; };
 		13C86E5912C87B30006F2369 /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Node.h; sourceTree = "<group>"; };
@@ -291,22 +291,22 @@
 			path = Classes;
 			sourceTree = "<group>";
 		};
-		08D3F2491C51285800EEA3A3 /* English.lproj */ = {
+		08C7DD751C51B70A0087F441 /* en.lproj */ = {
 			isa = PBXGroup;
 			children = (
-				082649F41C51497E003F6624 /* InfoPlist.strings */,
-				082649F61C51497E003F6624 /* Localizable.strings */,
+				08C7DD761C51B70A0087F441 /* InfoPlist.strings */,
+				08C7DD781C51B70A0087F441 /* Localizable.strings */,
 			);
-			path = English.lproj;
+			path = en.lproj;
 			sourceTree = "<group>";
 		};
-		08D3F24E1C51285800EEA3A3 /* Japanese.lproj */ = {
+		08C7DD7A1C51B70A0087F441 /* ja.lproj */ = {
 			isa = PBXGroup;
 			children = (
-				082649EC1C514976003F6624 /* InfoPlist.strings */,
-				082649EE1C514976003F6624 /* Localizable.strings */,
+				08C7DD7B1C51B70A0087F441 /* InfoPlist.strings */,
+				08C7DD7D1C51B70A0087F441 /* Localizable.strings */,
 			);
-			path = Japanese.lproj;
+			path = ja.lproj;
 			sourceTree = "<group>";
 		};
 		13C86E5612C87B30006F2369 /* Mecab */ = {
@@ -359,8 +359,6 @@
 				089AFE9B1C04092100BA5F98 /* HinshiMaster-Info.plist */,
 				0851EA181C0C96BE006C2932 /* HinshiMasterDev.entitlements */,
 				0851EA1B1C0C96DF006C2932 /* HinshiMaster.entitlements */,
-				08D3F2491C51285800EEA3A3 /* English.lproj */,
-				08D3F24E1C51285800EEA3A3 /* Japanese.lproj */,
 				087B876B1C494ABE00BCDC03 /* Settings.bundle */,
 				08437FA41C29BFE3009CEF91 /* README.textile */,
 				08437FA71C29BFE8009CEF91 /* screenshot1.jpg */,
@@ -390,6 +388,8 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				08C7DD751C51B70A0087F441 /* en.lproj */,
+				08C7DD7A1C51B70A0087F441 /* ja.lproj */,
 				08AD7A371C43DDBA00464FAE /* Images.xcassets */,
 				13C86F6D12C8871C006F2369 /* mecabrc */,
 				13C86E8B12C87C93006F2369 /* ipadic */,
@@ -498,6 +498,8 @@
 				Japanese,
 				French,
 				German,
+				en,
+				ja,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			projectDirPath = "";
@@ -539,18 +541,18 @@
 				08437FA91C29BFE8009CEF91 /* screenshot1.jpg in Resources */,
 				0851E9F81C0C9675006C2932 /* left-id.def in Resources */,
 				08437FAC1C29BFED009CEF91 /* screenshot2.jpg in Resources */,
-				082649FB1C51497E003F6624 /* Localizable.strings in Resources */,
-				082649F11C514976003F6624 /* InfoPlist.strings in Resources */,
+				08C7DD861C51B70A0087F441 /* Localizable.strings in Resources */,
+				08C7DD801C51B70A0087F441 /* InfoPlist.strings in Resources */,
 				0851E9F91C0C9675006C2932 /* matrix.bin in Resources */,
 				0851E9FA1C0C9675006C2932 /* pos-id.def in Resources */,
 				0851E9FB1C0C9675006C2932 /* rewrite.def in Resources */,
-				082649F31C514976003F6624 /* Localizable.strings in Resources */,
+				08C7DD821C51B70A0087F441 /* Localizable.strings in Resources */,
 				0851E9FC1C0C9675006C2932 /* right-id.def in Resources */,
 				0851E9FD1C0C9675006C2932 /* sys.dic in Resources */,
 				087B876D1C494ABE00BCDC03 /* Settings.bundle in Resources */,
 				0851E9FE1C0C9675006C2932 /* TokensViewController.xib in Resources */,
 				08AD7A381C43DDBA00464FAE /* Images.xcassets in Resources */,
-				082649F91C51497E003F6624 /* InfoPlist.strings in Resources */,
+				08C7DD841C51B70A0087F441 /* InfoPlist.strings in Resources */,
 				0851E9FF1C0C9675006C2932 /* unk.dic in Resources */,
 				0851EA001C0C9675006C2932 /* TokenCell.xib in Resources */,
 				0851EA011C0C9675006C2932 /* mecabrc in Resources */,
@@ -564,18 +566,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
-				082649F81C51497E003F6624 /* InfoPlist.strings in Resources */,
+				08C7DD831C51B70A0087F441 /* InfoPlist.strings in Resources */,
 				2899E5220DE3E06400AC0155 /* LibMecabSampleViewController.xib in Resources */,
-				082649F21C514976003F6624 /* Localizable.strings in Resources */,
+				08C7DD811C51B70A0087F441 /* Localizable.strings in Resources */,
 				087B876C1C494ABE00BCDC03 /* Settings.bundle in Resources */,
 				13C86E5E12C87B3E006F2369 /* NodeCell.xib in Resources */,
 				13C86E9512C87C9D006F2369 /* char.bin in Resources */,
 				13C86E9612C87C9D006F2369 /* dicrc in Resources */,
 				08B0BCA11C02B19100D5A21C /* Default-568h@2x.png in Resources */,
 				08437FA81C29BFE8009CEF91 /* screenshot1.jpg in Resources */,
-				082649FA1C51497E003F6624 /* Localizable.strings in Resources */,
+				08C7DD851C51B70A0087F441 /* Localizable.strings in Resources */,
 				13C86E9712C87C9D006F2369 /* left-id.def in Resources */,
-				082649F01C514976003F6624 /* InfoPlist.strings in Resources */,
+				08C7DD7F1C51B70A0087F441 /* InfoPlist.strings in Resources */,
 				08437FAB1C29BFED009CEF91 /* screenshot2.jpg in Resources */,
 				13C86E9812C87C9D006F2369 /* matrix.bin in Resources */,
 				13C86E9912C87C9D006F2369 /* pos-id.def in Resources */,
@@ -643,34 +645,34 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		082649EC1C514976003F6624 /* InfoPlist.strings */ = {
+		08C7DD761C51B70A0087F441 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				082649ED1C514976003F6624 /* Japanese */,
+				08C7DD771C51B70A0087F441 /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		082649EE1C514976003F6624 /* Localizable.strings */ = {
+		08C7DD781C51B70A0087F441 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				082649EF1C514976003F6624 /* Japanese */,
+				08C7DD791C51B70A0087F441 /* en */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
-		082649F41C51497E003F6624 /* InfoPlist.strings */ = {
+		08C7DD7B1C51B70A0087F441 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				082649F51C51497E003F6624 /* English */,
+				08C7DD7C1C51B70A0087F441 /* ja */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		082649F61C51497E003F6624 /* Localizable.strings */ = {
+		08C7DD7D1C51B70A0087F441 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				082649F71C51497E003F6624 /* English */,
+				08C7DD7E1C51B70A0087F441 /* ja */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
