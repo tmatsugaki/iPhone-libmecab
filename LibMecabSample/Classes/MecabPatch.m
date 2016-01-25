@@ -857,12 +857,14 @@ static MecabPatch *sharedManager = nil;
                             retainLastSubtype = YES;
                         }
                     } else if ([[node partOfSpeechSubtype2] isEqualToString:@"副詞可能"])
-                    {// eg.（名詞｜動詞）＆副詞可能「今日限り」「それ以上」「する以上」
+                    {// （名詞｜動詞）＆副詞可能　eg.「今日限り」「それ以上」「する以上」
                         merge = YES;
                         adverb = YES;
-                    } else if ([lastPartOfSpeech isEqualToString:@"動詞"] && [[lastNode useOfType] isEqualToString:@"基本形"])
+                    } else if ([lastPartOfSpeech isEqualToString:@"動詞"] &&
+                               [[lastNode useOfType] isEqualToString:@"基本形"] &&
+                               [[node originalForm] isEqualToString:@"こと"])
                     {// 複合名詞
-                     // eg.（動詞）＆終止形「すること」「歩くこと」
+                     // （動詞）＆終止形　eg.「すること（名詞化）」「歩くこと（名詞化）」「するの（準体助詞）」
                         DEBUG_LOG(@"[%@]+[%@]", lastNode.surface, node.surface);
                         merge = YES;
                         noun = YES;
@@ -900,7 +902,11 @@ static MecabPatch *sharedManager = nil;
                     @catch (NSException *exception) {
                         [node setPronunciation:@"?"];
                     }
-                    [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
+                    if (noun) {
+                        [node setOriginalForm:[NSString stringWithFormat:@"%@.%@", [lastNode originalForm], [node originalForm]]];
+                    } else {
+                        [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
+                    }
                     node.modified = YES;
                     
                     if (retainLastSubtype) {
@@ -911,9 +917,13 @@ static MecabPatch *sharedManager = nil;
                         [node setPartOfSpeech:@"副詞"];
                         [node setPartOfSpeechSubtype1:@""];
                         [node setPartOfSpeechSubtype2:@""];
+                        DEBUG_LOG(@"副詞:[%@][%@]", lastNode.surface, node.surface);
                     } else if (noun) {
                         [node setPartOfSpeechSubtype1:@"複合名詞"];
-                        [node setPartOfSpeechSubtype2:@"動詞+名詞"];
+                        [node setPartOfSpeechSubtype2:@"動詞.名詞"];
+                        DEBUG_LOG(@"複合名詞:[%@][%@]", lastNode.surface, node.surface);
+                    } else {
+                        DEBUG_LOG(@"複合名詞？:[%@][%@]", lastNode.surface, node.surface);
                     }
                 }
             }
@@ -1422,7 +1432,7 @@ static MecabPatch *sharedManager = nil;
         if (lastNode && [[node partOfSpeech] isEqualToString:@"形容詞"]) {
             NSString *gokanStr = [self gokanString:lastNode];
             
-            BOOL type1 = [[lastNode partOfSpeech] isEqualToString:@"名詞"];
+            BOOL type1 = [[lastNode partOfSpeech] isEqualToString:@"名詞"] && [[lastNode partOfSpeechSubtype1] isEqualToString:@"接尾"] == NO;
             BOOL type2 = [gokanStr isEqualToString:@"形容詞"];
             BOOL type3 = [[lastNode partOfSpeech] isEqualToString:@"動詞"] && [[lastNode useOfType] isEqualToString:@"連用形"];
 
