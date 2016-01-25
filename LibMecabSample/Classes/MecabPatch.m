@@ -728,11 +728,12 @@ static MecabPatch *sharedManager = nil;
                             if ([originalForm isEqualToString:@"らしい"]) {
                                 inhibitRashii = YES;
                                 DEBUG_LOG(@"形容動詞語幹に連なる「らしい」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
-                            } else if ([pronunciation isEqualToString:@"ダ"] == NO &&
-                                       [pronunciation isEqualToString:@"デ"] == NO &&
-                                       [pronunciation isEqualToString:@"ナ"] == NO &&
-                                       [pronunciation isEqualToString:@"ニ"] == NO &&
-                                       [pronunciation isEqualToString:@"ネ"] == NO)
+                            } else if ([originalForm isEqualToString:@"だ"] == NO &&
+                                       [originalForm isEqualToString:@"で"] == NO &&
+                                       [originalForm isEqualToString:@"です"] == NO &&
+                                       [originalForm isEqualToString:@"な"] == NO &&
+                                       [originalForm isEqualToString:@"に"] == NO &&
+                                       [originalForm isEqualToString:@"ね"] == NO)
                             {// 形容動詞になりえない。
                                 inhibitKeido = YES;
                                 DEBUG_LOG(@"形容動詞になりえない。[%@] -> [%@]", lastNode.surface, node.surface);
@@ -1504,6 +1505,10 @@ static MecabPatch *sharedManager = nil;
                 if ([pronunciation isEqualToString:@"ヨー"]) {
                     [node setPartOfSpeech:@"助詞"];
                     [node setPartOfSpeechSubtype1:@"終助詞"];
+                    [node setPartOfSpeechSubtype2:@""];
+                } if ([pronunciation isEqualToString:@"イカガ"]) {
+                    [node setPartOfSpeech:@"副詞"];
+                    [node setPartOfSpeechSubtype1:@""];
                     [node setPartOfSpeechSubtype2:@""];
                 } else {
                     DEBUG_LOG(@"!!![名詞]語幹残存：対処が必要か？：「%@」（%@）", node.surface, pronunciation);
