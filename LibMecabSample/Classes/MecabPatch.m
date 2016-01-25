@@ -831,10 +831,12 @@ static MecabPatch *sharedManager = nil;
                 BOOL merge = NO;
                 BOOL retainLastSubtype = NO;
                 BOOL adverb = NO;
+                BOOL noun = NO;
+                NSString *lastPartOfSpeech = [lastNode partOfSpeech];
 
-                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] ||
-                    [[lastNode partOfSpeech] isEqualToString:@"動詞"] ||
-                    [[lastNode partOfSpeech] isEqualToString:@"形容詞"]
+                if ([lastPartOfSpeech isEqualToString:@"名詞"] ||
+                    [lastPartOfSpeech isEqualToString:@"動詞"] ||
+                    [lastPartOfSpeech isEqualToString:@"形容詞"]
                 )
                 {// 名詞｜動詞｜形容詞
                     if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
@@ -842,10 +844,9 @@ static MecabPatch *sharedManager = nil;
                      //（名詞｜動詞｜形容詞）＆名詞（接尾辞）である。
                         merge = YES;
                         retainLastSubtype = YES;
-                    } else if ([[lastNode partOfSpeech] isEqualToString:@"名詞"]
-//                               && [[node partOfSpeechSubtype1] isEqualToString:@"一般"]
-                               )
-                    {// 名詞＆一般名詞が連続している。
+                    } else if ([lastPartOfSpeech isEqualToString:@"名詞"])
+                    {// 複合名詞
+                     // 名詞が連続している。
                         if ([[node partOfSpeechSubtype1] isEqualToString:@"副詞可能"] &&
                             [[node pronunciation] isEqualToString:@"イライ"])
                         {// 「以来」を「今日限り」「それ以上」「する以上」に合わせる。
@@ -859,6 +860,12 @@ static MecabPatch *sharedManager = nil;
                     {// eg.（名詞｜動詞）＆副詞可能「今日限り」「それ以上」「する以上」
                         merge = YES;
                         adverb = YES;
+                    } else if ([lastPartOfSpeech isEqualToString:@"動詞"] && [[lastNode useOfType] isEqualToString:@"基本形"])
+                    {// 複合名詞
+                     // eg.（動詞）＆終止形「すること」「歩くこと」
+                        DEBUG_LOG(@"[%@]+[%@]", lastNode.surface, node.surface);
+                        merge = YES;
+                        noun = YES;
                     }
 #ifdef DEBUG
                     NSString *lastSubtype1 = [lastNode partOfSpeechSubtype1];
@@ -874,11 +881,9 @@ static MecabPatch *sharedManager = nil;
                 } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"] &&
                            [[lastNode partOfSpeechSubtype1] isEqualToString:@"名詞接続"])
                 {// 派生名詞
-                 // 接頭詞・名詞接続に続いた(一般)名詞である。
-//                    if ([[node partOfSpeechSubtype1] isEqualToString:@"一般"])
-                    {// 直前が名詞接続の接頭詞である。
-                        merge = YES;
-                    }
+                 // 接頭詞・名詞接続に続いた名詞である。
+                 // 直前が名詞接続の接頭詞である。
+                    merge = YES;
                 }
                 if (merge) {
                     lastNode.visible = NO;
@@ -906,6 +911,9 @@ static MecabPatch *sharedManager = nil;
                         [node setPartOfSpeech:@"副詞"];
                         [node setPartOfSpeechSubtype1:@""];
                         [node setPartOfSpeechSubtype2:@""];
+                    } else if (noun) {
+                        [node setPartOfSpeechSubtype1:@"複合名詞"];
+                        [node setPartOfSpeechSubtype2:@"動詞+名詞"];
                     }
                 }
             }

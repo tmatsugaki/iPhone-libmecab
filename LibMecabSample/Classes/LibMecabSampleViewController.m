@@ -78,6 +78,10 @@
             [mecabPatcher patch_merge_JIMI];                // 語幹のマージに先立つこと！！
             [mecabPatcher patch_merge_N];
             [mecabPatcher patch_merge_GOKAN];
+#if 1
+            [mecabPatcher patch_FUKUGO_KEIYO_SHI];
+            [mecabPatcher patch_HASEI_KEIYO_SHI];
+#endif
             [mecabPatcher patch_merge_MEISHI];              // 原則的に、名詞の連結は語幹連結の後にしないとダメ！！
             // パッチ
             [mecabPatcher patch_detect_FUKUSHI];
@@ -91,8 +95,10 @@
             [mecabPatcher patch_DE_MO];
             [mecabPatcher patch_DEMO];
             [mecabPatcher patch_DATTE];
+#if 0
             [mecabPatcher patch_FUKUGO_KEIYO_SHI];
             [mecabPatcher patch_HASEI_KEIYO_SHI];
+#endif
             // 用語置換
             [mecabPatcher postProcess];
 
@@ -126,6 +132,10 @@
             [mecabPatcher patch_merge_JIMI];                // 語幹のマージに先立つこと！！
             [mecabPatcher patch_merge_N];
             [mecabPatcher patch_merge_GOKAN];
+#if 1
+            [mecabPatcher patch_FUKUGO_KEIYO_SHI];
+            [mecabPatcher patch_HASEI_KEIYO_SHI];
+#endif
             [mecabPatcher patch_merge_MEISHI];              // 原則的に、名詞の連結は語幹連結の後にしないとダメ！！
             // パッチ
             [mecabPatcher patch_detect_FUKUSHI];
@@ -139,8 +149,10 @@
             [mecabPatcher patch_DE_MO];
             [mecabPatcher patch_DEMO];
             [mecabPatcher patch_DATTE];
+#if 0
             [mecabPatcher patch_FUKUGO_KEIYO_SHI];
             [mecabPatcher patch_HASEI_KEIYO_SHI];
+#endif
             // 用語置換
             [mecabPatcher postProcess];
         }
