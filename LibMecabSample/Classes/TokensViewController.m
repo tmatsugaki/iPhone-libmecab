@@ -457,6 +457,14 @@ heightForFooterInSection:(NSInteger)section {
 - (BOOL) searchBarShouldBeginEditing:(UISearchBar *)searchBar {
     
     if (searchBar == _searchBar) {
+        LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+
+        if (appDelegate.incrementalSearch) {
+            [_searchBar setReturnKeyType:UIReturnKeyDone];
+        } else {
+            [_searchBar setReturnKeyType:UIReturnKeySearch];
+        }
+        
         [_searchBar setShowsCancelButton:YES animated:YES];
         return YES;
     } else {
@@ -478,7 +486,9 @@ heightForFooterInSection:(NSInteger)section {
 - (void) searchBar:(UISearchBar *)searchBar
      textDidChange:(NSString *)searchText
 {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:kIncrementalSearchKey]) {
+    LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+
+    if (appDelegate.incrementalSearch) {
         [self filterContentForSearchText:searchBar.text];
         [_tableView reloadData];
     }

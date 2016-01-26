@@ -21,6 +21,7 @@
 @synthesize listingCountByUpdate=_listingCountByUpdate;
 #endif
 @synthesize use_iCloud=_use_iCloud;
+@synthesize incrementalSearch=_incrementalSearch;
 
 NSString *iCloudListingProgressNotification     = @"iCloudListingProgress";
 NSString *iCloudDownloadCompletedNotification   = @"iCloudDownloadCompleted";
@@ -632,6 +633,7 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
             NSArray *rootPrefSpecifierArray = [rootSettingsDict objectForKey:@"PreferenceSpecifiers"];
             
             NSNumber *use_iCloudDefault = [NSNumber numberWithBool:YES];    // iCloud 使用する
+            NSNumber *incrementalSearchDefault = [NSNumber numberWithBool:YES];    // インクリメンタルサーチ する
             
             for (NSDictionary *prefItem in rootPrefSpecifierArray)
             {
@@ -643,11 +645,13 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
                 {
                     if ([keyValueStr isEqualToString:kUse_iCloudKey]) {
                         use_iCloudDefault = defaultValue;
+                    } else if ([keyValueStr isEqualToString:kIncrementalSearchKey]) {
+                        incrementalSearchDefault = defaultValue;
                     }
                 }
             }
             // since no default values have been set (i.e. no preferences file created), create it here
-            NSDictionary *defaultsDic = [NSDictionary dictionaryWithObjectsAndKeys:use_iCloudDefault, kUse_iCloudKey, nil];
+            NSDictionary *defaultsDic = [NSDictionary dictionaryWithObjectsAndKeys:use_iCloudDefault, kUse_iCloudKey, incrementalSearchDefault, kIncrementalSearchKey, nil];
             
             [[NSUserDefaults standardUserDefaults] registerDefaults:defaultsDic];
             if ([[NSUserDefaults standardUserDefaults] synchronize]) {
@@ -677,5 +681,6 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
 #else
     self.use_iCloud = NO;
 #endif
+    self.incrementalSearch = [[NSUserDefaults standardUserDefaults] boolForKey:kIncrementalSearchKey];
 }
 @end

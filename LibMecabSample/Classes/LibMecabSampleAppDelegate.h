@@ -30,6 +30,7 @@
     UIWindow *_window;
     LibMecabSampleViewController *_viewController;
     BOOL _use_iCloud;
+    BOOL _incrementalSearch;
 }
 #endif
 
@@ -41,6 +42,7 @@
 @property (assign, nonatomic) NSInteger listingCountByUpdate;
 #endif
 @property (assign, nonatomic) BOOL use_iCloud;
+@property (assign, nonatomic) BOOL incrementalSearch;
 
 #if ICLOUD_ENABLD
 // iCloud
