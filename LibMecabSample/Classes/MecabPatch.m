@@ -902,11 +902,11 @@ static MecabPatch *sharedManager = nil;
                     @catch (NSException *exception) {
                         [node setPronunciation:@"?"];
                     }
-                    if (noun) {
+//                    if (noun) {
                         [node setOriginalForm:[NSString stringWithFormat:@"%@.%@", [lastNode originalForm], [node originalForm]]];
-                    } else {
-                        [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
-                    }
+//                    } else {
+//                        [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
+//                    }
                     node.modified = YES;
                     
                     if (retainLastSubtype) {
@@ -1432,10 +1432,17 @@ static MecabPatch *sharedManager = nil;
         if (lastNode && [[node partOfSpeech] isEqualToString:@"形容詞"]) {
             NSString *gokanStr = [self gokanString:lastNode];
             
-            BOOL type1 = [[lastNode partOfSpeech] isEqualToString:@"名詞"] && [[lastNode partOfSpeechSubtype1] isEqualToString:@"接尾"] == NO;
+            BOOL type1 = [[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
+                         [[lastNode partOfSpeechSubtype1] isEqualToString:@"接尾"] == NO;
             BOOL type2 = [gokanStr isEqualToString:@"形容詞"];
-            BOOL type3 = [[lastNode partOfSpeech] isEqualToString:@"動詞"] && [[lastNode useOfType] isEqualToString:@"連用形"];
+            BOOL type3 = [[lastNode partOfSpeech] isEqualToString:@"動詞"] &&
+                         [[lastNode useOfType] isEqualToString:@"連用形"];
 
+#ifdef DEBUG
+//            if (type1 == NO && [[lastNode partOfSpeech] isEqualToString:@"名詞"]) {
+//                DEBUG_LOG(@"[%@]+[%@]", lastNode.surface, node.surface);
+//            }
+#endif
             if (type1 || type2 || type3)
             {
                 lastNode.visible = NO;
