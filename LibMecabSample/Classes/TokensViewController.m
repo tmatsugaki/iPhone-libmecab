@@ -158,6 +158,7 @@
     {// 検索中の文字列がある場合は、サーチバーに設定し、フィルタリングする。
         _searchBar.text = searchingToken;
         [self filterContentForSearchText:searchingToken];
+        [_tableView reloadData];
     }
 #if ICLOUD_ENABLD
     [[NSNotificationCenter defaultCenter] addObserver:self

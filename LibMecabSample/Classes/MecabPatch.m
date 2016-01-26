@@ -864,7 +864,7 @@ static MecabPatch *sharedManager = nil;
                                [[lastNode useOfType] isEqualToString:@"基本形"] &&
                                [[node originalForm] isEqualToString:@"こと"])
                     {// 複合名詞
-                     // （動詞）＆終止形　eg.「すること（名詞化）」「歩くこと（名詞化）」「するの（準体助詞）」
+                     // （動詞）＆終止形　eg.「すること（名詞化）」「歩くこと（名詞化）」
                         DEBUG_LOG(@"[%@]+[%@]", lastNode.surface, node.surface);
                         merge = YES;
                         noun = YES;
@@ -1005,6 +1005,7 @@ static MecabPatch *sharedManager = nil;
 
 // 【準体助詞】「なのだ」「向こうから来るのは」の「の」が名詞ではおかしい。
 // 【注意】非自立の名詞「の」は準体助詞
+// 【注意】「から」は格助詞になっているので準体助詞化させる必要はないか？
 - (void) patch_NANODA_NO {
     
     for (Node *node in _nodes) {
