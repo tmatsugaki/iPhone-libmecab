@@ -234,8 +234,14 @@ static MecabPatch *sharedManager = nil;
         }
         if ([[node partOfSpeech] isEqualToString:@"動詞"])
         {
-            if ([[node originalForm] isEqualToString:@"られる"])
-            {// 動詞
+            NSString *originalForm = [node originalForm];
+
+            if ([originalForm isEqualToString:@"られる"] ||
+                [originalForm isEqualToString:@"れる"] ||
+                [originalForm isEqualToString:@"せる"] ||
+                [originalForm isEqualToString:@"させる"] ||
+                [originalForm isEqualToString:@"がる"])
+            {// こんな動詞はない。
                 // 属性変更する。
                 _modified = YES;
 #if LOG_PATCH
