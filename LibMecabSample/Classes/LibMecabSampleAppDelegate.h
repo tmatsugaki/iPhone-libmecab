@@ -31,6 +31,7 @@
     LibMecabSampleViewController *_viewController;
     BOOL _use_iCloud;
     BOOL _incrementalSearch;
+    BOOL _developmentMode;
 }
 #endif
 
@@ -43,6 +44,7 @@
 #endif
 @property (assign, nonatomic) BOOL use_iCloud;
 @property (assign, nonatomic) BOOL incrementalSearch;
+@property (assign, nonatomic) BOOL developmentMode;
 
 #if ICLOUD_ENABLD
 // iCloud
@@ -57,6 +59,8 @@
 //- (BOOL) enqueue_iCloudDelete:(NSString *)path;                                 // パスはサンドボックスコンテナ内であること
 //- (void) get_iCloudAttributes:(NSString *)path fileSpec:(FileSpec *)fileSpec;   // パスはサンドボックスコンテナ内であること
 #endif
+
+- (void) log:(NSString *)message;
 
 @end
 

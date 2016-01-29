@@ -36,7 +36,8 @@
 #define kDefaultsEvaluatingSentence @"EvaluatingSentence"   // 評価中の文字列を保持する。
 #define kDefaultsSearchingToken     @"SearchingToken"       // 検索中の文字列を保持する。
 #define kUse_iCloudKey              @"iCloud"               // iCloud 使用フラグ
-#define kIncrementalSearchKey       @"IncrementalSearch"    // インクリメンタルサーチするか否かのフラグ（未使用）
+#define kIncrementalSearchKey       @"IncrementalSearch"    // インクリメンタルサーチするか否かのフラグ
+#define kDevelopmentModeKey         @"DevelopmentMode"      // 開発モードか否かのフラグ
 
 #define kTableViewBackgroundColor   [UIColor whiteColor]
 #define kJiritsugoCellColor         [UIColor colorWithRed:1.0 green:1.0 blue:0.0 alpha:0.05]

@@ -18,11 +18,14 @@ static MecabPatch *sharedManager = nil;
 @synthesize lowerSet=_lowerSet;
 @synthesize nodes=_nodes;
 @synthesize modified=_modified;
+@synthesize appDelegate=_appDelegate;
 
 - (id) init {
 
     self = [super init];
     if (self != nil) {
+        self.appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
+
         self.upperSet = [NSSet setWithObjects:@"イ", @"キ", @"ギ", @"シ", @"ジ", @"チ", @"ヂ", @"ニ", @"ヒ", @"ビ", @"ミ", @"リ", nil];
         self.lowerSet = [NSSet setWithObjects:@"エ", @"ケ", @"ゲ", @"セ", @"ゼ", @"テ", @"デ", @"ネ", @"ヘ", @"ベ", @"メ", @"レ", nil];
     }
@@ -196,7 +199,7 @@ static MecabPatch *sharedManager = nil;
     return nextNextNode;
 }
 
-#pragma mark - Patch (マージ)
+#pragma mark - Patch (マージ1)
 
 // 誤りの訂正
 // 【注意】語幹の連結前に実行すること！！
@@ -225,7 +228,7 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 誤りの訂正
-// 【注意】語幹の連結後に実行すること！！
+// 【注意】語幹の連結前に実行すること！！
 - (void) patch_fix_RARERU {
     
     for (Node *node in _nodes) {
@@ -241,6 +244,35 @@ static MecabPatch *sharedManager = nil;
                 [originalForm isEqualToString:@"せる"] ||
                 [originalForm isEqualToString:@"させる"] ||
                 [originalForm isEqualToString:@"がる"])
+            {// こんな動詞はない。
+                // 属性変更する。
+                _modified = YES;
+#if LOG_PATCH
+                DEBUG_LOG(@"%s 「%@」(%@)→「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"助動詞");
+#endif
+                [node setPartOfSpeech:@"助動詞"];
+                [node setPartOfSpeechSubtype1:@""];
+                node.modified = YES;
+            }
+        }
+    }
+}
+
+// 誤りの訂正
+// 【注意】語幹の連結前に実行すること！！
+- (void) patch_fix_TEOKU_TOKU {
+    
+    for (Node *node in _nodes) {
+        if (node.visible == NO) {
+            continue;
+        }
+        if ([[node partOfSpeech] isEqualToString:@"動詞"] &&
+            [[node partOfSpeechSubtype1] isEqualToString:@"非自立"])
+        {
+            NSString *originalForm = [node originalForm];
+            
+            if ([originalForm isEqualToString:@"おく"] ||
+                [originalForm isEqualToString:@"とく"])
             {// こんな動詞はない。
                 // 属性変更する。
                 _modified = YES;
@@ -339,7 +371,7 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 動詞の連結
-// 【注意】語幹の連結後に実行すること！！
+// 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_DOSHI {
     Node *lastNode = nil;
     
@@ -386,6 +418,7 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 複合動詞の連結
+// 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_FUKUGO_DOSHI {
     Node *lastNode = nil;
     
@@ -419,6 +452,7 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 【複合動詞（サ変接続など）】
+// 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_FUKUGO_DOSHI_SAHEN {
     Node *lastNode = nil;
     
@@ -460,7 +494,7 @@ static MecabPatch *sharedManager = nil;
 }
 
 // ナイ形容詞語幹＆「が、の」＆「ない」場合、格助詞をナイ形容詞語幹に連結して patch_merge_GOKAN に備える。
-// 【注意】語幹のマージに先立つこと。
+// 【注意】語幹の連結前に実行すること！！
 - (void) patch_before_merge_GOKAN {
     Node *lastNode = nil;
     Node *nextNode = nil;
@@ -509,7 +543,7 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 名詞の接尾辞「〜がち」「〜ぎみ」「〜やすい」の連結（形容動詞化）
-// 【注意】語幹のマージに先立つこと。
+// 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_GACHI_GIMI_YASUI {
     Node *lastNode = nil;
     
@@ -570,7 +604,7 @@ static MecabPatch *sharedManager = nil;
 
 // 動詞に連なる「ん」「んで」の名詞「ん」を「の」（助詞化）にする。
 // 和布蕪は名詞に連なる場合の「ん」処理は出来ているが、それに準じて「格助詞」にする。eg.「佐賀ん鳥栖」は処理できている。
-// 【注意】語幹のマージに先立つこと。
+// 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_N {
     Node *lastNode = nil;
     
@@ -611,7 +645,7 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 名詞に連なる動詞の（事実上の）接尾辞「〜じみる」の連結（形容詞化）
-// 【注意】語幹のマージに先立つこと。
+// 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_JIMI {
     Node *lastNode = nil;
     
@@ -657,6 +691,7 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
+#pragma mark - Patch (マージ2)
 // 語幹の連結（自分の前が語幹の場合）
 - (void) patch_merge_GOKAN {
     Node *lastLastNode = nil;
@@ -821,6 +856,96 @@ static MecabPatch *sharedManager = nil;
         lastNode = node;
     }
 }
+
+#pragma mark - Patch (マージ3)
+// 【複合形容詞化】
+// 【注意】語幹の連結後、名詞連結の前に実行すること！！
+- (BOOL) patch_FUKUGO_KEIYO_SHI {
+    Node *lastNode = nil;
+    BOOL asked = NO;
+    
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
+        if (node.visible == NO) {
+            continue;
+        }
+        if (lastNode && [[node partOfSpeech] isEqualToString:@"形容詞"]) {
+            NSString *gokanStr = [self gokanString:lastNode];
+            
+            BOOL type1 = [[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
+            [[lastNode partOfSpeechSubtype1] isEqualToString:@"接尾"] == NO;
+            BOOL type2 = [gokanStr isEqualToString:@"形容詞"];
+            BOOL type3 = [[lastNode partOfSpeech] isEqualToString:@"動詞"] &&
+            [[lastNode useOfType] isEqualToString:@"連用形"];
+            
+#ifdef DEBUG
+//            if (type1 == NO && [[lastNode partOfSpeech] isEqualToString:@"名詞"]) {
+//                DEBUG_LOG(@"[%@]+[%@]", lastNode.surface, node.surface);
+//            }
+#endif
+            if (type1 || type2 || type3)
+            {
+                lastNode.visible = NO;
+                
+                // マージする。
+                _modified = YES;
+#if LOG_PATCH
+                DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+#endif
+                [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
+                [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
+                
+                [node setPartOfSpeechSubtype1:@"複合形容詞"];
+                [node setPartOfSpeechSubtype2:@""];
+                [node setInflection:[@"" stringByAppendingString:[node inflection]]];
+                node.modified = YES;
+            }
+        }
+        lastNode = node;
+    }
+    return asked;
+}
+
+// 【派生形容詞化】
+// 【注意】語幹の連結後、名詞連結の前に実行すること！！
+- (BOOL) patch_HASEI_KEIYO_SHI {
+    Node *lastNode = nil;
+    BOOL asked = NO;
+    
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
+        if (node.visible == NO) {
+            continue;
+        }
+        if (lastNode && [[node partOfSpeech] isEqualToString:@"形容詞"]) {
+            BOOL type1 = [[lastNode partOfSpeech] isEqualToString:@"接頭詞"];
+            
+            if (type1)
+            {
+                lastNode.visible = NO;
+                
+                // マージする。
+                _modified = YES;
+#if LOG_PATCH
+                DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+#endif
+                [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
+                [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                
+                [node setPartOfSpeechSubtype1:@"派生形容詞"];
+                [node setPartOfSpeechSubtype2:@""];
+                [node setInflection:[@"" stringByAppendingString:[node inflection]]];
+                node.modified = YES;
+            }
+        }
+        lastNode = node;
+    }
+    return asked;
+}
+
+#pragma mark - Patch (マージ4)
 
 // 名詞の連結
 // 【注意】語幹の連結後に実行すること！！
@@ -1420,91 +1545,6 @@ static MecabPatch *sharedManager = nil;
             [node setOriginalForm:@"でも"];
             [node setInflection:[@"" stringByAppendingString:[node inflection]]];
             node.modified = YES;
-        }
-        lastNode = node;
-    }
-    return asked;
-}
-
-// 【複合形容詞化】
-- (BOOL) patch_FUKUGO_KEIYO_SHI {
-    Node *lastNode = nil;
-    BOOL asked = NO;
-    
-    for (NSInteger i = 0; i < [_nodes count]; i++) {
-        Node *node = _nodes[i];
-        if (node.visible == NO) {
-            continue;
-        }
-        if (lastNode && [[node partOfSpeech] isEqualToString:@"形容詞"]) {
-            NSString *gokanStr = [self gokanString:lastNode];
-            
-            BOOL type1 = [[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
-                         [[lastNode partOfSpeechSubtype1] isEqualToString:@"接尾"] == NO;
-            BOOL type2 = [gokanStr isEqualToString:@"形容詞"];
-            BOOL type3 = [[lastNode partOfSpeech] isEqualToString:@"動詞"] &&
-                         [[lastNode useOfType] isEqualToString:@"連用形"];
-
-#ifdef DEBUG
-//            if (type1 == NO && [[lastNode partOfSpeech] isEqualToString:@"名詞"]) {
-//                DEBUG_LOG(@"[%@]+[%@]", lastNode.surface, node.surface);
-//            }
-#endif
-            if (type1 || type2 || type3)
-            {
-                lastNode.visible = NO;
-                
-                // マージする。
-                _modified = YES;
-#if LOG_PATCH
-                DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
-#endif
-                [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
-                [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
-                
-                [node setPartOfSpeechSubtype1:@"複合形容詞"];
-                [node setPartOfSpeechSubtype2:@""];
-                [node setInflection:[@"" stringByAppendingString:[node inflection]]];
-                node.modified = YES;
-            }
-        }
-        lastNode = node;
-    }
-    return asked;
-}
-
-// 【派生形容詞化】
-- (BOOL) patch_HASEI_KEIYO_SHI {
-    Node *lastNode = nil;
-    BOOL asked = NO;
-    
-    for (NSInteger i = 0; i < [_nodes count]; i++) {
-        Node *node = _nodes[i];
-        if (node.visible == NO) {
-            continue;
-        }
-        if (lastNode && [[node partOfSpeech] isEqualToString:@"形容詞"]) {
-            BOOL type1 = [[lastNode partOfSpeech] isEqualToString:@"接頭詞"];
-            
-            if (type1)
-            {
-                lastNode.visible = NO;
-                
-                // マージする。
-                _modified = YES;
-#if LOG_PATCH
-                DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
-#endif
-                [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
-                [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
-                
-                [node setPartOfSpeechSubtype1:@"派生形容詞"];
-                [node setPartOfSpeechSubtype2:@""];
-                [node setInflection:[@"" stringByAppendingString:[node inflection]]];
-                node.modified = YES;
-            }
         }
         lastNode = node;
     }

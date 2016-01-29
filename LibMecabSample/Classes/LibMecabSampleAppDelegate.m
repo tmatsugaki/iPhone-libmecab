@@ -22,6 +22,7 @@
 #endif
 @synthesize use_iCloud=_use_iCloud;
 @synthesize incrementalSearch=_incrementalSearch;
+@synthesize developmentMode=_developmentMode;
 
 NSString *iCloudListingProgressNotification     = @"iCloudListingProgress";
 NSString *iCloudDownloadCompletedNotification   = @"iCloudDownloadCompleted";
@@ -632,8 +633,9 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
             NSDictionary *rootSettingsDict = [NSDictionary dictionaryWithContentsOfFile:rootFinalPath];
             NSArray *rootPrefSpecifierArray = [rootSettingsDict objectForKey:@"PreferenceSpecifiers"];
             
-            NSNumber *use_iCloudDefault = [NSNumber numberWithBool:YES];    // iCloud 使用する
-            NSNumber *incrementalSearchDefault = [NSNumber numberWithBool:YES];    // インクリメンタルサーチ する
+            NSNumber *use_iCloudDefault = [NSNumber numberWithBool:YES];            // iCloud 使用する
+            NSNumber *incrementalSearchDefault = [NSNumber numberWithBool:YES];     // インクリメンタルサーチ する
+            NSNumber *developmentModeDefault = [NSNumber numberWithBool:NO];        // 開発モード でない
             
             for (NSDictionary *prefItem in rootPrefSpecifierArray)
             {
@@ -647,11 +649,15 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
                         use_iCloudDefault = defaultValue;
                     } else if ([keyValueStr isEqualToString:kIncrementalSearchKey]) {
                         incrementalSearchDefault = defaultValue;
+                    } else if ([keyValueStr isEqualToString:kDevelopmentModeKey]) {
+                        developmentModeDefault = defaultValue;
                     }
                 }
             }
             // since no default values have been set (i.e. no preferences file created), create it here
-            NSDictionary *defaultsDic = [NSDictionary dictionaryWithObjectsAndKeys:use_iCloudDefault, kUse_iCloudKey, incrementalSearchDefault, kIncrementalSearchKey, nil];
+            NSDictionary *defaultsDic = [NSDictionary dictionaryWithObjectsAndKeys:use_iCloudDefault, kUse_iCloudKey,
+                                                                            incrementalSearchDefault, kIncrementalSearchKey,
+                                                                              developmentModeDefault, kDevelopmentModeKey, nil];
             
             [[NSUserDefaults standardUserDefaults] registerDefaults:defaultsDic];
             if ([[NSUserDefaults standardUserDefaults] synchronize]) {
@@ -682,5 +688,6 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
     self.use_iCloud = NO;
 #endif
     self.incrementalSearch = [[NSUserDefaults standardUserDefaults] boolForKey:kIncrementalSearchKey];
+    self.developmentMode = [[NSUserDefaults standardUserDefaults] boolForKey:kDevelopmentModeKey];
 }
 @end

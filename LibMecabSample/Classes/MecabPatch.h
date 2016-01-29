@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "LibMecabSampleAppDelegate.h"
 
 @interface MecabPatch : NSObject {
 
@@ -14,11 +15,13 @@
     NSSet *_lowerSet;
     NSMutableArray *_nodes;
     BOOL _modified;
+    LibMecabSampleAppDelegate *_appDelegate;
 }
 @property (nonatomic, retain) NSSet *upperSet;
 @property (nonatomic, retain) NSSet *lowerSet;
 @property (nonatomic, retain) NSMutableArray *nodes;
 @property (nonatomic, assign) BOOL modified;
+@property (nonatomic, assign) LibMecabSampleAppDelegate *appDelegate;
 
 + (MecabPatch *) sharedManager;
 + (BOOL) isTaigen:(NSString *)hinshi;
@@ -29,6 +32,7 @@
 - (void) preProcess;                        // 語幹のマージに先立つこと！！
 - (void) patch_fix_KEIYODOSHI;              // 語幹のマージに先立つこと！！
 - (void) patch_fix_RARERU;                  // 語幹のマージに先立つこと！！
+- (void) patch_fix_TEOKU_TOKU;              // 語幹のマージに先立つこと！！
 - (void) patch_merge_HIJIRITSU_MEISHI;      // 語幹のマージに先立つこと！！
 - (void) patch_merge_DOSHI;                 // 語幹のマージに先立つこと！！
 - (void) patch_merge_FUKUGO_DOSHI;          // 語幹のマージに先立つこと！！
@@ -39,7 +43,10 @@
 - (void) patch_merge_JIMI;                  // 語幹のマージに先立つこと！！
 //
 - (void) patch_merge_GOKAN;                 // 語幹のマージをする最も重要な処理！！
-
+//
+- (BOOL) patch_FUKUGO_KEIYO_SHI;            // 語幹のマージ後、名詞マージの前！！
+- (BOOL) patch_HASEI_KEIYO_SHI;             // 語幹のマージ後、名詞マージの前！！
+//
 - (void) patch_merge_MEISHI;                // 語幹のマージ実施後に実施すること！！
 - (void) patch_detect_FUKUSHI;              // 語幹のマージ実施後に実施すること！！
 - (void) patch_TAIGEN_DA;                   // 語幹のマージ実施後に実施すること！！
@@ -52,7 +59,5 @@
 - (void) patch_DE_MO;                       // 語幹のマージ実施後に実施すること！！
 - (void) patch_DEMO;                        // 語幹のマージ実施後に実施すること！！
 - (BOOL) patch_DATTE;                       // 語幹のマージ実施後に実施すること！！
-- (BOOL) patch_FUKUGO_KEIYO_SHI;            // 語幹のマージ実施後に実施すること！！
-- (BOOL) patch_HASEI_KEIYO_SHI;             // 語幹のマージ実施後に実施すること！！
 - (void) postProcess;                       // 語幹のマージ実施後に実施すること！！
 @end

@@ -261,33 +261,20 @@
     
     TokenCell *cell = (TokenCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-#if 0
-		[[NSBundle mainBundle] loadNibNamed:@"TokenCell" owner:self options:nil];
-#else
         // リソースは使わない。
         self.tokenCell = [[TokenCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
-#endif
 		cell = _tokenCell;
 		self.tokenCell = nil;
     }
-#if 0
-    cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-#else
     UIView *selectedBackgroudView = [[UIView alloc] init];
-    
+
     selectedBackgroudView.backgroundColor = kSelectionColor;
     [cell setSelectedBackgroundView:selectedBackgroudView];
     [selectedBackgroudView release];
-#endif
 
 	NSDictionary *dic = [_listItems objectAtIndex:indexPath.row];
 
 #ifdef DEBUG
-//    if (((NSNumber *) dic[@"modified"]).boolValue) {
-//        cell.textLabel.textColor = [UIColor orangeColor];
-//    } else {
-//        cell.textLabel.textColor = [UIColor blackColor];
-//    }
     if (((NSNumber *) dic[@"modified"]).boolValue) {
         cell.accessoryType = UITableViewCellAccessoryCheckmark;
     } else {
