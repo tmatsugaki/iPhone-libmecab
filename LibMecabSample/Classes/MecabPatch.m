@@ -399,6 +399,10 @@ static MecabPatch *sharedManager = nil;
                     {// 動詞＆動詞（接尾辞）である。
                         merge = YES;
                     }
+                } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"]) {
+                    {// 接頭詞（名詞接続？）＆動詞である。
+                        merge = YES;
+                    }
                 }
                 if (merge) {
                     lastNode.visible = NO;
@@ -416,7 +420,7 @@ static MecabPatch *sharedManager = nil;
                         [node setPronunciation:@"?"];
                     }
                     [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
-                    // 「サ変・スル」を保つ
+                    // 「サ変・スル」などを保つ
                     [node setInflection:[lastNode inflection]];
                     node.modified = YES;
                 }
@@ -1629,7 +1633,8 @@ static MecabPatch *sharedManager = nil;
             }
         }
         // 【係助詞→副助詞】partOfSpeechSubtype1
-        if ([partOfSpeechSubtype1 isEqualToString:@"係助詞"])
+        if ([partOfSpeechSubtype1 isEqualToString:@"係助詞"] ||
+            [partOfSpeechSubtype1 isEqualToString:@"並列助詞"])
         {
             [node setPartOfSpeechSubtype1:@"副助詞"];
         }

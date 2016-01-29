@@ -9,6 +9,9 @@
 #ifndef definitions_h
 #define definitions_h
 
+// 0
+#define INHIBIT_BUNSETSU_WITH_SUBVERB   0
+
 // 1
 #define LOG_PATCH                       0
 #define DELETE_ANIMATION                1

@@ -485,9 +485,14 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         }
         if ([partOfSpeech isEqualToString:@"助詞"] ||
             [partOfSpeech isEqualToString:@"助動詞"] ||
+            [partOfSpeech isEqualToString:@"その他"] ||
             [partOfSpeech isEqualToString:@"記号"] ||
-            [partOfSpeech isEqualToString:@"フィラー"] ||
-            [partOfSpeechSubtype1 isEqualToString:@"補助動詞"]) {
+            [partOfSpeech isEqualToString:@"フィラー"]
+#if INHIBIT_BUNSETSU_WITH_SUBVERB
+            || [partOfSpeechSubtype1 isEqualToString:@"補助動詞"]
+#endif
+           )
+        {
             cell.partOfSpeechLabel.textColor = [UIColor colorWithRed:255 green:0 blue:255 alpha:0.4];
         } else {
             cell.partOfSpeechLabel.textColor = [UIColor magentaColor];
@@ -527,9 +532,14 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         // 品詞のカラーリング
         if ([partOfSpeech isEqualToString:@"助詞"] ||
             [partOfSpeech isEqualToString:@"助動詞"] ||
+            [partOfSpeech isEqualToString:@"その他"] ||
             [partOfSpeech isEqualToString:@"記号"] ||
-            [partOfSpeech isEqualToString:@"フィラー"] ||
-            [partOfSpeechSubtype1 isEqualToString:@"補助動詞"]) {
+            [partOfSpeech isEqualToString:@"フィラー"]
+#if INHIBIT_BUNSETSU_WITH_SUBVERB
+            || [partOfSpeechSubtype1 isEqualToString:@"補助動詞"]
+#endif
+           )
+        {
             cell.partOfSpeechLabel.textColor = [UIColor colorWithRed:1.0 green:0.0 blue:1.0 alpha:0.4];
         } else {
             cell.partOfSpeechLabel.textColor = [UIColor magentaColor];
@@ -733,10 +743,14 @@ heightForFooterInSection:(NSInteger)section {
         Node *node = _nodes[i];
 
         if (node.visible &&
-            ([[node partOfSpeech] isEqualToString:@"記号"] == NO &&
+            ([[node partOfSpeech] isEqualToString:@"その他"] == NO &&
+             [[node partOfSpeech] isEqualToString:@"記号"] == NO &&
              [[node partOfSpeech] isEqualToString:@"フィラー"] == NO &&
-             [MecabPatch isFuzokugo:[node partOfSpeech]] == NO &&
-             [[node partOfSpeechSubtype1] isEqualToString:@"補助動詞"] == NO)
+             [MecabPatch isFuzokugo:[node partOfSpeech]] == NO
+#if INHIBIT_BUNSETSU_WITH_SUBVERB
+             && [[node partOfSpeechSubtype1] isEqualToString:@"補助動詞"] == NO
+#endif
+            )
         )
         {
             nth++;
