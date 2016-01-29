@@ -68,7 +68,7 @@
             [mecabPatcher preProcess];
             [mecabPatcher patch_fix_KEIYODOSHI];
             [mecabPatcher patch_fix_RARERU];
-            [mecabPatcher patch_fix_TEOKU_TOKU];
+//            [mecabPatcher patch_fix_TEOKU_TOKU];
             [mecabPatcher patch_merge_HIJIRITSU_MEISHI];
             // マージ
             [mecabPatcher patch_merge_DOSHI];
@@ -119,7 +119,7 @@
             // 致命的な欠点を無くす処理
             [mecabPatcher patch_fix_KEIYODOSHI];
             [mecabPatcher patch_fix_RARERU];
-            [mecabPatcher patch_fix_TEOKU_TOKU];
+//            [mecabPatcher patch_fix_TEOKU_TOKU];
             // マージ
             [mecabPatcher patch_merge_HIJIRITSU_MEISHI];
             [mecabPatcher patch_merge_DOSHI];
@@ -435,6 +435,9 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     Node *node = [_nodes objectAtIndex:indexPath.row];
+    NSString *reading = [node reading];
+    NSString *partOfSpeech = [node partOfSpeech];
+    NSString *partOfSpeechSubtype1 = [node partOfSpeechSubtype1];
 
     if (node.detailed) {
         NodeCell *cell = (NodeCell *)[tableView dequeueReusableCellWithIdentifier:@"NodeCell"];
@@ -454,9 +457,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         } else {
             [cell.contentView setBackgroundColor:[UIColor whiteColor]];
         }
-        NSString *reading = [node reading];
-        NSString *partOfSpeech = [node partOfSpeech];
-        
+
         if (reading && ! [reading isEqualToString:@"(null)"]) {
             cell.surfaceLabel.text = node.surface;
         } else {
@@ -485,7 +486,8 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         if ([partOfSpeech isEqualToString:@"助詞"] ||
             [partOfSpeech isEqualToString:@"助動詞"] ||
             [partOfSpeech isEqualToString:@"記号"] ||
-            [partOfSpeech isEqualToString:@"フィラー"]) {
+            [partOfSpeech isEqualToString:@"フィラー"] ||
+            [partOfSpeechSubtype1 isEqualToString:@"補助動詞"]) {
             cell.partOfSpeechLabel.textColor = [UIColor colorWithRed:255 green:0 blue:255 alpha:0.4];
         } else {
             cell.partOfSpeechLabel.textColor = [UIColor magentaColor];
@@ -512,8 +514,6 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         } else {
             [cell.contentView setBackgroundColor:[UIColor whiteColor]];
         }
-        NSString *reading = [node reading];
-        NSString *partOfSpeech = [node partOfSpeech];
         
         if (reading && ! [reading isEqualToString:@"(null)"]) {
             cell.surfaceLabel.text = node.surface;
@@ -528,7 +528,8 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         if ([partOfSpeech isEqualToString:@"助詞"] ||
             [partOfSpeech isEqualToString:@"助動詞"] ||
             [partOfSpeech isEqualToString:@"記号"] ||
-            [partOfSpeech isEqualToString:@"フィラー"]) {
+            [partOfSpeech isEqualToString:@"フィラー"] ||
+            [partOfSpeechSubtype1 isEqualToString:@"補助動詞"]) {
             cell.partOfSpeechLabel.textColor = [UIColor colorWithRed:1.0 green:0.0 blue:1.0 alpha:0.4];
         } else {
             cell.partOfSpeechLabel.textColor = [UIColor magentaColor];
@@ -734,7 +735,9 @@ heightForFooterInSection:(NSInteger)section {
         if (node.visible &&
             ([[node partOfSpeech] isEqualToString:@"記号"] == NO &&
              [[node partOfSpeech] isEqualToString:@"フィラー"] == NO &&
-             [MecabPatch isFuzokugo:[node partOfSpeech]] == NO))
+             [MecabPatch isFuzokugo:[node partOfSpeech]] == NO &&
+             [[node partOfSpeechSubtype1] isEqualToString:@"補助動詞"] == NO)
+        )
         {
             nth++;
         }

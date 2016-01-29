@@ -237,27 +237,32 @@ static MecabPatch *sharedManager = nil;
         }
         if ([[node partOfSpeech] isEqualToString:@"動詞"])
         {
-            NSString *originalForm = [node originalForm];
-
-            if ([originalForm isEqualToString:@"られる"] ||
-                [originalForm isEqualToString:@"れる"] ||
-                [originalForm isEqualToString:@"せる"] ||
-                [originalForm isEqualToString:@"させる"] ||
-                [originalForm isEqualToString:@"がる"])
-            {// こんな動詞はない。
-                // 属性変更する。
-                _modified = YES;
+            if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"]) {
+                NSString *originalForm = [node originalForm];
+                
+                if ([originalForm isEqualToString:@"られる"] ||
+                    [originalForm isEqualToString:@"れる"] ||
+                    [originalForm isEqualToString:@"せる"] ||
+                    [originalForm isEqualToString:@"させる"] ||
+                    [originalForm isEqualToString:@"がる"])
+                {// こんな動詞はない。
+                    // 属性変更する。
+                    _modified = YES;
 #if LOG_PATCH
-                DEBUG_LOG(@"%s 「%@」(%@)→「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"助動詞");
+                    DEBUG_LOG(@"%s 「%@」(%@)→「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"助動詞");
 #endif
-                [node setPartOfSpeech:@"助動詞"];
-                [node setPartOfSpeechSubtype1:@""];
-                node.modified = YES;
+                    [node setPartOfSpeech:@"助動詞"];
+                    [node setPartOfSpeechSubtype1:@""];
+                    node.modified = YES;
+                } else {
+                    DEBUG_LOG(@"%s 未確認の接尾辞「%@」", __func__, node.surface);
+                }
             }
         }
     }
 }
 
+#if 0
 // 誤りの訂正
 // 【注意】語幹の連結前に実行すること！！
 - (void) patch_fix_TEOKU_TOKU {
@@ -266,26 +271,30 @@ static MecabPatch *sharedManager = nil;
         if (node.visible == NO) {
             continue;
         }
-        if ([[node partOfSpeech] isEqualToString:@"動詞"] &&
-            [[node partOfSpeechSubtype1] isEqualToString:@"非自立"])
+        if ([[node partOfSpeech] isEqualToString:@"動詞"])
         {
-            NSString *originalForm = [node originalForm];
-            
-            if ([originalForm isEqualToString:@"おく"] ||
-                [originalForm isEqualToString:@"とく"])
-            {// こんな動詞はない。
-                // 属性変更する。
-                _modified = YES;
+            if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"]) {
+                NSString *originalForm = [node originalForm];
+                
+                if ([originalForm isEqualToString:@"おく"] ||
+                    [originalForm isEqualToString:@"とく"])
+                {// 「〜しておく」「〜しとく」を補助動詞にするのは良くない気がする。
+                    // 属性変更する。
+                    _modified = YES;
 #if LOG_PATCH
-                DEBUG_LOG(@"%s 「%@」(%@)→「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"助動詞");
+                    DEBUG_LOG(@"%s 「%@」(%@)→「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"助動詞");
 #endif
-                [node setPartOfSpeech:@"助動詞"];
-                [node setPartOfSpeechSubtype1:@""];
-                node.modified = YES;
+                    [node setPartOfSpeech:@"助動詞"];
+                    [node setPartOfSpeechSubtype1:@""];
+                    node.modified = YES;
+                } else {
+//                    DEBUG_LOG(@"%s 未確認の非自立動詞？「%@」", __func__, node.surface);
+                }
             }
         }
     }
 }
+#endif
 
 // 非自立名詞の連結
 // 【注意】語幹の連結前に実行すること！！
@@ -1565,6 +1574,7 @@ static MecabPatch *sharedManager = nil;
         NSString *partOfSpeech = [node partOfSpeech];
         NSString *partOfSpeechSubtype1 = [node partOfSpeechSubtype1];
         NSString *inflection = [node inflection];
+//        NSString *originalForm = [node originalForm];
         NSString *gokanStr = [self gokanString:node];
         Node *nextNode = [self nextNode:i];
         
@@ -1609,8 +1619,13 @@ static MecabPatch *sharedManager = nil;
                 [node setPartOfSpeechSubtype1:@"本動詞"];
             }
             if ([partOfSpeechSubtype1 isEqualToString:@"非自立"])
-            {// 補助動詞である。
+            {// 接続助詞「て」を介するなどして、結合できなかった補助動詞は助動詞にしないと文節を構成してしまう！！
+             // eg.「いる」「ある」「しまう」「いく」「くる」「くださる」「もらう」「みる」「おる」...
                 [node setPartOfSpeechSubtype1:@"補助動詞"];
+            }
+            if ([partOfSpeechSubtype1 isEqualToString:@"接尾"])
+            {// 動詞の接尾辞は助動詞に変換済みであるべき！！
+                DEBUG_LOG(@"!!![動詞]接尾辞のまま：対処が必要か？：「%@」", node.surface);
             }
         }
         // 【係助詞→副助詞】partOfSpeechSubtype1
