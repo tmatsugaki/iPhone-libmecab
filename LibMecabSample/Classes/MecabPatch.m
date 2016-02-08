@@ -1603,6 +1603,9 @@ static MecabPatch *sharedManager = nil;
         }
         // 【形容詞（XXX語幹）】partOfSpeech
         if ([[node partOfSpeech] isEqualToString:@"形容詞"]) {
+            if ([NSLocalizedString(@"cancel", @"キャンセル") isEqualToString:@"キャンセル"] == NO) {
+                [node setPartOfSpeech:@"イ形容詞"];
+            }
             if (gokanStr)
             {// 語幹であると見なされたが未だ名詞であるダメな奴。
                 DEBUG_LOG(@"!!![形容詞]語幹残存：対処が必要か？：「%@」", node.surface);
@@ -1610,6 +1613,9 @@ static MecabPatch *sharedManager = nil;
         }
         // 【形容動詞（XXX語幹）】partOfSpeech
         if ([[node partOfSpeech] isEqualToString:@"形容動詞"]) {
+            if ([NSLocalizedString(@"cancel", @"キャンセル") isEqualToString:@"キャンセル"] == NO) {
+                [node setPartOfSpeech:@"ナ形容詞"];
+            }
             if (gokanStr)
             {// 語幹であると見なされたが未だ名詞であるダメな奴。
                 DEBUG_LOG(@"!!![形容動詞]語幹残存：対処が必要か？：「%@」", node.surface);
@@ -1634,8 +1640,9 @@ static MecabPatch *sharedManager = nil;
         }
         // 【係助詞→副助詞】partOfSpeechSubtype1
         if ([partOfSpeechSubtype1 isEqualToString:@"係助詞"] ||
-            [partOfSpeechSubtype1 isEqualToString:@"並列助詞"])
-        {
+            [partOfSpeechSubtype1 isEqualToString:@"並立助詞"])
+        {// 副助詞化される前の属性をメモワイズした。
+            [node setPartOfSpeechSubtype2:[@"←" stringByAppendingString:[node partOfSpeechSubtype1]]];
             [node setPartOfSpeechSubtype1:@"副助詞"];
         }
         // 【終止形／連体形／連用形】useOfType

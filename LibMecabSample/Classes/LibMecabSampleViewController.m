@@ -697,7 +697,7 @@ heightForFooterInSection:(NSInteger)section {
                                              @"接続詞",
                                              @"助詞",
                                              @"格助詞",
-                                             @"並列助詞",
+                                             @"並立助詞",
                                              @"副助詞",
                                              @"係助詞",
                                              @"接続助詞",
