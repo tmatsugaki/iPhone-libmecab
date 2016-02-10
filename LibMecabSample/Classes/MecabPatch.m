@@ -1613,8 +1613,10 @@ static MecabPatch *sharedManager = nil;
     return asked;
 }
 
-// 【形容動詞化】「どんな」は連体詞ではなく形容動詞
+// 【形容動詞化】「こんな」「そんな」「あんな」「どんな」「同じ」は連体詞ではなく形容動詞
 - (BOOL) patch_DONNA {
+
+    NSSet *donnaKeiyodoshiSuffixes = [NSSet setWithObjects:@"コンナ", @"ソンナ", @"アンナ", @"ドンナ", @"オナジ", nil];
     BOOL asked = NO;
     
     for (NSInteger i = 0; i < [_nodes count]; i++) {
@@ -1622,7 +1624,8 @@ static MecabPatch *sharedManager = nil;
         if (node.visible == NO) {
             continue;
         }
-        if (node && [node.surface isEqualToString:@"どんな"] && [[node partOfSpeech] isEqualToString:@"連体詞"])
+        
+        if (node && [[node partOfSpeech] isEqualToString:@"連体詞"] && [donnaKeiyodoshiSuffixes member:[node pronunciation]])
         {
             // マージする。
             _modified = YES;
