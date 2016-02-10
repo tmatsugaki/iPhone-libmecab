@@ -105,7 +105,7 @@ static MecabPatch *sharedManager = nil;
 
 #pragma mark - Patch (ツール)
 
-// 用言（動詞／形容詞／形容動詞）である。
+// 用言（名詞／代名詞）である。
 + (BOOL) isTaigen:(NSString *)hinshi {
     return ([hinshi isEqualToString:@"名詞"] ||
             [hinshi isEqualToString:@"代名詞"]);
@@ -1287,11 +1287,12 @@ static MecabPatch *sharedManager = nil;
                     NSString *lastPartOfSpeech = [lastNode partOfSpeech];
                     NSString *lastPartOfSpeechSubtype1 = [lastNode partOfSpeechSubtype1];
                     NSString *lastUseOfType = [lastNode useOfType];
+                    NSString *lastPronunciation = [lastNode pronunciation];
                     BOOL isRenyo = [MecabPatch isRenyo:lastUseOfType];
-                    
+#if 0
                     if ((([lastPartOfSpeech isEqualToString:@"形容詞"] || [lastPartOfSpeech isEqualToString:@"形容動詞"]) && isRenyo) ||
-                        ([lastPartOfSpeechSubtype1 isEqualToString:@"接続助詞"] && ([[lastNode pronunciation] isEqualToString:@"テ"] || [[lastNode pronunciation] isEqualToString:@"デ"])) ||
-                        ([lastPartOfSpeechSubtype1 isEqualToString:@"係助詞"] && ([[lastNode pronunciation] isEqualToString:@"ワ"] || [[lastNode pronunciation] isEqualToString:@"モ"]))
+                        ([lastPartOfSpeechSubtype1 isEqualToString:@"接続助詞"] && ([lastPronunciation isEqualToString:@"テ"] || [lastPronunciation isEqualToString:@"デ"])) ||
+                        ([lastPartOfSpeechSubtype1 isEqualToString:@"係助詞"] && ([lastPronunciation isEqualToString:@"ワ"] || [lastPronunciation isEqualToString:@"モ"]))
                     ) // 連用形の形容詞／形容動詞に連なる場合は補助形容詞。
                     {// 形容詞／形容動詞＋補助形容詞（ない）
                         // 修正された。
@@ -1305,6 +1306,51 @@ static MecabPatch *sharedManager = nil;
                         DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
 #endif
                     }
+#else
+                    if (([lastPartOfSpeech isEqualToString:@"形容詞"] || [lastPartOfSpeech isEqualToString:@"形容動詞"]) && isRenyo) // 連用形の形容詞／形容動詞に連なる場合は補助形容詞。
+                    {// 形容詞／形容動詞＋補助形容詞（ない）
+                        // 修正された。
+                        _modified = YES;
+                        
+                        [node setPartOfSpeech:@"形容詞"];
+                        [node setPartOfSpeechSubtype1:@"補助形容詞"];
+                        [node setInflection:@"形・形動の連用(く/で)"];
+                        node.modified = YES;
+#if LOG_PATCH
+                        DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
+#endif
+                    } else if (([lastPartOfSpeechSubtype1 isEqualToString:@"接続助詞"] && ([lastPronunciation isEqualToString:@"テ"] || [lastPronunciation isEqualToString:@"デ"])) ||
+                               ([lastPartOfSpeechSubtype1 isEqualToString:@"係助詞"] && ([lastPronunciation isEqualToString:@"ワ"] || [lastPronunciation isEqualToString:@"モ"]))
+                               ) // 連用形の形容詞／形容動詞に連なる場合は補助形容詞。
+                    {// 形容詞／形容動詞＋補助形容詞（ない）
+                        // 修正された。
+//                        _modified = YES;
+//
+//                        [node setPartOfSpeech:@"形容詞"];
+//                        [node setPartOfSpeechSubtype1:@"補助形容詞"];
+//                        [node setInflection:@"接助(て|で)"];
+//                        node.modified = YES;
+#if LOG_PATCH
+                        DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
+#endif
+                    } else if ([lastPartOfSpeech isEqualToString:@"助動詞"])
+                    {// 助動詞（”〜く”）＋助動詞（ない）→形容詞（ない）
+                        NSRange range = [lastPronunciation rangeOfString:@"ク"];
+
+                        if (range.length && range.location == [lastPronunciation length] - 1) {
+                            // 修正された。
+                            _modified = YES;
+                            
+                            [node setPartOfSpeech:@"形容詞"];
+//                            [node setPartOfSpeechSubtype1:@"補助形容詞"];
+                            [node setInflection:@"助動詞の連用(く)"];
+                            node.modified = YES;
+#if LOG_PATCH
+                            DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
+#endif
+                        }
+                    }
+#endif
                 }
             }
         }
@@ -1323,15 +1369,16 @@ static MecabPatch *sharedManager = nil;
         if (node.visible == NO) {
             continue;
         }
-        if (lastNode && [MecabPatch isTaigen:[lastNode partOfSpeech]])
-        {
+        if (lastNode && [MecabPatch isTaigen:[lastNode partOfSpeech]] && [[lastNode partOfSpeechSubtype1] isEqualToString:@"代名詞"] == NO)
+        {// 代名詞の「〜らしい、〜らしく」は形容詞にはならない？
             if ([[node partOfSpeech] isEqualToString:@"助動詞"] &&
                 [[node originalForm] isEqualToString:@"らしい"] &&
                 [[[node inflection] substringToIndex:3] isEqualToString:@"形容詞"])
             {
                 Node *nextNode = [self nextNode:i];
                 BOOL rentai = [node.surface isEqualToString:@"らしい"] && [MecabPatch isTaigen:[nextNode partOfSpeech]];
-                BOOL renyou = [node.surface isEqualToString:@"らしく"] && [MecabPatch isYougen:[nextNode partOfSpeech]];
+//                BOOL renyou = [node.surface isEqualToString:@"らしく"] && [MecabPatch isYougen:[nextNode partOfSpeech]];
+                BOOL renyou = [node.surface isEqualToString:@"らしく"]; // 助詞が来る
 
                 if (rentai || renyou)
                 {
@@ -1560,6 +1607,30 @@ static MecabPatch *sharedManager = nil;
             node.modified = YES;
         }
         lastNode = node;
+    }
+    return asked;
+}
+
+// 【形容動詞化】「どんな」は連体詞ではなく形容動詞
+- (BOOL) patch_DONNA {
+    BOOL asked = NO;
+    
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
+        if (node.visible == NO) {
+            continue;
+        }
+        if (node && [node.surface isEqualToString:@"どんな"] && [[node partOfSpeech] isEqualToString:@"連体詞"])
+        {
+            // マージする。
+            _modified = YES;
+#if LOG_PATCH
+            DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, node.surface, [lastNode partOfSpeech], node.surface, @"形容動詞");
+#endif
+            [node setPartOfSpeech:@"形容動詞"];
+            [node setPartOfSpeechSubtype1:@"連体詞ではない"];
+            node.modified = YES;
+        }
     }
     return asked;
 }

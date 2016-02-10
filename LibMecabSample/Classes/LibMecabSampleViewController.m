@@ -96,6 +96,7 @@
             [mecabPatcher patch_DE_MO];
             [mecabPatcher patch_DEMO];
             [mecabPatcher patch_DATTE];
+            [mecabPatcher patch_DONNA];
             // 用語置換
             [mecabPatcher postProcess];
 
@@ -148,6 +149,7 @@
             [mecabPatcher patch_DE_MO];
             [mecabPatcher patch_DEMO];
             [mecabPatcher patch_DATTE];
+            [mecabPatcher patch_DONNA];
             // 用語置換
             [mecabPatcher postProcess];
         }
