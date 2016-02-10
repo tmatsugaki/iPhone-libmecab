@@ -25,7 +25,8 @@
 	UISwitch *_patch;
 	
 	Mecab *_mecab;
-	NSMutableArray *_nodes;
+    NSString *_evalutaing_sentence;
+    NSMutableArray *_nodes;
     NSMutableArray *_listItems;
     BOOL _shortFormat;
 
@@ -42,6 +43,7 @@
 @property (nonatomic, retain) IBOutlet UIButton *explore;
 @property (nonatomic, retain) IBOutlet UISwitch *patch;
 @property (nonatomic, retain) Mecab *mecab;
+@property (nonatomic, retain) NSString *evalutaing_sentence;
 @property (nonatomic, retain) NSMutableArray *nodes;
 @property (nonatomic, retain) NSMutableArray *listItems;
 @property (nonatomic, assign) BOOL shortFormat;

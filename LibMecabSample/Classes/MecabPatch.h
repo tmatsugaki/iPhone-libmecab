@@ -13,12 +13,14 @@
 
     NSSet *_upperSet;
     NSSet *_lowerSet;
+    NSString *_sentence;
     NSMutableArray *_nodes;
     BOOL _modified;
     LibMecabSampleAppDelegate *_appDelegate;
 }
 @property (nonatomic, retain) NSSet *upperSet;
 @property (nonatomic, retain) NSSet *lowerSet;
+@property (nonatomic, retain) NSString *sentence;
 @property (nonatomic, retain) NSMutableArray *nodes;
 @property (nonatomic, assign) BOOL modified;
 @property (nonatomic, assign) LibMecabSampleAppDelegate *appDelegate;

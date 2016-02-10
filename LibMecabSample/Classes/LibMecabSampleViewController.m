@@ -33,6 +33,7 @@
 @synthesize explore=_explore;
 @synthesize patch=_patch;
 @synthesize mecab=_mecab;
+@synthesize evalutaing_sentence=_evalutaing_sentence;
 @synthesize nodes=_nodes;
 @synthesize listItems=_listItems;
 @synthesize shortFormat=_shortFormat;
@@ -53,15 +54,18 @@
 
         for (i = 0; i < [_listItems count]; i++) {
             NSMutableDictionary *sentenceDic = _listItems[i];
-            NSString *sentence = sentenceDic[@"sentence"];
+            self.evalutaing_sentence = sentenceDic[@"sentence"];
 
+#if SHOW_SENTENCE
             DEBUG_LOG(@"**********************************************************************\n");
-            DEBUG_LOG(@"文章「%@」", sentence);
-            self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:sentence]];
+            DEBUG_LOG(@"文章「%@」", _evalutaing_sentence);
+#endif
+            self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:_evalutaing_sentence]];
 
             // 和布蕪パッチシングルトンを取得する。
             MecabPatch *mecabPatcher = [MecabPatch sharedManager];
             // 和布蕪パッチシングルトンに解析結果アレイを設定する。
+            [mecabPatcher setSentence:_evalutaing_sentence];
             [mecabPatcher setNodes:_nodes];
             [mecabPatcher setModified:NO];
             // 【注意】必須！！
@@ -106,11 +110,13 @@
 #endif
         }
     } else {
+        self.evalutaing_sentence = string;
         self.nodes = [NSMutableArray arrayWithArray:[_mecab parseToNodeWithString:string]];
         
         // 和布蕪パッチシングルトンを取得する。
         MecabPatch *mecabPatcher = [MecabPatch sharedManager];
         // 和布蕪パッチシングルトンに解析結果アレイを設定する。
+        [mecabPatcher setSentence:_evalutaing_sentence];
         [mecabPatcher setNodes:_nodes];
         [mecabPatcher setModified:NO];
         // 【注意】必須！！
@@ -592,6 +598,7 @@ heightForFooterInSection:(NSInteger)section {
     self.patch = nil;
 
     self.mecab = nil;
+    self.evalutaing_sentence = nil;
 	self.nodes = nil;
     self.listItems = nil;
 

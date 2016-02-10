@@ -16,6 +16,7 @@ static MecabPatch *sharedManager = nil;
 
 @synthesize upperSet=_upperSet;
 @synthesize lowerSet=_lowerSet;
+@synthesize sentence=_sentence;
 @synthesize nodes=_nodes;
 @synthesize modified=_modified;
 @synthesize appDelegate=_appDelegate;
@@ -56,7 +57,13 @@ static MecabPatch *sharedManager = nil;
 }
 
 - (void) dealloc {
+
     [super dealloc];
+    
+    self.upperSet = nil;
+    self.lowerSet = nil;
+    self.sentence = nil;
+    self.nodes = nil;
 }
 
 #pragma mark -
@@ -793,7 +800,7 @@ static MecabPatch *sharedManager = nil;
                                        [originalForm isEqualToString:@"ね"] == NO)
                             {// 形容動詞になりえない。
                                 inhibitKeido = YES;
-                                DEBUG_LOG(@"形容動詞になりえない。[%@] -> [%@]", lastNode.surface, node.surface);
+                                DEBUG_LOG(@"必須「%@」形容動詞になりえない。[%@:%@]", _sentence, lastNode.surface, node.surface);
                             }
                         }
                         // 【例外1】ナイ形容詞
@@ -827,7 +834,7 @@ static MecabPatch *sharedManager = nil;
                                     [lastNode setOriginalForm:[[lastLastNode originalForm]   stringByAppendingString:[lastNode originalForm]]];
                                 } else
                                 {// 「馬鹿[名詞:形容動詞語幹]そう[名詞:助動詞語幹]だ[助動詞]」が助動詞になるのを防ぐ。
-                                    DEBUG_LOG(@"語幹マージ中に連続した名詞を検知したが、２つ目の名詞が助動詞語幹なのでマージしない！！");
+                                    DEBUG_LOG(@"必須「%@」の語幹マージ中に連続した名詞を検知したが、２つ目の名詞が助動詞語幹なのでマージしない！！", _sentence);
                                 }
                             }
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
@@ -1058,18 +1065,26 @@ static MecabPatch *sharedManager = nil;
                     if (retainLastSubtype) {
 //                        [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
                         [node setPartOfSpeechSubtype1:@"派生名詞"];
+#if SHOW_DERIVED_NOUN
                         DEBUG_LOG(@"派生名詞:[%@][%@]", lastNode.surface, node.surface);
+#endif
                     } else if (adverb) {
                         [node setPartOfSpeech:@"副詞"];
                         [node setPartOfSpeechSubtype1:@""];
                         [node setPartOfSpeechSubtype2:@""];
-                        DEBUG_LOG(@"副詞:[%@][%@]", lastNode.surface, node.surface);
+#if SHOW_FUKUSHIKA
+                        DEBUG_LOG(@"副詞化:[%@][%@]", lastNode.surface, node.surface);
+#endif
                     } else if (noun) {
                         [node setPartOfSpeechSubtype1:@"複合名詞"];
                         [node setPartOfSpeechSubtype2:@"動詞.名詞"];
+#if SHOW_FUKUGO_MEISHI
                         DEBUG_LOG(@"複合名詞:[%@][%@]", lastNode.surface, node.surface);
+#endif
                     } else {
+#if SHOW_FUKUGO_MEISHI
                         DEBUG_LOG(@"複合名詞？:[%@][%@]", lastNode.surface, node.surface);
+#endif
                     }
                 }
             }
@@ -1644,6 +1659,25 @@ static MecabPatch *sharedManager = nil;
 // 【終止形／連体形／連用形】
 - (void) postProcess {
     
+    NSSet *doushiSet = [NSSet setWithObjects:@"いる",
+                                             @"居る",
+                                             @"ある",
+                                             @"有る",
+                                             @"おる",
+                                             @"おく",
+                                             @"いく",
+                                             @"くる",
+                                             @"くれる",
+                                             @"くださる",
+                                             @"下さる",
+                                             @"もらう",
+                                             @"貰う",
+                                             @"みる",
+                                             @"見る",
+                                             @"しまう", nil];
+    NSSet *keiyoshiSet = [NSSet setWithObjects:@"ほしい",
+                                               @"欲しい", nil];
+
     for (NSInteger i = 0; i < [_nodes count]; i++) {
         Node *node = _nodes[i];
 
@@ -1653,13 +1687,14 @@ static MecabPatch *sharedManager = nil;
         NSString *useOfType = [node useOfType];
         NSString *partOfSpeech = [node partOfSpeech];
         NSString *partOfSpeechSubtype1 = [node partOfSpeechSubtype1];
+//        NSString *pronunciation = [node pronunciation];
+        NSString *originalForm = [node originalForm];
         NSString *inflection = [node inflection];
-//        NSString *originalForm = [node originalForm];
         NSString *gokanStr = [self gokanString:node];
         Node *nextNode = [self nextNode:i];
         
         // 【名詞（XXX語幹）】partOfSpeech
-        if ([[node partOfSpeech] isEqualToString:@"名詞"]) {
+        if ([partOfSpeech isEqualToString:@"名詞"]) {
             if (gokanStr)
             {// 語幹であると見なされたが未だ名詞であるダメな奴。
                 NSString *pronunciation = [node pronunciation];
@@ -1678,9 +1713,18 @@ static MecabPatch *sharedManager = nil;
             }
         }
         // 【形容詞（XXX語幹）】partOfSpeech
-        if ([[node partOfSpeech] isEqualToString:@"形容詞"]) {
+        if ([partOfSpeech isEqualToString:@"形容詞"]) {
             if ([NSLocalizedString(@"cancel", @"キャンセル") isEqualToString:@"キャンセル"] == NO) {
                 [node setPartOfSpeech:@"イ形容詞"];
+            }
+            if ([partOfSpeechSubtype1 isEqualToString:@"非自立"])
+            {// 残存した補助形容詞
+#ifdef DEBUG
+                if ([keiyoshiSet member:originalForm] == NO) {
+                    DEBUG_LOG(@"文章「%@」 の \"%@\" は非自立の形容詞", _sentence, originalForm);
+                }
+#endif
+                [node setPartOfSpeechSubtype1:@"補助形容詞"];
             }
             if (gokanStr)
             {// 語幹であると見なされたが未だ名詞であるダメな奴。
@@ -1688,7 +1732,7 @@ static MecabPatch *sharedManager = nil;
             }
         }
         // 【形容動詞（XXX語幹）】partOfSpeech
-        if ([[node partOfSpeech] isEqualToString:@"形容動詞"]) {
+        if ([partOfSpeech isEqualToString:@"形容動詞"]) {
             if ([NSLocalizedString(@"cancel", @"キャンセル") isEqualToString:@"キャンセル"] == NO) {
                 [node setPartOfSpeech:@"ナ形容詞"];
             }
@@ -1698,7 +1742,7 @@ static MecabPatch *sharedManager = nil;
             }
         }
         // 【補助動詞】partOfSpeech
-        if ([[node partOfSpeech] isEqualToString:@"動詞"])
+        if ([partOfSpeech isEqualToString:@"動詞"])
         {
             if ([partOfSpeechSubtype1 isEqualToString:@"自立"])
             {// 本動詞である。
@@ -1707,6 +1751,12 @@ static MecabPatch *sharedManager = nil;
             if ([partOfSpeechSubtype1 isEqualToString:@"非自立"])
             {// 接続助詞「て」を介するなどして、結合できなかった補助動詞は助動詞にしないと文節を構成してしまう！！
              // eg.「いる」「ある」「しまう」「いく」「くる」「くださる」「もらう」「みる」「おる」...
+#ifdef DEBUG
+                // 残存した補助形動詞
+                if ([doushiSet member:originalForm] == NO) {
+                    DEBUG_LOG(@"文章「%@」 の \"%@\" は非自立の動詞", _sentence, originalForm);
+                }
+#endif
                 [node setPartOfSpeechSubtype1:@"補助動詞"];
             }
             if ([partOfSpeechSubtype1 isEqualToString:@"接尾"])
@@ -1730,8 +1780,10 @@ static MecabPatch *sharedManager = nil;
             {// 動詞／形容詞／形容動詞である。
                 if ([MecabPatch isTaigen:[nextNode partOfSpeech]])
                 {// 動詞／形容詞／形容動詞が体言（に連なって／を従えて）いるので「連体形」である。
-                    DEBUG_LOG(@"連体化[%@][%@]", node.surface, nextNode.surface);
                     [node setUseOfType:@"連体形"];
+#if SHOW_RENTAIKA
+                    DEBUG_LOG(@"連体化[%@][%@]", node.surface, nextNode.surface);
+#endif
 
 // 【注意】終止形の用言が列挙などで連続している場合に上手く機能しないのでペンディングにする。
 //   eg.「身の多い少ないが重大な問題となる。」
