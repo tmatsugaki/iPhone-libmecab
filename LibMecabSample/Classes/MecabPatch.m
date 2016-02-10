@@ -1676,7 +1676,11 @@ static MecabPatch *sharedManager = nil;
                                              @"見る",
                                              @"しまう", nil];
     NSSet *keiyoshiSet = [NSSet setWithObjects:@"ほしい",
-                                               @"欲しい", nil];
+                                               @"欲しい",
+                                               @"よい",
+                                               @"良い",
+                                               @"やすい",
+                                               @"易い", nil];
 
     for (NSInteger i = 0; i < [_nodes count]; i++) {
         Node *node = _nodes[i];
@@ -1687,7 +1691,6 @@ static MecabPatch *sharedManager = nil;
         NSString *useOfType = [node useOfType];
         NSString *partOfSpeech = [node partOfSpeech];
         NSString *partOfSpeechSubtype1 = [node partOfSpeechSubtype1];
-//        NSString *pronunciation = [node pronunciation];
         NSString *originalForm = [node originalForm];
         NSString *inflection = [node inflection];
         NSString *gokanStr = [self gokanString:node];
@@ -1726,7 +1729,7 @@ static MecabPatch *sharedManager = nil;
 #endif
                 [node setPartOfSpeechSubtype1:@"補助形容詞"];
             }
-            if (gokanStr)
+            if (gokanStr && [gokanStr isEqualToString:@"形容詞"] == NO)
             {// 語幹であると見なされたが未だ名詞であるダメな奴。
                 DEBUG_LOG(@"!!![形容詞]語幹残存：対処が必要か？：「%@」", node.surface);
             }
@@ -1736,7 +1739,7 @@ static MecabPatch *sharedManager = nil;
             if ([NSLocalizedString(@"cancel", @"キャンセル") isEqualToString:@"キャンセル"] == NO) {
                 [node setPartOfSpeech:@"ナ形容詞"];
             }
-            if (gokanStr)
+            if (gokanStr && [gokanStr isEqualToString:@"形容動詞"] == NO)
             {// 語幹であると見なされたが未だ名詞であるダメな奴。
                 DEBUG_LOG(@"!!![形容動詞]語幹残存：対処が必要か？：「%@」", node.surface);
             }
