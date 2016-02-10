@@ -430,7 +430,7 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
-// 複合動詞の連結
+// 複合動詞の連結（動詞＋動詞）
 // 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_FUKUGO_DOSHI {
     Node *lastNode = nil;
@@ -464,6 +464,7 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
+// 複合動詞の連結（名詞＋動詞）
 // 【複合動詞（サ変接続など）】
 // 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_FUKUGO_DOSHI_SAHEN {
@@ -483,7 +484,7 @@ static MecabPatch *sharedManager = nil;
             NSString *inflectionKey = [inflection substringToIndex:2];          // サ変
             
             if ([type isEqualToString:inflectionKey] && [key isEqualToString:@"接続"]) {
-                if ([[node partOfSpeech] isEqualToString:@"動詞"] && [[lastNode partOfSpeech] isEqualToString:@"名詞"])
+                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] && [[node partOfSpeech] isEqualToString:@"動詞"])
                 {//
                     lastNode.visible = NO;
                     
@@ -657,7 +658,8 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
-// 名詞に連なる動詞の（事実上の）接尾辞「〜じみる」の連結（形容詞化）
+// 複合動詞の連結（名詞＋動詞）
+// 名詞に連なる動詞の（事実上の）接尾辞「〜じみる」の連結（複合動詞化）
 // 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_JIMI {
     Node *lastNode = nil;
@@ -689,7 +691,8 @@ static MecabPatch *sharedManager = nil;
                 DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
                 [node setSurface:[[lastNode surface]                 stringByAppendingString:[node surface]]];
-                [node setPartOfSpeech:@"形容詞"];
+//                [node setPartOfSpeech:@"動詞"];
+                [node setPartOfSpeechSubtype1:@"複合動詞"];
                 @try {
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
                 }
