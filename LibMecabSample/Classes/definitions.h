@@ -15,6 +15,7 @@
 #define SHOW_FUKUGO_MEISHI              0
 #define SHOW_RENTAIKA                   0
 #define SHOW_FUKUSHIKA                  0
+#define SHOW_KANOU                      0
 
 // 1
 #define LOG_PATCH                       0   // 局所を解析する際には 0 にする。
