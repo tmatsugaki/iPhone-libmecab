@@ -269,40 +269,6 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
-#if 0
-// 誤りの訂正
-// 【注意】語幹の連結前に実行すること！！
-- (void) patch_fix_TEOKU_TOKU {
-    
-    for (Node *node in _nodes) {
-        if (node.visible == NO) {
-            continue;
-        }
-        if ([[node partOfSpeech] isEqualToString:@"動詞"])
-        {
-            if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"]) {
-                NSString *originalForm = [node originalForm];
-                
-                if ([originalForm isEqualToString:@"おく"] ||
-                    [originalForm isEqualToString:@"とく"])
-                {// 「〜しておく」「〜しとく」を補助動詞にするのは良くない気がする。
-                    // 属性変更する。
-                    _modified = YES;
-#if LOG_PATCH
-                    DEBUG_LOG(@"%s 「%@」(%@)→「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"助動詞");
-#endif
-                    [node setPartOfSpeech:@"助動詞"];
-                    [node setPartOfSpeechSubtype1:@""];
-                    node.modified = YES;
-                } else {
-//                    DEBUG_LOG(@"%s 未確認の非自立動詞？「%@」", __func__, node.surface);
-                }
-            }
-        }
-    }
-}
-#endif
-
 // 非自立名詞の連結
 // 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_HIJIRITSU_MEISHI {
@@ -1065,7 +1031,7 @@ static MecabPatch *sharedManager = nil;
                     if (retainLastSubtype) {
 //                        [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
                         [node setPartOfSpeechSubtype1:@"派生名詞"];
-#if SHOW_DERIVED_NOUN
+#if SHOW_HASEI_MEISHI
                         DEBUG_LOG(@"派生名詞:[%@][%@]", lastNode.surface, node.surface);
 #endif
                     } else if (adverb) {
@@ -1195,7 +1161,7 @@ static MecabPatch *sharedManager = nil;
 
 // 【感動詞】「そう」がいつも副詞ではおかしい。
 - (void) patch_KANDOSHI_SOU {
-    
+
     if ([_nodes count] == 1) {
         Node *node = _nodes[0];
         if (node.visible) {

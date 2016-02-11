@@ -34,7 +34,6 @@
 - (void) preProcess;                        // 語幹のマージに先立つこと！！
 - (void) patch_fix_KEIYODOSHI;              // 語幹のマージに先立つこと！！
 - (void) patch_fix_RARERU;                  // 語幹のマージに先立つこと！！
-//- (void) patch_fix_TEOKU_TOKU;              // 語幹のマージに先立つこと！！
 - (void) patch_merge_HIJIRITSU_MEISHI;      // 語幹のマージに先立つこと！！
 - (void) patch_merge_DOSHI;                 // 語幹のマージに先立つこと！！
 - (void) patch_merge_FUKUGO_DOSHI;          // 語幹のマージに先立つこと！！

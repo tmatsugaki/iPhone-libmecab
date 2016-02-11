@@ -11,14 +11,15 @@
 
 // 0
 #define INHIBIT_BUNSETSU_WITH_SUBVERB   0
-#define SHOW_DERIVED_NOUN               0
+#define SHOW_HASEI_MEISHI               0
+#define SHOW_FUKUGO_MEISHI              0
 #define SHOW_RENTAIKA                   0
 #define SHOW_FUKUSHIKA                  0
-#define SHOW_FUKUGO_MEISHI              0
 
 // 1
-#define LOG_PATCH                       0   // 局所を解析する際には 0 する。
-#define SHOW_SENTENCE                   0   // 局所を解析する際には 0 する。
+#define LOG_PATCH                       0   // 局所を解析する際には 0 にする。
+#define SHOW_SENTENCE                   0   // 局所を解析する際には 0 にする。
+
 #define DELETE_ANIMATION                1
 #define RELOAD_WHEN_TOGGLE_EDIT         1
 #define REPLACE_OBJECT                  1

@@ -72,7 +72,6 @@
             [mecabPatcher preProcess];
             [mecabPatcher patch_fix_KEIYODOSHI];
             [mecabPatcher patch_fix_RARERU];
-//            [mecabPatcher patch_fix_TEOKU_TOKU];
             [mecabPatcher patch_merge_HIJIRITSU_MEISHI];
             // マージ
             [mecabPatcher patch_merge_DOSHI];
@@ -92,7 +91,7 @@
             [mecabPatcher patch_detect_FUKUSHI];
             [mecabPatcher patch_TAIGEN_DA];
             [mecabPatcher patch_NANODA_NO];
-//            [mecabPatcher patch_KANDOSHI_SOU];
+            [mecabPatcher patch_KANDOSHI_SOU];
             [mecabPatcher patch_HOJO_KEIYOUSHI];
             [mecabPatcher patch_TAIGEN_RASHII];
             [mecabPatcher patch_TOMO];
@@ -126,7 +125,6 @@
             // 致命的な欠点を無くす処理
             [mecabPatcher patch_fix_KEIYODOSHI];
             [mecabPatcher patch_fix_RARERU];
-//            [mecabPatcher patch_fix_TEOKU_TOKU];
             // マージ
             [mecabPatcher patch_merge_HIJIRITSU_MEISHI];
             [mecabPatcher patch_merge_DOSHI];
@@ -147,7 +145,7 @@
             [mecabPatcher patch_detect_FUKUSHI];
             [mecabPatcher patch_TAIGEN_DA];
             [mecabPatcher patch_NANODA_NO];
-//            [mecabPatcher patch_KANDOSHI_SOU];
+            [mecabPatcher patch_KANDOSHI_SOU];
             [mecabPatcher patch_HOJO_KEIYOUSHI];
             [mecabPatcher patch_TAIGEN_RASHII];
             [mecabPatcher patch_TOMO];
