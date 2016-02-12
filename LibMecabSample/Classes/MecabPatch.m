@@ -218,7 +218,7 @@ static MecabPatch *sharedManager = nil;
     
     if (rentai) {
 #if (LOG_PATCH || SHOW_DEMO_OP)
-        DEBUG_LOG(@"%s 分割：体言に連なった副助詞:[でも]->格助詞:[で],係助詞:[も]", __func__);
+        DEBUG_LOG(@"分割：体言に連なった副助詞:[でも]->格助詞:[で],係助詞:[も] %@", _sentence);
 #endif
         [node setSurface:@"で"];
         [node setPronunciation:@"デ"];
@@ -236,7 +236,7 @@ static MecabPatch *sharedManager = nil;
         [newNode setInflection:@""];
     } else {
 #if (LOG_PATCH || SHOW_DEMO_OP)
-        DEBUG_LOG(@"%s 分割：用言に連なった副助詞:[でも]->助動詞:[で],係助詞:[も]", __func__);
+        DEBUG_LOG(@"分割：用言に連なった副助詞:[でも]->助動詞:[で],係助詞:[も] %@", _sentence);
 #endif
         [node setSurface:@"で"];
         [node setPronunciation:@"デ"];
@@ -1497,7 +1497,7 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
-// 【接続助詞化】動詞が五段活用時の「呼んでも」の「で・も」→接続助詞「でも」
+// 【接続助詞化】「呼んでも」の「で・も」→接続助詞「でも」
 - (void) patch_MERGE_YOUGEN_DEMO {
     Node *lastNode = nil;
     Node *nextNode = nil;
@@ -1511,17 +1511,23 @@ static MecabPatch *sharedManager = nil;
         nextNode     = [self nextNode:i];
         nextNextNode = [self nextNextNode:i];
 
-        if (lastNode && [[lastNode inflection] length] >= 2 && [[[lastNode inflection] substringToIndex:2] isEqualToString:@"五段"] &&
-            [node.surface isEqualToString:@"で"] && [[node partOfSpeechSubtype1] isEqualToString:@"接続助詞"] &&
-            nextNode && [nextNode.surface isEqualToString:@"も"] && [[nextNode partOfSpeechSubtype1] isEqualToString:@"係助詞"] &&
-            [MecabPatch isYougen:[nextNextNode partOfSpeech]] == NO)
+        // 【注意1】MeCab は体言に「でも」が続いた場合、基本的に「で(格助詞)・も(係助詞)」として扱う。
+        // 【注意2】MeCab は用言に「でも」が続いた場合、基本的に「で(接続助詞)・も(係助詞)」として扱う。
+        // 【注意3】MeCab は「でも」の扱いがよく分からない場合、「でも(副助詞)」として扱う。
+        // 【注意4】MeCab の「〜でも[ない]」「〜でも[い]ない」処理結果を適用しマージを禁則する。
+        if (lastNode && [MecabPatch isYougen:[lastNode partOfSpeech]] &&
+            ([node.surface isEqualToString:@"て"] || [node.surface isEqualToString:@"で"]) && [[node partOfSpeechSubtype1] isEqualToString:@"接続助詞"] &&
+            nextNode && [nextNode.surface isEqualToString:@"も"] && [[nextNode partOfSpeechSubtype1] isEqualToString:@"係助詞"]
+            && ([nextNextNode.surface isEqualToString:@"ない"] == NO && [nextNextNode.surface isEqualToString:@"い"] == NO)
+        )
         {
             nextNode.visible = NO;
             
             // マージする。
             _modified = YES;
-#if LOG_PATCH
-            DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, node.surface, [node partOfSpeech], nextNode.surface, [nextNode partOfSpeech]);
+#if (LOG_PATCH || SHOW_DEMO_OP)
+//            DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, node.surface, [node partOfSpeech], nextNode.surface, [nextNode partOfSpeech]);
+            DEBUG_LOG(@"連結：接続助詞[%@],係助詞:[%@] -> 接続助詞:[%@] %@", node.surface, nextNode.surface, @"でも", _sentence);
 #endif
             [node setSurface:[[node surface]             stringByAppendingString:[nextNode surface]]];
             [node setPronunciation:[[node pronunciation] stringByAppendingString:[nextNode pronunciation]]];
@@ -1577,7 +1583,7 @@ static MecabPatch *sharedManager = nil;
             continue;
         }
         nextNode = [self nextNode:i];
-        if (lastNode && [lastNode.surface isEqualToString:@"で"] && [[lastNode partOfSpeechSubtype1] isEqualToString:@"格助詞"] &&
+        if (lastNode && ([lastNode.surface isEqualToString:@"て"] || [lastNode.surface isEqualToString:@"で"]) && [[lastNode partOfSpeechSubtype1] isEqualToString:@"格助詞"] &&
             node && [node.surface isEqualToString:@"も"] && [[node partOfSpeechSubtype1] isEqualToString:@"係助詞"] &&
             nextNode && ([[nextNode partOfSpeech] isEqualToString:@"動詞"] || [[nextNode partOfSpeech] isEqualToString:@"副詞"]))
         {
@@ -1587,7 +1593,7 @@ static MecabPatch *sharedManager = nil;
             _modified = YES;
 #if (LOG_PATCH || SHOW_DEMO_OP)
 //            DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
-            DEBUG_LOG(@"連結：格助詞[%@],係助詞:[%@] -> 係助詞:[%@]", lastNode.surface, node.surface, @"でも");
+            DEBUG_LOG(@"連結：格助詞[%@],係助詞:[%@] -> 係助詞:[%@] %@", lastNode.surface, node.surface, @"でも", _sentence);
 #endif
             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
             [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
