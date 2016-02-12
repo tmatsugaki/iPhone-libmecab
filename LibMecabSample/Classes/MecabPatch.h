@@ -57,9 +57,9 @@
 - (void) patch_TAIGEN_RASHII;               // 語幹のマージ実施後に実施すること！！
 - (void) patch_TOMO;                        // 語幹のマージ実施後に実施すること！！
 - (void) patch_TOMO_KUTEN;                  // 語幹のマージ実施後に実施すること！！
-- (void) patch_DE_MO;                       // 語幹のマージ実施後に実施すること！！
-- (void) patch_DEMO;                        // 語幹のマージ実施後に実施すること！！
-- (BOOL) patch_DATTE;                       // 語幹のマージ実施後に実施すること！！
+- (void) patch_MERGE_YOUGEN_DEMO;           // 語幹のマージ実施後に実施すること！！
+- (void) patch_DIVIDE_TAIGEN_DEMO;          // 語幹のマージ実施後に実施すること！！
+- (BOOL) patch_MERGE_TAIGEN_DEMO;           // 語幹のマージ実施後に実施すること！！
 - (BOOL) patch_DONNA;                       // 語幹のマージ実施後に実施すること！！
 - (void) postProcess;                       // 語幹のマージ実施後に実施すること！！
 @end

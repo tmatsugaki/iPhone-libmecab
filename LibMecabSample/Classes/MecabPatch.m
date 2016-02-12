@@ -206,6 +206,61 @@ static MecabPatch *sharedManager = nil;
     return nextNextNode;
 }
 
+- (void) devideNode:(Node *)node
+              index:(NSUInteger)index
+             rentai:(BOOL)rentai {
+    
+    Node *newNode = [[Node alloc] init];
+    NSMutableArray *features = [[NSMutableArray alloc] initWithObjects:@"", @"", @"", @"", @"", @"", @"", @"", @"", nil];
+    
+    newNode.features = features;
+    [features release];
+    
+    if (rentai) {
+#if (LOG_PATCH || SHOW_DEMO_OP)
+        DEBUG_LOG(@"%s 分割：体言に連なった副助詞:[でも]->格助詞:[で],係助詞:[も]", __func__);
+#endif
+        [node setSurface:@"で"];
+        [node setPronunciation:@"デ"];
+        [node setOriginalForm:@"で"];
+        [node setPartOfSpeech:@"助詞"];
+        [node setPartOfSpeechSubtype1:@"格助詞"];
+        [_nodes replaceObjectAtIndex:index withObject:node];
+        node.modified = YES;
+        
+        [newNode setSurface:@"も"];
+        [newNode setPronunciation:@"モ"];
+        [newNode setOriginalForm:@"も"];
+        [newNode setPartOfSpeech:@"助詞"];
+        [newNode setPartOfSpeechSubtype1:@"係助詞"];
+        [newNode setInflection:@""];
+    } else {
+#if (LOG_PATCH || SHOW_DEMO_OP)
+        DEBUG_LOG(@"%s 分割：用言に連なった副助詞:[でも]->助動詞:[で],係助詞:[も]", __func__);
+#endif
+        [node setSurface:@"で"];
+        [node setPronunciation:@"デ"];
+        [node setOriginalForm:@"だ"];
+        [node setPartOfSpeech:@"助動詞"];
+        [node setPartOfSpeechSubtype1:@""];
+        [node setUseOfType:@"連用形"];
+        [node setInflection:@"断定"];
+        [_nodes replaceObjectAtIndex:index withObject:node];
+        node.modified = YES;
+        
+        [newNode setSurface:@"も"];
+        [newNode setPronunciation:@"モ"];
+        [newNode setOriginalForm:@"も"];
+        [newNode setPartOfSpeech:@"助詞"];
+        [newNode setPartOfSpeechSubtype1:@"係助詞"];
+        [newNode setInflection:@""];
+    }
+    newNode.modified = YES;
+    newNode.visible = YES;
+    [_nodes insertObject:newNode atIndex:index+1];
+    [newNode release];
+}
+
 #pragma mark - Patch (マージ1)
 
 // 誤りの訂正
@@ -513,7 +568,9 @@ static MecabPatch *sharedManager = nil;
 #if LOG_PATCH
                             DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
-                            DEBUG_LOG(@"ナイ形容詞語幹に「%@」をマージした。[%@]+[%@]", pronunciation, lastNode.surface, node.surface);
+#if LOG_MERGE
+                            DEBUG_LOG(@"語幹マージに先立ち、予めココでナイ形容詞語幹に「%@」をマージしておく。[%@]+[%@]", pronunciation, lastNode.surface, node.surface);
+#endif
                             [lastNode setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                             [lastNode setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
                             [lastNode setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
@@ -705,41 +762,14 @@ static MecabPatch *sharedManager = nil;
                 NSString *surface = node.surface;
 
                 if ([lastGokanStr length]) {
-                    if ([surface isEqualToString:@"でも"] &&
-                        [[node partOfSpeechSubtype1] isEqualToString:@"副助詞"]) // 【注意】ここは絶対に「副助詞」
+                    if (//[MecabPatch isTaigen:[lastNode partOfSpeech]] == NO &&
+                        [surface isEqualToString:@"でも"] && [[node partOfSpeechSubtype1] isEqualToString:@"副助詞"]) // 【注意】ここは絶対に「副助詞」
                     {
                         // 分割する。
                         _modified = YES;
+                        [self devideNode:node index:index rentai:[MecabPatch isTaigen:[lastNode partOfSpeech]]];
 
-                        Node *newNode = [[Node alloc] init];
-                        NSMutableArray *features = [[NSMutableArray alloc] initWithObjects:@"", @"", @"", @"", @"", @"", @"", @"", @"", nil];
-                        
-                        newNode.features = features;
-                        [features release];
-                        
-                        // 「でも」→「で」
-                        [node setSurface:@"で"];
-                        [node setPronunciation:@"デ"];
-                        [node setOriginalForm:@"だ"];
-                        [node setPartOfSpeech:@"助動詞"];
-                        [node setPartOfSpeechSubtype1:@""];
-                        [node setUseOfType:@"連用形"];
-                        [node setInflection:@"断定"];
-                        [_nodes replaceObjectAtIndex:index withObject:node];
-                        node.modified = YES;
-                        
-                        [newNode setSurface:@"も"];
-                        [newNode setPronunciation:@"モ"];
-                        [newNode setOriginalForm:@"も"];
-                        [newNode setPartOfSpeech:@"助詞"];
-                        [newNode setPartOfSpeechSubtype1:@"係助詞"];
-                        [newNode setInflection:@""];
-                        newNode.modified = YES;
-                        newNode.visible = YES;
-                        [_nodes insertObject:newNode atIndex:index+1];
-                        [newNode release];
-
-                        DEBUG_LOG(@"分割：[%@]->[%@][%@]", surface, node.surface, newNode.surface);
+                        // 分割してコンティニューする。
                         goto start;
                     } else
                     {// 語幹（多少の例外がある！！）
@@ -753,7 +783,9 @@ static MecabPatch *sharedManager = nil;
                             [originalForm isEqualToString:@"ない"] == NO)
                         {// ただし、「だらしがない」などは patch_before_merge_GOKAN にて前処理ずみ。
                             inhibitNai = YES;
-                            DEBUG_LOG(@"条件を満たさない「ナイ形容詞」はマージしない。[%@] -> [%@]", lastNode.surface, node.surface);
+#if LOG_MERGE
+                            DEBUG_LOG(@"条件を満たさない「ナイ形容詞」はマージしない。[%@][%@]", lastNode.surface, node.surface);
+#endif
                         } else if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
                                    [lastGokanStr isEqualToString:@"形容動詞"])
                         {
@@ -761,11 +793,15 @@ static MecabPatch *sharedManager = nil;
                             {// 形容詞型の助動詞を検知した。
                              // 【注意】形容動詞の語幹は残存し最後の処理で形容動詞化する。
                                 inhibitRashii = YES;
-                                DEBUG_LOG(@"[%@] 形容動詞語幹に連なる「%@」はマージしない。[%@] -> [%@]", _sentence, node.surface, lastNode.surface, node.surface);
+#if LOG_MERGE
+                                DEBUG_LOG(@"[%@] 形容動詞語幹に連なる「%@」はマージせず最終的に非自立の名詞で残存したら形容動詞化する。", _sentence, node.surface);
+#endif
                             } else if ([keiyodoshiSuffixes member:originalForm] == NO)
                             {// 形容動詞型の助動詞ではない。
                                 inhibitKeido = YES;
-                                DEBUG_LOG(@"必須「%@」形容動詞になりえない。[%@:%@]", _sentence, lastNode.surface, node.surface);
+#if LOG_MERGE
+                                DEBUG_LOG(@"必須「%@」形容動詞の活用ではない。[%@][%@]", _sentence, lastNode.surface, node.surface);
+#endif
                             }
                         }
                         // 【例外1】ナイ形容詞
@@ -783,7 +819,9 @@ static MecabPatch *sharedManager = nil;
                             {
                                 if ([lastGokanStr isEqualToString:@"助動詞"] == NO)
                                 {// 「〜的だ」「〜がちだ」「〜そうだ」
+#if LOG_MERGE
                                     DEBUG_LOG(@"語幹マージ中に連続した名詞を検知した！！");
+#endif
                                     lastLastNode.visible = NO;
                                     
 #if LOG_PATCH
@@ -794,7 +832,9 @@ static MecabPatch *sharedManager = nil;
                                     [lastNode setOriginalForm:[[lastLastNode originalForm]   stringByAppendingString:[lastNode originalForm]]];
                                 } else
                                 {// 「馬鹿[名詞:形容動詞語幹]そう[名詞:助動詞語幹]だ[助動詞]」が助動詞になるのを防ぐ。
+#if LOG_MERGE
                                     DEBUG_LOG(@"必須「%@」の語幹マージ中に連続した名詞を検知したが、２つ目の名詞が助動詞語幹なのでマージしない！！", _sentence);
+#endif
                                 }
                             }
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
@@ -1458,7 +1498,7 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 【接続助詞化】動詞が五段活用時の「呼んでも」の「で・も」→接続助詞「でも」
-- (void) patch_DE_MO {
+- (void) patch_MERGE_YOUGEN_DEMO {
     Node *lastNode = nil;
     Node *nextNode = nil;
     Node *nextNextNode = nil;
@@ -1498,7 +1538,7 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 【副助詞の分割】「こちらでも、」の副助詞「でも」→格助詞「で」と副助詞「も」
-- (void) patch_DEMO {
+- (void) patch_DIVIDE_TAIGEN_DEMO {
     Node *lastNode = nil;
     
     for (NSUInteger index = 0; index < [_nodes count]; index++) {
@@ -1510,41 +1550,14 @@ static MecabPatch *sharedManager = nil;
             if (index < [_nodes count] - 1) {
                 Node *nextNode = [self nextNode:index];
                 
-                if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
-                    [node.surface isEqualToString:@"でも"] && [[node partOfSpeechSubtype1] isEqualToString:@"副助詞"] && // 【注意】ここは絶対に「副助詞」
-                    [nextNode.surface isEqualToString:@"、"])
+                if ([MecabPatch isTaigen:[lastNode partOfSpeech]] &&
+                    [node.surface isEqualToString:@"でも"] && [[node partOfSpeechSubtype1] isEqualToString:@"副助詞"] // 【注意】ここは絶対に「副助詞」
+                    && [nextNode.surface isEqualToString:@"、"]
+                )
                 {
-                    Node *newNode = [[Node alloc] init];
-                    NSMutableArray *features = [[NSMutableArray alloc] initWithObjects:@"", @"", @"", @"", @"", @"", @"", @"", @"", nil];
-                    
-                    // 修正された。
+                    // 分割する。
                     _modified = YES;
-
-                    newNode.features = features;
-                    [features release];
-                    
-                    // 「でも」→「で」「も」
-                    [node setSurface:@"で"];
-                    [node setPronunciation:@"デ"];
-                    [node setOriginalForm:@"で"];
-                    [node setPartOfSpeech:@"助詞"];
-                    [node setPartOfSpeechSubtype1:@"格助詞"];
-                    [_nodes replaceObjectAtIndex:index withObject:node];
-                    node.modified = YES;
-                    
-                    [newNode setSurface:@"も"];
-                    [newNode setPronunciation:@"モ"];
-                    [newNode setOriginalForm:@"も"];
-                    [newNode setPartOfSpeech:@"助詞"];
-                    [newNode setPartOfSpeechSubtype1:@"係助詞"];
-                    [newNode setInflection:@""];
-                    newNode.modified = YES;
-                    newNode.visible = YES;
-                    [_nodes insertObject:newNode atIndex:index+1];
-                    [newNode release];
-#if LOG_PATCH
-                    DEBUG_LOG(@"%s %@:%@", __func__, lastNode.surface, [lastNode partOfSpeech]);
-#endif
+                    [self devideNode:node index:index rentai:YES];
                 }
             }
         }
@@ -1553,7 +1566,7 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 【副助詞化】「子供でも」の「でも」＋動詞→副助詞「でも」
-- (BOOL) patch_DATTE {
+- (BOOL) patch_MERGE_TAIGEN_DEMO {
     Node *lastNode = nil;
     Node *nextNode = nil;
     BOOL asked = NO;
@@ -1566,14 +1579,15 @@ static MecabPatch *sharedManager = nil;
         nextNode = [self nextNode:i];
         if (lastNode && [lastNode.surface isEqualToString:@"で"] && [[lastNode partOfSpeechSubtype1] isEqualToString:@"格助詞"] &&
             node && [node.surface isEqualToString:@"も"] && [[node partOfSpeechSubtype1] isEqualToString:@"係助詞"] &&
-            nextNode && [[nextNode partOfSpeech] isEqualToString:@"動詞"])
+            nextNode && ([[nextNode partOfSpeech] isEqualToString:@"動詞"] || [[nextNode partOfSpeech] isEqualToString:@"副詞"]))
         {
             lastNode.visible = NO;
             
             // マージする。
             _modified = YES;
-#if LOG_PATCH
-            DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+#if (LOG_PATCH || SHOW_DEMO_OP)
+//            DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+            DEBUG_LOG(@"連結：格助詞[%@],係助詞:[%@] -> 係助詞:[%@]", lastNode.surface, node.surface, @"でも");
 #endif
             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
             [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];

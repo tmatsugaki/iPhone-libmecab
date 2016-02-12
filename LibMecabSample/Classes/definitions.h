@@ -16,9 +16,11 @@
 #define SHOW_RENTAIKA                   0
 #define SHOW_FUKUSHIKA                  0
 #define SHOW_KANOU                      0
+#define SHOW_DEMO_OP                    1
 
 // 1
 #define LOG_PATCH                       0   // 局所を解析する際には 0 にする。
+#define LOG_MERGE                       0   // 局所を解析する際には 0 にする。
 #define SHOW_SENTENCE                   0   // 局所を解析する際には 0 にする。
 
 #define DELETE_ANIMATION                1

@@ -96,9 +96,9 @@
             [mecabPatcher patch_TAIGEN_RASHII];
             [mecabPatcher patch_TOMO];
             [mecabPatcher patch_TOMO_KUTEN];
-            [mecabPatcher patch_DE_MO];
-            [mecabPatcher patch_DEMO];
-            [mecabPatcher patch_DATTE];
+            [mecabPatcher patch_MERGE_YOUGEN_DEMO];
+            [mecabPatcher patch_DIVIDE_TAIGEN_DEMO];
+            [mecabPatcher patch_MERGE_TAIGEN_DEMO];
             [mecabPatcher patch_DONNA];
             // 用語置換
             [mecabPatcher postProcess];
@@ -150,9 +150,9 @@
             [mecabPatcher patch_TAIGEN_RASHII];
             [mecabPatcher patch_TOMO];
             [mecabPatcher patch_TOMO_KUTEN];
-            [mecabPatcher patch_DE_MO];
-            [mecabPatcher patch_DEMO];
-            [mecabPatcher patch_DATTE];
+            [mecabPatcher patch_MERGE_YOUGEN_DEMO];
+            [mecabPatcher patch_DIVIDE_TAIGEN_DEMO];
+            [mecabPatcher patch_MERGE_TAIGEN_DEMO];
             [mecabPatcher patch_DONNA];
             // 用語置換
             [mecabPatcher postProcess];
