@@ -311,7 +311,7 @@ static MecabPatch *sharedManager = nil;
                     // 属性変更する。
                     _modified = YES;
 #if LOG_PATCH
-                    DEBUG_LOG(@"%s 「%@」(%@)→「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"助動詞");
+                    DEBUG_LOG(@"%s こんな動詞はない。「%@」(%@)→「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"助動詞");
 #endif
                     [node setPartOfSpeech:@"助動詞"];
                     [node setPartOfSpeechSubtype1:@""];
@@ -744,6 +744,7 @@ static MecabPatch *sharedManager = nil;
     Node *lastNode = nil;
     NSSet *keiyoshiSuffixes = [NSSet setWithObjects:@"らしい", nil];
     NSSet *keiyodoshiSuffixes = [NSSet setWithObjects:@"だ", @"で", @"です", @"な", @"に", @"ね", nil];
+    NSSet *jyodoshiSuffixes = [NSSet setWithObjects:@"な", @"に", nil];
     
     for (NSUInteger index = 0; index < [_nodes count]; index++) {
         Node *node = _nodes[index];
@@ -836,6 +837,13 @@ static MecabPatch *sharedManager = nil;
                                     DEBUG_LOG(@"必須「%@」の語幹マージ中に連続した名詞を検知したが、２つ目の名詞が助動詞語幹なのでマージしない！！", _sentence);
 #endif
                                 }
+                            }
+                            if ([lastGokanStr isEqualToString:@"助動詞"] &&
+                                [[node partOfSpeech] isEqualToString:@"助詞"] &&
+                                [jyodoshiSuffixes member:node.surface])
+                            {// （助動詞語幹の名詞）「よう」＋（副助詞）「に」→（助動詞）「ように」になる際の終止形を設定する。
+                                DEBUG_LOG(@"終止形の設定：（助動詞語幹の名詞）「%@」＋（助詞）「%@」→（助動詞）「%@%@」になる際の終止形を設定する。", lastNode.surface, node.surface, lastNode.surface, node.surface);
+                                [node setOriginalForm:@"だ"];
                             }
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                             [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
@@ -1627,7 +1635,7 @@ static MecabPatch *sharedManager = nil;
             // マージする。
             _modified = YES;
 #if LOG_PATCH
-            DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, node.surface, [lastNode partOfSpeech], node.surface, @"形容動詞");
+            DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"形容動詞");
 #endif
             [node setPartOfSpeech:@"形容動詞"];
             [node setPartOfSpeechSubtype1:@"連体詞ではない"];
