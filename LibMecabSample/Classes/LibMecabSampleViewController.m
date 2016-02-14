@@ -100,6 +100,7 @@
             [mecabPatcher patch_DIVIDE_TAIGEN_DEMO];
             [mecabPatcher patch_MERGE_TAIGEN_DEMO];
             [mecabPatcher patch_DONNA];
+            [mecabPatcher patch_TATOEBA];
             // 用語置換
             [mecabPatcher postProcess];
 
@@ -154,6 +155,7 @@
             [mecabPatcher patch_DIVIDE_TAIGEN_DEMO];
             [mecabPatcher patch_MERGE_TAIGEN_DEMO];
             [mecabPatcher patch_DONNA];
+            [mecabPatcher patch_TATOEBA];
             // 用語置換
             [mecabPatcher postProcess];
         }

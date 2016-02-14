@@ -1636,13 +1636,40 @@ static MecabPatch *sharedManager = nil;
         
         if (node && [[node partOfSpeech] isEqualToString:@"連体詞"] && [donnaKeiyodoshiSuffixes member:[node pronunciation]])
         {
-            // マージする。
+            // 変更する。
             _modified = YES;
 #if LOG_PATCH
             DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"形容動詞");
 #endif
             [node setPartOfSpeech:@"形容動詞"];
             [node setPartOfSpeechSubtype1:@"連体詞ではない"];
+            node.modified = YES;
+        }
+    }
+    return asked;
+}
+
+// 【副詞化】「例えば」は接続詞ではなく副詞
+- (BOOL) patch_TATOEBA {
+    
+    NSSet *fukushiCandidateSuffixes = [NSSet setWithObjects:@"タトエバ", nil];
+    BOOL asked = NO;
+    
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
+        if (node.visible == NO) {
+            continue;
+        }
+        
+        if (node && [[node partOfSpeech] isEqualToString:@"接続詞"] && [fukushiCandidateSuffixes member:[node pronunciation]])
+        {
+            // 変更する。
+            _modified = YES;
+#if LOG_PATCH
+            DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, node.surface, [node partOfSpeech], node.surface, @"副詞");
+#endif
+            [node setPartOfSpeech:@"副詞"];
+            [node setPartOfSpeechSubtype1:@"接続詞ではない"];
             node.modified = YES;
         }
     }
