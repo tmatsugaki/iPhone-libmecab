@@ -1237,8 +1237,12 @@ static MecabPatch *sharedManager = nil;
             {// 副詞である。
                 if (i < [_nodes count] - 1) {
                     Node *nextNode = [self nextNode:i];
+                    NSString *nextPartOfSpeech = [nextNode partOfSpeech];
                     
-                    if ([MecabPatch isYougen:[nextNode partOfSpeech]] == NO) {
+                    if (nextNode &&
+                        ([MecabPatch isYougen:nextPartOfSpeech] == NO && [nextPartOfSpeech isEqualToString:@"助動詞"] == NO && [nextPartOfSpeech isEqualToString:@"助詞"] == NO)
+                       )
+                    {
                         // 修正された。
                         _modified = YES;
 
