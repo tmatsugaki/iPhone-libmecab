@@ -139,12 +139,12 @@ static MecabPatch *sharedManager = nil;
             [[useOfType substringToIndex:2] isEqualToString:@"連用"]);
 }
 
-- (BOOL) isEndOfSentence:(NSUInteger)nextIndex {
+- (BOOL) isKutouTen:(NSUInteger)index {
     
     BOOL rc = NO;
     
-    if (nextIndex < [_nodes count]) {
-        Node *node = _nodes[nextIndex];
+    if (index < [_nodes count]) {
+        Node *node = _nodes[index];
         
         if ([node.surface isEqualToString:@"、"] || [node.surface isEqualToString:@"。"]) {
             rc = YES;
@@ -1204,12 +1204,14 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 【感動詞】「そう」がいつも副詞ではおかしい。
-- (void) patch_KANDOSHI_SOU {
+- (void) patch_KANDOSHI {
 
+    NSSet *kandoshiSuffixes = [NSSet setWithObjects:@"ああ", @"そう", nil];
+    
     if ([_nodes count] == 1) {
         Node *node = _nodes[0];
         if (node.visible) {
-            if ([node.surface isEqualToString:@"そう"] &&
+            if ([kandoshiSuffixes member:node.surface] &&
                 [[node partOfSpeech] isEqualToString:@"副詞"] &&
                 [[node partOfSpeechSubtype1] isEqualToString:@"助詞類接続"])
             {
@@ -1231,17 +1233,15 @@ static MecabPatch *sharedManager = nil;
             if (node.visible == NO) {
                 continue;
             }
-            if ([node.surface isEqualToString:@"そう"] &&
+            if ([kandoshiSuffixes member:node.surface] &&
                 [[node partOfSpeech] isEqualToString:@"副詞"] &&
                 [[node partOfSpeechSubtype1] isEqualToString:@"助詞類接続"])
             {// 副詞である。
                 if (i < [_nodes count] - 1) {
-                    Node *nextNode = [self nextNode:i];
-                    NSString *nextPartOfSpeech = [nextNode partOfSpeech];
+//                    Node *nextNode = [self nextNode:i];
+//                    NSString *nextPartOfSpeech = [nextNode partOfSpeech];
                     
-                    if (nextNode &&
-                        ([MecabPatch isYougen:nextPartOfSpeech] == NO && [nextPartOfSpeech isEqualToString:@"助動詞"] == NO && [nextPartOfSpeech isEqualToString:@"助詞"] == NO)
-                       )
+                    if ([self isKutouTen:i + 1])
                     {
                         // 修正された。
                         _modified = YES;
@@ -1454,7 +1454,7 @@ static MecabPatch *sharedManager = nil;
         if ([[node partOfSpeechSubtype1] isEqualToString:@"接続助詞"] &&
             [node.surface isEqualToString:@"とも"])
         {
-            if ([self isEndOfSentence:i + 1])
+            if ([self isKutouTen:i + 1])
             {
                 // 属性変更された。
                 _modified = YES;
