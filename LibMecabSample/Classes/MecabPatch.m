@@ -218,7 +218,7 @@ static MecabPatch *sharedManager = nil;
     
     if (rentai) {
 #if (LOG_PATCH || SHOW_DEMO_OP)
-        DEBUG_LOG(@"分割：体言に連なった副助詞:[でも]->格助詞:[で],係助詞:[も] %@", _sentence);
+        DEBUG_LOG(@"分割（連体）：副助詞:[でも]->格助詞:[で],係助詞:[も] %@", _sentence);
 #endif
         [node setSurface:@"で"];
         [node setPronunciation:@"デ"];
@@ -236,7 +236,7 @@ static MecabPatch *sharedManager = nil;
         [newNode setInflection:@""];
     } else {
 #if (LOG_PATCH || SHOW_DEMO_OP)
-        DEBUG_LOG(@"分割：用言に連なった副助詞:[でも]->助動詞:[で],係助詞:[も] %@", _sentence);
+        DEBUG_LOG(@"分割（連用）：副助詞:[でも]->助動詞:[で],係助詞:[も] %@", _sentence);
 #endif
         [node setSurface:@"で"];
         [node setPronunciation:@"デ"];
@@ -763,12 +763,15 @@ static MecabPatch *sharedManager = nil;
                 NSString *surface = node.surface;
 
                 if ([lastGokanStr length]) {
-                    if (//[MecabPatch isTaigen:[lastNode partOfSpeech]] == NO &&
-                        [surface isEqualToString:@"でも"] && [[node partOfSpeechSubtype1] isEqualToString:@"副助詞"]) // 【注意】ここは絶対に「副助詞」
+                    if ([surface isEqualToString:@"でも"] && [[node partOfSpeechSubtype1] isEqualToString:@"副助詞"]) // 【注意】ここは絶対に「副助詞」
                     {
                         // 分割する。
                         _modified = YES;
-                        [self devideNode:node index:index rentai:[MecabPatch isTaigen:[lastNode partOfSpeech]]];
+#if SHOW_DEMO_OP
+                        DEBUG_LOG(@"先行語:[%@](%@),語幹[%@]", lastNode.surface, [lastNode partOfSpeech], lastGokanStr);
+#endif
+                        // 【注意】語幹の品詞（形容動詞など）を評価して、引数 rentai に渡す。
+                        [self devideNode:node index:index rentai:[MecabPatch isTaigen:lastGokanStr]];
 
                         // 分割してコンティニューする。
                         goto start;
@@ -842,7 +845,9 @@ static MecabPatch *sharedManager = nil;
                                 [[node partOfSpeech] isEqualToString:@"助詞"] &&
                                 [jyodoshiSuffixes member:node.surface])
                             {// （助動詞語幹の名詞）「よう」＋（副助詞）「に」→（助動詞）「ように」になる際の終止形を設定する。
+#if SHOW_SET_ORIGINAL_FORM
                                 DEBUG_LOG(@"終止形の設定：（助動詞語幹の名詞）「%@」＋（助詞）「%@」→（助動詞）「%@%@」になる際の終止形を設定する。", lastNode.surface, node.surface, lastNode.surface, node.surface);
+#endif
                                 [node setOriginalForm:@"だ"];
                             }
                             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
@@ -1538,8 +1543,7 @@ static MecabPatch *sharedManager = nil;
             // マージする。
             _modified = YES;
 #if (LOG_PATCH || SHOW_DEMO_OP)
-//            DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, node.surface, [node partOfSpeech], nextNode.surface, [nextNode partOfSpeech]);
-            DEBUG_LOG(@"連結：接続助詞[%@],係助詞:[%@] -> 接続助詞:[%@] %@", node.surface, nextNode.surface, @"でも", _sentence);
+            DEBUG_LOG(@"連結（連用）：%@[%@],%@:[%@] -> 接続助詞:[%@%@] %@", [node partOfSpeechSubtype1], node.surface, [nextNode partOfSpeechSubtype1], nextNode.surface, node.surface, nextNode.surface, _sentence);
 #endif
             [node setSurface:[[node surface]             stringByAppendingString:[nextNode surface]]];
             [node setPronunciation:[[node pronunciation] stringByAppendingString:[nextNode pronunciation]]];
@@ -1575,6 +1579,10 @@ static MecabPatch *sharedManager = nil;
                 {
                     // 分割する。
                     _modified = YES;
+#if SHOW_DEMO_OP
+                    DEBUG_LOG(@"先行語:[%@](%@),語幹[%@]", lastNode.surface, [lastNode partOfSpeech], [self gokanString:lastNode]);
+#endif
+                    // 【注意】引数 rentai は何時も YES。
                     [self devideNode:node index:index rentai:YES];
                 }
             }
@@ -1604,8 +1612,7 @@ static MecabPatch *sharedManager = nil;
             // マージする。
             _modified = YES;
 #if (LOG_PATCH || SHOW_DEMO_OP)
-//            DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
-            DEBUG_LOG(@"連結：格助詞[%@],係助詞:[%@] -> 係助詞:[%@] %@", lastNode.surface, node.surface, @"でも", _sentence);
+            DEBUG_LOG(@"連結（連体）：%@[%@],%@:[%@] -> 係助詞:[%@%@] %@", [lastNode partOfSpeechSubtype1], lastNode.surface, [node partOfSpeechSubtype1], node.surface, lastNode.surface, node.surface, _sentence);
 #endif
             [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
             [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
@@ -1613,7 +1620,7 @@ static MecabPatch *sharedManager = nil;
             
             [node setPartOfSpeechSubtype1:@"係助詞"];
             [node setPartOfSpeechSubtype2:@""];
-            [node setOriginalForm:@"でも"];
+            [node setOriginalForm:@"ても"];
             [node setInflection:[@"" stringByAppendingString:[node inflection]]];
             node.modified = YES;
         }
@@ -1721,7 +1728,7 @@ static MecabPatch *sharedManager = nil;
         
         // 【名詞（XXX語幹）】partOfSpeech
         if ([partOfSpeech isEqualToString:@"名詞"]) {
-            if (gokanStr)
+            if ([gokanStr length])
             {// 語幹であると見なされたが未だ名詞であるダメな奴。
                 NSString *pronunciation = [node pronunciation];
 
@@ -1762,7 +1769,7 @@ static MecabPatch *sharedManager = nil;
 #endif
                 [node setPartOfSpeechSubtype1:@"補助形容詞"];
             }
-            if (gokanStr && [gokanStr isEqualToString:@"形容詞"] == NO)
+            if ([gokanStr length] && [gokanStr isEqualToString:@"形容詞"] == NO)
             {// 語幹であると見なされたが未だ名詞であるダメな奴。
                 DEBUG_LOG(@"!!![%@]:[形容詞]語幹残存：対処が必要か？：「%@」", _sentence, node.surface);
             }
@@ -1772,7 +1779,7 @@ static MecabPatch *sharedManager = nil;
             if ([NSLocalizedString(@"cancel", @"キャンセル") isEqualToString:@"キャンセル"] == NO) {
                 [node setPartOfSpeech:@"ナ形容詞"];
             }
-            if (gokanStr && [gokanStr isEqualToString:@"形容動詞"] == NO)
+            if ([gokanStr length] && [gokanStr isEqualToString:@"形容動詞"] == NO)
             {// 語幹であると見なされたが未だ名詞であるダメな奴。
                 DEBUG_LOG(@"!!![%@]:[形容動詞]語幹残存：対処が必要か？：「%@」", _sentence, node.surface);
             }

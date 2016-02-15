@@ -17,6 +17,7 @@
 #define SHOW_FUKUSHIKA                  0
 #define SHOW_KANOU                      0
 #define SHOW_DEMO_OP                    1
+#define SHOW_SET_ORIGINAL_FORM          0
 
 // 1
 #define LOG_PATCH                       0   // 局所を解析する際には 0 にする。
