@@ -10,7 +10,7 @@
 #define definitions_h
 
 // 0
-#define INHIBIT_BUNSETSU_WITH_SUBVERB   0
+#define INHIBIT_BUNSETSU_WITH_AUX_VERB  0
 #define SHOW_HASEI_MEISHI               0
 #define SHOW_FUKUGO_MEISHI              0
 #define SHOW_RENTAIKA                   0

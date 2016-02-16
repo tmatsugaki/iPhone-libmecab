@@ -99,6 +99,7 @@
             [mecabPatcher patch_MERGE_YOUGEN_DEMO];
             [mecabPatcher patch_DIVIDE_TAIGEN_DEMO];
             [mecabPatcher patch_MERGE_TAIGEN_DEMO];
+            [mecabPatcher patch_FIX_HEIRITSU_DEMO];
             [mecabPatcher patch_DONNA];
             [mecabPatcher patch_TATOEBA];
             // 用語置換
@@ -154,6 +155,7 @@
             [mecabPatcher patch_MERGE_YOUGEN_DEMO];
             [mecabPatcher patch_DIVIDE_TAIGEN_DEMO];
             [mecabPatcher patch_MERGE_TAIGEN_DEMO];
+            [mecabPatcher patch_FIX_HEIRITSU_DEMO];
             [mecabPatcher patch_DONNA];
             [mecabPatcher patch_TATOEBA];
             // 用語置換
@@ -496,7 +498,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
             [partOfSpeech isEqualToString:@"その他"] ||
             [partOfSpeech isEqualToString:@"記号"] ||
             [partOfSpeech isEqualToString:@"フィラー"]
-#if INHIBIT_BUNSETSU_WITH_SUBVERB
+#if INHIBIT_BUNSETSU_WITH_AUX_VERB
             || [partOfSpeechSubtype1 isEqualToString:@"補助動詞"]
 #endif
            )
@@ -543,7 +545,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
             [partOfSpeech isEqualToString:@"その他"] ||
             [partOfSpeech isEqualToString:@"記号"] ||
             [partOfSpeech isEqualToString:@"フィラー"]
-#if INHIBIT_BUNSETSU_WITH_SUBVERB
+#if INHIBIT_BUNSETSU_WITH_AUX_VERB
             || [partOfSpeechSubtype1 isEqualToString:@"補助動詞"]
 #endif
            )
@@ -756,7 +758,7 @@ heightForFooterInSection:(NSInteger)section {
              [[node partOfSpeech] isEqualToString:@"記号"] == NO &&
              [[node partOfSpeech] isEqualToString:@"フィラー"] == NO &&
              [MecabPatch isFuzokugo:[node partOfSpeech]] == NO
-#if INHIBIT_BUNSETSU_WITH_SUBVERB
+#if INHIBIT_BUNSETSU_WITH_AUX_VERB
              && [[node partOfSpeechSubtype1] isEqualToString:@"補助動詞"] == NO
 #endif
             )

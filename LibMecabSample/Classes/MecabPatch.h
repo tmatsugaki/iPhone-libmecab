@@ -60,6 +60,7 @@
 - (void) patch_MERGE_YOUGEN_DEMO;           // 語幹のマージ実施後に実施すること！！
 - (void) patch_DIVIDE_TAIGEN_DEMO;          // 語幹のマージ実施後に実施すること！！
 - (BOOL) patch_MERGE_TAIGEN_DEMO;           // 語幹のマージ実施後に実施すること！！
+- (BOOL) patch_FIX_HEIRITSU_DEMO;           // 語幹のマージ実施後に実施すること！！
 - (BOOL) patch_DONNA;                       // 語幹のマージ実施後に実施すること！！
 - (BOOL) patch_TATOEBA;                     // 語幹のマージ実施後に実施すること！！
 - (void) postProcess;                       // 語幹のマージ実施後に実施すること！！
