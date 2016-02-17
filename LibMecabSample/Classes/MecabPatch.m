@@ -293,6 +293,8 @@ static MecabPatch *sharedManager = nil;
 // 【注意】語幹の連結前に実行すること！！
 - (void) patch_fix_RARERU {
     
+    NSSet *transitiveVerbSuffixes = [NSSet setWithObjects:@"す", @"さす", nil];
+    
     for (Node *node in _nodes) {
         if (node.visible == NO) {
             continue;
@@ -306,9 +308,7 @@ static MecabPatch *sharedManager = nil;
                     [originalForm isEqualToString:@"れる"] ||
                     [originalForm isEqualToString:@"せる"] ||
                     [originalForm isEqualToString:@"させる"] ||
-                    [originalForm isEqualToString:@"がる"] ||
-                    [originalForm isEqualToString:@"す"] ||
-                    [originalForm isEqualToString:@"さす"]
+                    [originalForm isEqualToString:@"がる"]
                    )
                 {// こんな動詞はない。
                     // 属性変更する。
@@ -319,6 +319,11 @@ static MecabPatch *sharedManager = nil;
                     [node setPartOfSpeech:@"助動詞"];
                     [node setPartOfSpeechSubtype1:@""];
                     node.modified = YES;
+                } else if ([transitiveVerbSuffixes member:originalForm])
+                {// "す","さす"
+#if LOG_PATCH
+                    DEBUG_LOG(@"%s 他動詞のサフィックス「%@」(%@)", __func__, node.surface, [node partOfSpeech]);
+#endif
                 } else {
                     DEBUG_LOG(@"%s 未確認の接尾辞「%@」 %@", __func__, node.surface, _sentence);
                 }
@@ -415,6 +420,8 @@ static MecabPatch *sharedManager = nil;
 - (void) patch_merge_DOSHI {
     Node *lastNode = nil;
     
+    NSSet *transitiveVerbSuffixes = [NSSet setWithObjects:@"す", @"さす", nil];
+    
     for (Node *node in _nodes) {
         if (node.visible == NO) {
             continue;
@@ -422,20 +429,21 @@ static MecabPatch *sharedManager = nil;
         if (lastNode) {
             if ([[node partOfSpeech] isEqualToString:@"動詞"])
             {
-                BOOL merge = NO;
+                BOOL prefix = NO;
+                BOOL suffix = NO;
                 
                 if ([[lastNode partOfSpeech] isEqualToString:@"動詞"])
                 {// 動詞
                     if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
                     {// 動詞＆動詞（接尾辞）である。
-                        merge = YES;
+                        suffix = YES;
                     }
                 } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"]) {
                     {// 接頭詞（名詞接続？）＆動詞である。
-                        merge = YES;
+                        prefix = YES;
                     }
                 }
-                if (merge) {
+                if (prefix || suffix) {
                     lastNode.visible = NO;
                     
                     // マージする。
@@ -443,6 +451,10 @@ static MecabPatch *sharedManager = nil;
 #if LOG_PATCH
                     DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
+                    // 他動詞
+                    if (suffix && [transitiveVerbSuffixes member:[node originalForm]]) {
+                        [node setPartOfSpeechSubtype1:@"他動詞"];
+                    }
                     [node setSurface:[[lastNode surface]                 stringByAppendingString:[node surface]]];
                     @try {
                         [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
