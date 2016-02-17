@@ -1215,14 +1215,14 @@ static MecabPatch *sharedManager = nil;
 }
 
 // 【感動詞】「そう」がいつも副詞ではおかしい。
-- (void) patch_KANDOSHI {
+- (void) patch_KANDOSHI_SO {
 
-    NSSet *kandoshiSuffixes = [NSSet setWithObjects:@"ああ", @"そう", nil];
+    NSSet *kandoshiLiterals = [NSSet setWithObjects:@"そう", nil];
     
     if ([_nodes count] == 1) {
         Node *node = _nodes[0];
         if (node.visible) {
-            if ([kandoshiSuffixes member:node.surface] &&
+            if ([kandoshiLiterals member:node.surface] &&
                 [[node partOfSpeech] isEqualToString:@"副詞"] &&
                 [[node partOfSpeechSubtype1] isEqualToString:@"助詞類接続"])
             {
@@ -1244,14 +1244,11 @@ static MecabPatch *sharedManager = nil;
             if (node.visible == NO) {
                 continue;
             }
-            if ([kandoshiSuffixes member:node.surface] &&
+            if ([kandoshiLiterals member:node.surface] &&
                 [[node partOfSpeech] isEqualToString:@"副詞"] &&
                 [[node partOfSpeechSubtype1] isEqualToString:@"助詞類接続"])
             {// 副詞である。
                 if (i < [_nodes count] - 1) {
-//                    Node *nextNode = [self nextNode:i];
-//                    NSString *nextPartOfSpeech = [nextNode partOfSpeech];
-                    
                     if ([self isKutouTen:i + 1])
                     {
                         // 修正された。
@@ -1276,6 +1273,91 @@ static MecabPatch *sharedManager = nil;
 #if LOG_PATCH
                     DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
 #endif
+                }
+            }
+        }
+    }
+}
+
+// 【感動詞】「ああ」は用言が続いても副詞でないことがある。
+- (void) patch_KANDOSHI_AA {
+    
+    NSSet *kandoshiLiterals = [NSSet setWithObjects:@"ああ", nil];
+    
+    if ([_nodes count] == 1) {
+        Node *node = _nodes[0];
+        if (node.visible) {
+            if ([kandoshiLiterals member:node.surface] &&
+                [[node partOfSpeech] isEqualToString:@"副詞"] &&
+                [[node partOfSpeechSubtype1] isEqualToString:@"助詞類接続"])
+            {
+                // 修正された。
+                _modified = YES;
+                
+                [node setPartOfSpeech:@"感動詞"];
+                [node setPartOfSpeechSubtype1:@""];
+                [node setPartOfSpeechSubtype2:@""];
+                node.modified = YES;
+#if LOG_PATCH
+                DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
+#endif
+            }
+        }
+    } else if ([_nodes count] > 1) {
+        for (NSUInteger i = 0; i < [_nodes count]; i++) {
+            Node *node = _nodes[i];
+            if (node.visible == NO) {
+                continue;
+            }
+            if ([kandoshiLiterals member:node.surface]) {
+                NSString *partOfSpeech = [node partOfSpeech];
+
+                if ([partOfSpeech isEqualToString:@"副詞"])
+                {// 副詞である。
+                    if ([[node partOfSpeechSubtype1] isEqualToString:@"助詞類接続"]) {
+                        if (i < [_nodes count] - 1) {
+                            if ([self isKutouTen:i + 1])
+                            {
+                                // 修正された。
+                                _modified = YES;
+                                
+                                [node setPartOfSpeech:@"感動詞"];
+                                [node setPartOfSpeechSubtype1:@""];
+                                [node setPartOfSpeechSubtype2:@""];
+                                node.modified = YES;
+#if LOG_PATCH
+                                DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
+#endif
+                            }
+                        } else {
+                            // 修正された。
+                            _modified = YES;
+                            
+                            [node setPartOfSpeech:@"感動詞"];
+                            [node setPartOfSpeechSubtype1:@""];
+                            [node setPartOfSpeechSubtype2:@""];
+                            node.modified = YES;
+#if LOG_PATCH
+                            DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
+#endif
+                        }
+                    }
+                } else if ([partOfSpeech isEqualToString:@"感動詞"]) {
+                    Node *nextNode = [self nextNode:i];
+
+                    if (nextNode && [MecabPatch isYougen:[nextNode partOfSpeech]])
+                    {// 用言が直後に続いているのに、副詞でないのはおかしい。
+                        // 修正された。
+                        _modified = YES;
+                        
+                        [node setPartOfSpeech:@"副詞"];
+                        [node setPartOfSpeechSubtype1:@"助詞類接続"];
+                        [node setPartOfSpeechSubtype2:@""];
+                        node.modified = YES;
+#if LOG_PATCH
+                        DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
+#endif
+                    }
                 }
             }
         }

@@ -52,7 +52,8 @@
 - (void) patch_detect_FUKUSHI;              // 語幹のマージ実施後に実施すること！！
 - (void) patch_TAIGEN_DA;                   // 語幹のマージ実施後に実施すること！！
 - (void) patch_NANODA_NO;                   // 語幹のマージ実施後に実施すること！！
-- (void) patch_KANDOSHI;                    // 語幹のマージ実施後に実施すること！！
+- (void) patch_KANDOSHI_SO;                 // 語幹のマージ実施後に実施すること！！
+- (void) patch_KANDOSHI_AA;                 // 語幹のマージ実施後に実施すること！！
 - (void) patch_HOJO_KEIYOUSHI;              // 語幹のマージ実施後に実施すること！！
 - (void) patch_TAIGEN_RASHII;               // 語幹のマージ実施後に実施すること！！
 - (void) patch_TOMO;                        // 語幹のマージ実施後に実施すること！！

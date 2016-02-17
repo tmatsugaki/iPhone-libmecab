@@ -699,7 +699,7 @@
 				OTHER_CFLAGS = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.mydns.rikki.HinshiMaster;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "f591d573-7174-41a7-a51b-740156e6012a";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = NO;
 			};
 			name = Debug;
@@ -711,8 +711,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "Brand Assets";
 				CODE_SIGN_ENTITLEMENTS = HinshiMaster.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Takuji Matsugaki (F42S2EFB55)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Takuji Matsugaki (F42S2EFB55)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -720,7 +720,7 @@
 				INFOPLIST_FILE = "HinshiMaster-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.mydns.rikki.HinshiMaster;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "ca68f286-71c2-4966-a0df-abeb88e829fa";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = NO;
 				VALIDATE_PRODUCT = YES;
 			};
