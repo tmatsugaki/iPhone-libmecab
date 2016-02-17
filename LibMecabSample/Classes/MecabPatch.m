@@ -100,7 +100,7 @@ static MecabPatch *sharedManager = nil;
 
         if ([gokanStr length]) {
 #if LOG_PATCH
-            DEBUG_LOG(@"語幹[%@]（%@語幹の%@）", node.surface, gokanStr, [node partOfSpeech]);
+            DEBUG_LOG(@"語幹[%@]（%@語幹の%@）", node.surface, [gokanStr length] ? gokanStr : @"", [node partOfSpeech]);
 #endif
         }
         node.attribute = @"";
@@ -429,6 +429,7 @@ static MecabPatch *sharedManager = nil;
         if (lastNode) {
             if ([[node partOfSpeech] isEqualToString:@"動詞"])
             {
+                NSString *originalForm = [node originalForm];
                 BOOL prefix = NO;
                 BOOL suffix = NO;
                 
@@ -444,6 +445,8 @@ static MecabPatch *sharedManager = nil;
                     }
                 }
                 if (prefix || suffix) {
+                    BOOL transitiveVerb = NO;
+                    
                     lastNode.visible = NO;
                     
                     // マージする。
@@ -452,8 +455,9 @@ static MecabPatch *sharedManager = nil;
                     DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
 #endif
                     // 他動詞
-                    if (suffix && [transitiveVerbSuffixes member:[node originalForm]]) {
+                    if (suffix && [transitiveVerbSuffixes member:originalForm]) {
                         [node setPartOfSpeechSubtype1:@"他動詞"];
+                        transitiveVerb = YES;
                     }
                     [node setSurface:[[lastNode surface]                 stringByAppendingString:[node surface]]];
                     @try {
@@ -462,9 +466,21 @@ static MecabPatch *sharedManager = nil;
                     @catch (NSException *exception) {
                         [node setPronunciation:@"?"];
                     }
-                    [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
-                    // 「サ変・スル」などを保つ
-                    [node setInflection:[lastNode inflection]];
+                    if (transitiveVerb)
+                    {// 他動詞のサフィックスだとこれで最後（？）なので、終止形でなく現状の活用を原型にする。
+                        [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, originalForm]];
+                        // 活用は、サフィックスのを用いる。
+                    } else {
+#if MERGE_SURFACE
+                        [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, originalForm]];
+#else
+                        [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], originalForm]];
+#endif
+//                        if (suffix) {
+                            // 「サ変・スル」などを保つ
+                            [node setInflection:[lastNode inflection]];
+//                        }
+                    }
                     node.modified = YES;
                 }
             }
@@ -498,7 +514,11 @@ static MecabPatch *sharedManager = nil;
                 
                 [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                 [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+#if MERGE_SURFACE
+                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, [node originalForm]]];
+#else
                 [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
+#endif
                 [node setInflection:[NSString stringWithFormat:@"%@&%@", [lastNode inflection], [node inflection]]];
                 node.modified = YES;
             }
@@ -543,7 +563,11 @@ static MecabPatch *sharedManager = nil;
                     
                     [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+#if MERGE_SURFACE
+                    [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, [node originalForm]]];
+#else
                     [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
+#endif
                     [node setInflection:[NSString stringWithFormat:@"%@", [node inflection]]];
                     node.modified = YES;
                 }
@@ -604,7 +628,7 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
-// 名詞の接尾辞「〜がち」「〜ぎみ」「〜やすい」の連結（形容動詞化）
+// 名詞の接尾辞「〜がち」（形容動詞）「〜ぎみ」（形容動詞）「〜やすい」（形容詞）の連結
 // 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_GACHI_GIMI_YASUI {
     Node *lastNode = nil;
@@ -624,6 +648,7 @@ static MecabPatch *sharedManager = nil;
                     if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
                     {// 動詞＆名詞（接尾辞）「がち」である。
                         if ([pronunciation isEqualToString:@"ガチ"]) {
+//                            [node setPartOfSpeechSubtype2:@"形容動詞語幹"];
                             merge = YES;
                         } else if ([pronunciation isEqualToString:@"ギミ"]) {
                             [node setPartOfSpeechSubtype2:@"形容動詞語幹"];
@@ -656,7 +681,16 @@ static MecabPatch *sharedManager = nil;
                 @catch (NSException *exception) {
                     [node setPronunciation:@"?"];
                 }
+#if MERGE_SURFACE
+                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, [node originalForm]]];
+#else
                 [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
+#endif
+                if ([[node partOfSpeechSubtype2] isEqualToString:@"形容詞語幹"]) {
+                    [node setPartOfSpeechSubtype1:@"複合形容詞"];
+                } else if ([[node partOfSpeechSubtype2] isEqualToString:@"形容動詞語幹"]) {
+                    [node setPartOfSpeechSubtype1:@"複合形容動詞"];
+                }
                 node.modified = YES;
             }
         }
@@ -747,7 +781,11 @@ static MecabPatch *sharedManager = nil;
                 @catch (NSException *exception) {
                     [node setPronunciation:@"?"];
                 }
+#if MERGE_SURFACE
+                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, [node originalForm]]];
+#else
                 [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
+#endif
                 node.modified = YES;
             }
         }
@@ -786,7 +824,7 @@ static MecabPatch *sharedManager = nil;
                         // 分割する。
                         _modified = YES;
 #if SHOW_DEMO_OP
-                        DEBUG_LOG(@"先行語:[%@](%@),語幹[%@]", lastNode.surface, [lastNode partOfSpeech], lastGokanStr);
+                        DEBUG_LOG(@"先行語:[%@](%@),語幹[%@]", lastNode.surface, [lastNode partOfSpeech], [lastGokanStr length] ? lastGokanStr : @"");
 #endif
                         // 【注意】語幹の品詞（形容動詞など）を評価して、引数 rentai に渡す。
                         [self devideNode:node index:index rentai:[MecabPatch isTaigen:lastGokanStr]];
@@ -947,7 +985,11 @@ static MecabPatch *sharedManager = nil;
 #endif
                 [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                 [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+#if MERGE_SURFACE
+                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, [node originalForm]]];
+#else
                 [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
+#endif
                 
                 [node setPartOfSpeechSubtype1:@"複合形容詞"];
                 [node setPartOfSpeechSubtype2:@""];
@@ -1089,7 +1131,11 @@ static MecabPatch *sharedManager = nil;
                         [node setPronunciation:@"?"];
                     }
 //                    if (noun) {
+#if MERGE_SURFACE
+                        [node setOriginalForm:[NSString stringWithFormat:@"%@.%@", lastNode.surface, [node originalForm]]];
+#else
                         [node setOriginalForm:[NSString stringWithFormat:@"%@.%@", [lastNode originalForm], [node originalForm]]];
+#endif
 //                    } else {
 //                        [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
 //                    }
@@ -1679,8 +1725,11 @@ static MecabPatch *sharedManager = nil;
                 {
                     // 分割する。
                     _modified = YES;
+#ifdef DEBUG
 #if SHOW_DEMO_OP
-                    DEBUG_LOG(@"先行語:[%@](%@),語幹[%@]", lastNode.surface, [lastNode partOfSpeech], [self gokanString:lastNode]);
+                    NSString *lastGokanString = [self gokanString:lastNode];
+                    DEBUG_LOG(@"先行語:[%@](%@),語幹[%@]", lastNode.surface, [lastNode partOfSpeech], [lastGokanString length] ? lastGokanString : @"");
+#endif
 #endif
                     // 【注意】引数 rentai は何時も YES。
                     [self devideNode:node index:index rentai:YES];
@@ -1771,7 +1820,7 @@ static MecabPatch *sharedManager = nil;
                 // 変更する。
                 _modified = YES;
 #if (LOG_PATCH || SHOW_DEMO_OP)
-                DEBUG_LOG(@"変更（「で」「も」）：格助詞[で],副助詞:[も] -> 助動詞[で],副助詞:[も] %@", _sentence);
+                DEBUG_LOG(@"変更（で,も）：格助詞[で],副助詞:[も] -> 助動詞[で],副助詞:[も] %@", _sentence);
 #endif
                 [node setOriginalForm:@"だ"];
                 [node setPartOfSpeech:@"助動詞"];
@@ -1886,6 +1935,11 @@ static MecabPatch *sharedManager = nil;
         
         // 【名詞（XXX語幹）】partOfSpeech
         if ([partOfSpeech isEqualToString:@"名詞"]) {
+            if ([partOfSpeechSubtype1 isEqualToString:@"非自立"])
+            {// 残存した補助名詞
+//                DEBUG_LOG(@"!!!文章「%@」 の \"%@\" は非自立の名詞", _sentence, originalForm);
+                [node setPartOfSpeechSubtype1:@"補助名詞"];
+            }
             if ([gokanStr length])
             {// 語幹であると見なされたが未だ名詞であるダメな奴。
                 NSString *pronunciation = [node pronunciation];
