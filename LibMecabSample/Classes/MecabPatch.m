@@ -421,6 +421,8 @@ static MecabPatch *sharedManager = nil;
     Node *lastNode = nil;
     
     NSSet *transitiveVerbSuffixes = [NSSet setWithObjects:@"す", @"さす", nil];
+    NSString *mergeDelim = _appDelegate.developmentMode ? @"+" : @"";
+    BOOL retainOriginalForm = _appDelegate.developmentMode;
     
     for (Node *node in _nodes) {
         if (node.visible == NO) {
@@ -467,15 +469,19 @@ static MecabPatch *sharedManager = nil;
                         [node setPronunciation:@"?"];
                     }
                     if (transitiveVerb)
-                    {// 他動詞のサフィックスだとこれで最後（？）なので、終止形でなく現状の活用を原型にする。
-                        [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, originalForm]];
+                    {// 他動詞のサフィックスだとこれで最後（？）なので、常時終止形でなく現状の活用を原型にする。
+                        if (retainOriginalForm) {
+                            [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", [lastNode originalForm], mergeDelim, originalForm]];
+                        } else {
+                            [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", lastNode.surface, mergeDelim, originalForm]];
+                        }
                         // 活用は、サフィックスのを用いる。
                     } else {
-#if MERGE_SURFACE
-                        [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, originalForm]];
-#else
-                        [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], originalForm]];
-#endif
+                        if (retainOriginalForm) {
+                            [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", [lastNode originalForm], mergeDelim, originalForm]];
+                        } else {
+                            [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", lastNode.surface, mergeDelim, originalForm]];
+                        }
 //                        if (suffix) {
                             // 「サ変・スル」などを保つ
                             [node setInflection:[lastNode inflection]];
@@ -492,7 +498,10 @@ static MecabPatch *sharedManager = nil;
 // 複合動詞の連結（動詞＋動詞）
 // 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_FUKUGO_DOSHI {
+
     Node *lastNode = nil;
+    NSString *mergeDelim = _appDelegate.developmentMode ? @"+" : @"";
+    BOOL retainOriginalForm = _appDelegate.developmentMode;
     
     for (NSUInteger index = 0; index < [_nodes count]; index++) {
         Node *node = _nodes[index];
@@ -514,11 +523,11 @@ static MecabPatch *sharedManager = nil;
                 
                 [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                 [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-#if MERGE_SURFACE
-                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, [node originalForm]]];
-#else
-                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
-#endif
+                if (retainOriginalForm) {
+                    [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", [lastNode originalForm], mergeDelim, [node originalForm]]];
+                } else {
+                    [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", lastNode.surface, mergeDelim, [node originalForm]]];
+                }
                 [node setInflection:[NSString stringWithFormat:@"%@&%@", [lastNode inflection], [node inflection]]];
                 node.modified = YES;
             }
@@ -531,7 +540,10 @@ static MecabPatch *sharedManager = nil;
 // 【複合動詞（サ変接続など）】
 // 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_FUKUGO_DOSHI_SAHEN {
+
     Node *lastNode = nil;
+    NSString *mergeDelim = _appDelegate.developmentMode ? @"+" : @"";
+    BOOL retainOriginalForm = _appDelegate.developmentMode;
     
     for (NSUInteger index = 0; index < [_nodes count]; index++) {
         Node *node = _nodes[index];
@@ -563,11 +575,11 @@ static MecabPatch *sharedManager = nil;
                     
                     [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                     [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-#if MERGE_SURFACE
-                    [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, [node originalForm]]];
-#else
-                    [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
-#endif
+                    if (retainOriginalForm) {
+                        [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", [lastNode originalForm], mergeDelim, [node originalForm]]];
+                    } else {
+                        [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", lastNode.surface, mergeDelim, [node originalForm]]];
+                    }
                     [node setInflection:[NSString stringWithFormat:@"%@", [node inflection]]];
                     node.modified = YES;
                 }
@@ -631,7 +643,10 @@ static MecabPatch *sharedManager = nil;
 // 名詞の接尾辞「〜がち」（形容動詞）「〜ぎみ」（形容動詞）「〜やすい」（形容詞）の連結
 // 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_GACHI_GIMI_YASUI {
+
     Node *lastNode = nil;
+    NSString *mergeDelim = _appDelegate.developmentMode ? @"+" : @"";
+    BOOL retainOriginalForm = _appDelegate.developmentMode;
     
     for (Node *node in _nodes) {
         if (node.visible == NO) {
@@ -681,11 +696,11 @@ static MecabPatch *sharedManager = nil;
                 @catch (NSException *exception) {
                     [node setPronunciation:@"?"];
                 }
-#if MERGE_SURFACE
-                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, [node originalForm]]];
-#else
-                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
-#endif
+                if (retainOriginalForm) {
+                    [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", [lastNode originalForm], mergeDelim, [node originalForm]]];
+                } else {
+                    [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", lastNode.surface, mergeDelim, [node originalForm]]];
+                }
                 if ([[node partOfSpeechSubtype2] isEqualToString:@"形容詞語幹"]) {
                     [node setPartOfSpeechSubtype1:@"複合形容詞"];
                 } else if ([[node partOfSpeechSubtype2] isEqualToString:@"形容動詞語幹"]) {
@@ -744,7 +759,10 @@ static MecabPatch *sharedManager = nil;
 // 名詞に連なる動詞の（事実上の）接尾辞「〜じみる」の連結（複合動詞化）
 // 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_JIMI {
+
     Node *lastNode = nil;
+    NSString *mergeDelim = _appDelegate.developmentMode ? @"+" : @"";
+    BOOL retainOriginalForm = _appDelegate.developmentMode;
     
     for (Node *node in _nodes) {
         if (node.visible == NO) {
@@ -781,11 +799,11 @@ static MecabPatch *sharedManager = nil;
                 @catch (NSException *exception) {
                     [node setPronunciation:@"?"];
                 }
-#if MERGE_SURFACE
-                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, [node originalForm]]];
-#else
-                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
-#endif
+                if (retainOriginalForm) {
+                    [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", [lastNode originalForm], mergeDelim, [node originalForm]]];
+                } else {
+                    [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", lastNode.surface, mergeDelim, [node originalForm]]];
+                }
                 node.modified = YES;
             }
         }
@@ -953,8 +971,11 @@ static MecabPatch *sharedManager = nil;
 // 【複合形容詞化】
 // 【注意】語幹の連結後、名詞連結の前に実行すること！！
 - (BOOL) patch_FUKUGO_KEIYO_SHI {
+
     Node *lastNode = nil;
     BOOL asked = NO;
+    NSString *mergeDelim = _appDelegate.developmentMode ? @"+" : @"";
+    BOOL retainOriginalForm = _appDelegate.developmentMode;
     
     for (NSInteger i = 0; i < [_nodes count]; i++) {
         Node *node = _nodes[i];
@@ -985,12 +1006,11 @@ static MecabPatch *sharedManager = nil;
 #endif
                 [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
                 [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
-#if MERGE_SURFACE
-                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", lastNode.surface, [node originalForm]]];
-#else
-                [node setOriginalForm:[NSString stringWithFormat:@"%@+%@", [lastNode originalForm], [node originalForm]]];
-#endif
-                
+                if (retainOriginalForm) {
+                    [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", [lastNode originalForm], mergeDelim, [node originalForm]]];
+                } else {
+                    [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", lastNode.surface, mergeDelim, [node originalForm]]];
+                }
                 [node setPartOfSpeechSubtype1:@"複合形容詞"];
                 [node setPartOfSpeechSubtype2:@""];
                 [node setInflection:[@"" stringByAppendingString:[node inflection]]];
@@ -1045,7 +1065,10 @@ static MecabPatch *sharedManager = nil;
 // 名詞の連結
 // 【注意】語幹の連結後に実行すること！！
 - (void) patch_merge_MEISHI {
+
     Node *lastNode = nil;
+    NSString *mergeDelim = _appDelegate.developmentMode ? @"." : @"";
+    BOOL retainOriginalForm = _appDelegate.developmentMode;
     
     for (Node *node in _nodes) {
         if (node.visible == NO) {
@@ -1131,11 +1154,11 @@ static MecabPatch *sharedManager = nil;
                         [node setPronunciation:@"?"];
                     }
 //                    if (noun) {
-#if MERGE_SURFACE
-                        [node setOriginalForm:[NSString stringWithFormat:@"%@.%@", lastNode.surface, [node originalForm]]];
-#else
-                        [node setOriginalForm:[NSString stringWithFormat:@"%@.%@", [lastNode originalForm], [node originalForm]]];
-#endif
+                        if (retainOriginalForm) {
+                            [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", [lastNode originalForm], mergeDelim, [node originalForm]]];
+                        } else {
+                            [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", lastNode.surface, mergeDelim, [node originalForm]]];
+                        }
 //                    } else {
 //                        [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
 //                    }

@@ -683,11 +683,11 @@ NSString *iCloudDeletedNotification             = @"iCloudDeleted";
         }
     }
 #if ICLOUD_ENABLD
-    self.use_iCloud = [[NSUserDefaults standardUserDefaults] boolForKey:kUse_iCloudKey];
+    self.use_iCloud        = [[NSUserDefaults standardUserDefaults] boolForKey:kUse_iCloudKey];
 #else
-    self.use_iCloud = NO;
+    self.use_iCloud        = NO;
 #endif
     self.incrementalSearch = [[NSUserDefaults standardUserDefaults] boolForKey:kIncrementalSearchKey];
-    self.developmentMode = [[NSUserDefaults standardUserDefaults] boolForKey:kDevelopmentModeKey];
+    self.developmentMode   = [[NSUserDefaults standardUserDefaults] boolForKey:kDevelopmentModeKey];
 }
 @end
