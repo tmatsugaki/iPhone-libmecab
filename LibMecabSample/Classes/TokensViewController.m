@@ -304,6 +304,9 @@ didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [[NSUserDefaults standardUserDefaults] setObject:dic[@"sentence"] forKey:kDefaultsEvaluatingSentence];
     // 画面を閉じる
     [self performSelector:@selector(dismissMe) withObject:nil afterDelay:0.5];
+
+    // 検索中の文字列をユーザーデフォルトに保持する。
+    [[NSUserDefaults standardUserDefaults] setObject:_searchBar.text forKey:kDefaultsSearchingToken];
 }
 
 - (NSString *) tableView:(UITableView *)tableView
@@ -328,10 +331,12 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
             {// 削除対象のディクショナリーの文字列が解析対象の文字列であるならば、初期化する。
                 [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsEvaluatingSentence];
             }
+            // 生リストのオブジェクトを削除する。
+            [_rawSentences removeObject:dic];
+            // フィルタリングされたリストのオブジェクトを削除する。
             [_listItems removeObject:dic];
             // 文章を削除したので、XML ファイルに反映する。
-            [_listItems writeToFile:kLibXMLPath atomically:YES];
-
+            [_rawSentences writeToFile:kLibXMLPath atomically:YES];
 #if ICLOUD_ENABLD
             if (_edit_mode == NO) {
                 // iCloud に反映する。
@@ -371,7 +376,12 @@ canEditRowAtIndexPath:(NSIndexPath *)indexPath {
 
     // 削除できるのは、検索中でなく複数セルがある場合
     // 【注意】最後のトークン消すと画面を終われなくなる。
+#if FREELY_DELETE
+    // フィルタリングされても編集できるようにした
+    return [_listItems count] > 1;
+#else
     return (_listItems == _rawSentences) && [_listItems count] > 1;
+#endif
 }
 
 // Override to support conditional editing of the table view.
@@ -380,8 +390,13 @@ canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     
 //    DEBUG_LOG(@"%s", __func__);
 
-    // 移動できるのは、検索中でなくテーブルビューが編集中で複数セルがある場合
+    // 移動できるのは、少なくとも複数セルがある場合
+#if FREELY_MOVE
+    return tableView.editing && [_listItems count] > 1;
+#else
+    // 移動できるのは、検索中でない場合
     return tableView.editing && (_listItems == _rawSentences) && [_listItems count] > 1;
+#endif
 }
 
 // Override to support conditional editing of the table view.
@@ -393,8 +408,40 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
 
     @try {
         if (indexPath.row != toIndexPath.row) {
+            NSDictionary *curObj = [_listItems[indexPath.row] retain];
+
+#if FREELY_MOVE
             NSUInteger numRows = [self tableView:tableView numberOfRowsInSection:0];
-            NSDictionary *dic = [_listItems[indexPath.row] retain];
+            NSDictionary *toObj = [_listItems objectAtIndex:toIndexPath.row];
+            NSDictionary *lastObj = [_listItems lastObject];
+            BOOL toTheEnd = NO;
+
+            [_listItems removeObject:curObj];
+            if (toIndexPath.row == numRows - 1)
+            {// 末端
+                [_listItems addObject:curObj];
+                toTheEnd = YES;
+            } else
+            {
+                [_listItems insertObject:curObj atIndex:toIndexPath.row];
+            }
+            if (_listItems != _rawSentences) {
+                NSUInteger toIndex = NSNotFound;
+
+                if (toTheEnd)
+                {// 末端
+                    toIndex = [_rawSentences indexOfObject:lastObj];
+                } else
+                {
+                    toIndex = [_rawSentences indexOfObject:toObj];
+                }
+                if (toIndex != NSNotFound) {
+                    [_rawSentences removeObject:curObj];
+                    [_rawSentences insertObject:curObj atIndex:toIndex];
+                }
+            }
+#else
+            NSUInteger numRows = [self tableView:tableView numberOfRowsInSection:0];
 
             [_listItems removeObject:dic];
             if (toIndexPath.row == numRows - 1)
@@ -404,15 +451,16 @@ moveRowAtIndexPath:(NSIndexPath *)indexPath
             {
                 [_listItems insertObject:dic atIndex:toIndexPath.row];
             }
+#endif
             // 文章を移動したので、XML ファイルに反映する。
-            [_listItems writeToFile:kLibXMLPath atomically:YES];
+            [_rawSentences writeToFile:kLibXMLPath atomically:YES];
 
 #if ICLOUD_ENABLD
             _smudged = YES;
 #endif
-            [[NSUserDefaults standardUserDefaults] setObject:dic[@"sentence"] forKey:kDefaultsEvaluatingSentence];
+            [[NSUserDefaults standardUserDefaults] setObject:curObj[@"sentence"] forKey:kDefaultsEvaluatingSentence];
 
-            [dic release];
+            [curObj release];
         }
     }
     @catch (NSException *exception) {
@@ -477,6 +525,7 @@ heightForFooterInSection:(NSInteger)section {
     LibMecabSampleAppDelegate *appDelegate = (LibMecabSampleAppDelegate *)[[UIApplication sharedApplication] delegate];
 
     if (appDelegate.incrementalSearch) {
+        // フィルタリングしリロードする。
         [self filterContentForSearchText:searchBar.text];
         [_tableView reloadData];
     }
@@ -489,6 +538,7 @@ heightForFooterInSection:(NSInteger)section {
 
     // 検索中の文字列をユーザーデフォルトに保持する。
     [[NSUserDefaults standardUserDefaults] setObject:searchBar.text forKey:kDefaultsSearchingToken];
+    // フィルタリングしリロードする。
     [self filterContentForSearchText:searchBar.text];
     [_tableView reloadData];
 
@@ -503,11 +553,10 @@ heightForFooterInSection:(NSInteger)section {
 
     NSString *sentence = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsEvaluatingSentence];
 
-    if ([searchBar.text length] == 0) {
-        // 空の文字列をユーザーデフォルトに保持する。
-        [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:kDefaultsSearchingToken];
-        [self filterContentForSearchText:_searchBar.text];
-    }
+    // 検索中の文字列をユーザーデフォルトに保持する。
+    [[NSUserDefaults standardUserDefaults] setObject:searchBar.text forKey:kDefaultsSearchingToken];
+    // フィルタリングしリロードする。
+    [self filterContentForSearchText:searchBar.text];
     [_tableView reloadData];
     
     if ([sentence length]) {
@@ -534,6 +583,20 @@ heightForFooterInSection:(NSInteger)section {
     }
     // キーボードを閉じる（FirstResponder をキャンセルする）
     [_searchBar resignFirstResponder];
+}
+
+// 編集ボタンの制御（フィルタリングされても編集できるようにした）
+- (void) maintainEditButton:(NSString *)searchText {
+
+#if FREELY_DELETE
+    _myNavigationItem.rightBarButtonItem.enabled = YES;
+#else
+    if ([searchText length]) {
+        _myNavigationItem.rightBarButtonItem.enabled = NO;
+    } else {
+        _myNavigationItem.rightBarButtonItem.enabled = YES;
+    }
+#endif
 }
 
 - (void) filterContentForSearchText:(NSString *)searchText
@@ -569,11 +632,11 @@ heightForFooterInSection:(NSInteger)section {
             }
         }
         self.listItems = _filteredSentences;
-        _myNavigationItem.rightBarButtonItem.enabled = NO;
     } else {
         self.listItems = _rawSentences;
-        _myNavigationItem.rightBarButtonItem.enabled = YES;
     }
+    // 編集ボタンの制御
+    [self maintainEditButton:searchText];
 }
 
 #pragma mark - UIKeyboard
@@ -641,7 +704,12 @@ heightForFooterInSection:(NSInteger)section {
             }
         }
         self.rawSentences = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:kLibXMLPath]];
+#if 0
         self.listItems = _rawSentences;
+#else
+        // フィルタリングしリロードする。
+        [self filterContentForSearchText:_searchBar.text];
+#endif
         [_tableView reloadData];
     }
 }

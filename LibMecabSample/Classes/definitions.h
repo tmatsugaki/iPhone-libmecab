@@ -28,6 +28,8 @@
 #define RELOAD_WHEN_TOGGLE_EDIT         1
 #define REPLACE_OBJECT                  1
 #define DISPOSE_KEYBOARD_WHEN_SCROLL    1
+#define FREELY_DELETE                   1
+#define FREELY_MOVE                     1
 
 #ifdef DEBUG
 #define DEBUG_LOG(...) NSLog(__VA_ARGS__)
