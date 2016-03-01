@@ -306,13 +306,20 @@
     [self parse:self];
 }
 
+// タイトルバーのメンテ
+- (void) setupTitle {
+    [_examples setTitle:NSLocalizedString(@"examples", @"文例") forState:UIControlStateNormal];
+}
+
 - (void)viewDidLoad {
 
 //    DEBUG_LOG(@"%s", __func__);
 
     [super viewDidLoad];
 
-    [_examples setTitle:NSLocalizedString(@"examples", @"文例") forState:UIControlStateNormal];
+//    [_examples setTitle:NSLocalizedString(@"examples", @"文例") forState:UIControlStateNormal];
+    [self setupTitle];
+
     [_textField setPlaceholder:NSLocalizedString(@"require_sentence", @"文章を入力してください。")];
     [_optionTitle setText:NSLocalizedString(@"optionTitle", @"学校文法")];
     [_explore setTitle:NSLocalizedString(@"parse", @"解析") forState:UIControlStateNormal];

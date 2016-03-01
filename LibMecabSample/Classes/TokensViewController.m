@@ -116,6 +116,39 @@
 
 #pragma mark - UIViewController
 
+- (NSUInteger) getSelectedIndex {
+    
+    NSUInteger selectedIndex = NSNotFound;
+    NSString *sentence = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsEvaluatingSentence];
+    
+    if ([sentence length]) {
+        for (NSUInteger i = 0; i < [_listItems count]; i++) {
+            NSDictionary *dic = _listItems[i];
+            if ([dic[@"sentence"] isEqualToString:sentence]) {
+                selectedIndex = i;
+                break;
+            }
+        }
+    }
+    return selectedIndex;
+}
+
+// タイトルバーのメンテ
+- (void) setupTitle {
+    
+    NSUInteger selectedIndex = [self getSelectedIndex];
+    
+    if ([_listItems count]) {
+        if (selectedIndex != NSNotFound) {
+            _myNavigationItem.title = [NSString stringWithFormat:@"%@ (%u:%lu)", NSLocalizedString(@"examplesLong", @"文例"), selectedIndex + 1, (unsigned long)[_listItems count]];
+        } else {
+            _myNavigationItem.title = [NSString stringWithFormat:@"%@ (%lu)", NSLocalizedString(@"examplesLong", @"文例"), (unsigned long)[_listItems count]];
+        }
+    } else {
+        _myNavigationItem.title = NSLocalizedString(@"examplesLong", @"文例");
+    }
+}
+
 - (void)viewDidLoad {
 
 //    DEBUG_LOG(@"%s", __func__);
@@ -131,7 +164,9 @@
     
     [_tableView becomeFirstResponder];
 
-    _myNavigationItem.title = NSLocalizedString(@"examplesLong", @"文例");
+//    _myNavigationItem.title = NSLocalizedString(@"examplesLong", @"文例");
+    [self setupTitle];
+    
     [_searchBar setPlaceholder:NSLocalizedString(@"require_token", @"検索する文字列を入力してください。")];
     
     // ナビゲーションアイテムの初期化（閉じるボタン）
@@ -350,6 +385,8 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
             }
 #endif
 
+            [self setupTitle];
+            
 #if DELETE_ANIMATION
             CGContextRef context = UIGraphicsGetCurrentContext();
             
@@ -710,6 +747,8 @@ heightForFooterInSection:(NSInteger)section {
         // フィルタリングしリロードする。
         [self filterContentForSearchText:_searchBar.text];
 #endif
+        [self setupTitle];
+
         [_tableView reloadData];
     }
 }
