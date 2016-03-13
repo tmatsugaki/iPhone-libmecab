@@ -401,6 +401,7 @@
         }
     }
 #endif
+    [_tableView setContentOffset:CGPointMake(0, 0)];
 }
 
 - (void) viewDidAppear:(BOOL)animated {
@@ -459,10 +460,28 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
     NSString *partOfSpeechSubtype1 = [node partOfSpeechSubtype1];
 
     if (node.detailed) {
-        NodeCell *cell = (NodeCell *)[tableView dequeueReusableCellWithIdentifier:@"NodeCell"];
+        NodeCell *cell = nil;
+        
+        switch ((NSUInteger) [UIScreen mainScreen].bounds.size.height) {
+            case 414:
+                cell = (NodeCell *)[tableView dequeueReusableCellWithIdentifier:@"NodeCell6+"];
+                break;
+            case 375:
+                cell = (NodeCell *)[tableView dequeueReusableCellWithIdentifier:@"NodeCell6"];
+                break;
+            default:
+                cell = (NodeCell *)[tableView dequeueReusableCellWithIdentifier:@"NodeCell"];
+                break;
+        }
 
         if (cell == nil) {
-            [[NSBundle mainBundle] loadNibNamed:@"NodeCell" owner:self options:nil];
+            if ([UIScreen mainScreen].bounds.size.width == 414.0) {
+                [[NSBundle mainBundle] loadNibNamed:@"NodeCell6+" owner:self options:nil];
+            } else if ([UIScreen mainScreen].bounds.size.width == 375.0) {
+                [[NSBundle mainBundle] loadNibNamed:@"NodeCell6" owner:self options:nil];
+            } else {
+                [[NSBundle mainBundle] loadNibNamed:@"NodeCell" owner:self options:nil];
+            }
             cell = _nodeCell;
             self.nodeCell = nil;
         }
@@ -521,10 +540,28 @@ forRowAtIndexPath:(NSIndexPath *)indexPath{
         cell.useOfTypeLabel.text = [node useOfType];
         return cell;
     } else {
-        SmallNodeCell *cell = (SmallNodeCell *)[tableView dequeueReusableCellWithIdentifier:@"SmallNodeCell"];
+        SmallNodeCell *cell = nil;
+        
+        switch ((NSUInteger) [UIScreen mainScreen].bounds.size.height) {
+            case 414:
+                cell = (SmallNodeCell *)[tableView dequeueReusableCellWithIdentifier:@"SmallNodeCell6+"];
+                break;
+            case 375:
+                cell = (SmallNodeCell *)[tableView dequeueReusableCellWithIdentifier:@"SmallNodeCell6"];
+                break;
+            default:
+                cell = (SmallNodeCell *)[tableView dequeueReusableCellWithIdentifier:@"SmallNodeCell"];
+                break;
+        }
 
         if (cell == nil) {
-            [[NSBundle mainBundle] loadNibNamed:@"SmallNodeCell" owner:self options:nil];
+            if ([UIScreen mainScreen].bounds.size.width == 414.0) {
+                [[NSBundle mainBundle] loadNibNamed:@"SmallNodeCell6+" owner:self options:nil];
+            } else if ([UIScreen mainScreen].bounds.size.width == 375.0) {
+                [[NSBundle mainBundle] loadNibNamed:@"SmallNodeCell6" owner:self options:nil];
+            } else {
+                [[NSBundle mainBundle] loadNibNamed:@"SmallNodeCell" owner:self options:nil];
+            }
             cell = _smallNodeCell;
             self.smallNodeCell = nil;
         }
@@ -694,6 +731,12 @@ heightForFooterInSection:(NSInteger)section {
     }
 }
 
+- (void) reveal:(NSIndexPath *)indexPath {
+    [_tableView scrollToRowAtIndexPath:indexPath
+                      atScrollPosition:UITableViewScrollPositionNone
+                              animated:YES];
+}
+
 - (void) toggleCellSize:(UITableViewCell *)cell {
     
     NSIndexPath *indexPath = [_tableView indexPathForCell:cell];
@@ -702,6 +745,8 @@ heightForFooterInSection:(NSInteger)section {
     node.detailed = ! node.detailed;
     [_tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
                       withRowAnimation:UITableViewRowAnimationFade];
+
+    [self performSelector:@selector(reveal:) withObject:indexPath afterDelay:0.2];
 }
 
 - (void) showWikiPage:(UITableViewCell *)cell {
