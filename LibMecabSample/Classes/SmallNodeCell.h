@@ -14,7 +14,8 @@
 @required
 // アクション
 - (void) toggleCellSize:(UITableViewCell *)cell;
-- (void) showWikiPage:(UITableViewCell *)cell;
+- (void) showWordDictionaryPage:(UITableViewCell *)cell;
+- (void) showHinshiWikiPage:(UITableViewCell *)cell;
 @end
 
 @interface SmallNodeCell : UITableViewCell {

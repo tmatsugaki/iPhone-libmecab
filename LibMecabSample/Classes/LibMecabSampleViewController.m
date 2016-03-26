@@ -749,7 +749,28 @@ heightForFooterInSection:(NSInteger)section {
     [self performSelector:@selector(reveal:) withObject:indexPath afterDelay:0.2];
 }
 
-- (void) showWikiPage:(UITableViewCell *)cell {
+- (void) showWordDictionaryPage:(UITableViewCell *)cell {
+    
+    NSIndexPath *indexPath = [_tableView indexPathForCell:cell];
+    Node *node = _nodes[indexPath.row];
+    // 「々」を展開する。
+//    NSString *originalForm = [MecabPatch extendUnnun:[node originalForm]];
+    NSString *originalForm = [node originalForm];
+    
+    if ([originalForm length]) {
+        NSArray *tokens = [originalForm componentsSeparatedByString:@"-"];
+        NSString *word = tokens[0];
+        NSString *urlStr = [@"http://www.weblio.jp/content/" stringByAppendingString:[word encodeURL:NSUTF8StringEncoding]];
+        // URL エンコードしないこと！！
+        NSURL *url = [NSURL URLWithString:urlStr];
+        
+        if (url && [[UIApplication sharedApplication] canOpenURL:url]) {
+            [[UIApplication sharedApplication] openURL:url];
+        }
+    }
+}
+
+- (void) showHinshiWikiPage:(UITableViewCell *)cell {
     
     NSSet *hinshiSet = [NSSet setWithObjects:@"名詞",
                                              @"代名詞",

@@ -48,7 +48,15 @@
                 case 2:
                     [NSObject cancelPreviousPerformRequestsWithTarget:self];
                     //
-                    [self doubleTapAction:nil];
+//                    [self doubleTapAction:nil];
+                    [self performSelector:@selector(doubleTapAction:)
+                               withObject:touches
+                               afterDelay:kDoubleTapDetectPeriod];
+                    break;
+                case 3:
+                    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+                    //
+                    [self tripleTapAction:nil];
                     break;
             }
             break;
@@ -63,7 +71,12 @@
 
 - (void) doubleTapAction:(id) sender {
     
-    [delegate showWikiPage:self];
+    [delegate showWordDictionaryPage:self];
+}
+
+- (void) tripleTapAction:(id) sender {
+    
+    [delegate showHinshiWikiPage:self];
 }
 
 - (void)dealloc {
