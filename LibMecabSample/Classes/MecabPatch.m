@@ -103,6 +103,9 @@ static MecabPatch *sharedManager = nil;
             DEBUG_LOG(@"語幹[%@]（%@語幹の%@）", node.surface, [gokanStr length] ? gokanStr : @"", [node partOfSpeech]);
 #endif
         }
+//        if ([[node originalForm] isEqualToString:@"回れる"]) {
+//            [node setOriginalForm:@"回る"];
+//        }
         node.attribute = @"";
         node.modified = NO;
         node.detailed = NO;
@@ -1109,11 +1112,14 @@ static MecabPatch *sharedManager = nil;
                     {// （名詞｜動詞）＆副詞可能　eg.「今日限り」「それ以上」「する以上」
                         merge = YES;
                         adverb = YES;
-                    } else if ([lastPartOfSpeech isEqualToString:@"動詞"] &&
-                               [[lastNode useOfType] isEqualToString:@"基本形"] &&
-                               [[node originalForm] isEqualToString:@"こと"])
+                    } else if ([lastPartOfSpeech isEqualToString:@"動詞"] && (
+                            ([[lastNode useOfType] isEqualToString:@"基本形"] && [[node originalForm] isEqualToString:@"こと"]) ||
+                            ([[lastNode useOfType] isEqualToString:@"連用形"] && [[node originalForm] isEqualToString:@"話"])
+                                                                            )
+                    )
                     {// 複合名詞
-                     // （動詞）＆終止形　eg.「すること（名詞化）」「歩くこと（名詞化）」
+                     // （動詞[終止形]）＆「こと」　eg.「すること（名詞化）」「歩くこと（名詞化）」
+                     // （動詞[連用形]）＆「話」　eg.「打ち明け話（名詞化）」
 #if SHOW_FUKUGO_MEISHI
                         DEBUG_LOG(@"複合名詞:[%@]+[%@]", lastNode.surface, node.surface);
 #endif
