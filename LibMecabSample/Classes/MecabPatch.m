@@ -1920,6 +1920,71 @@ static MecabPatch *sharedManager = nil;
     return asked;
 }
 
+// 体言に連なる「である」「でない」
+// 【（補助）動詞化／（補助）形容詞化】「（名詞）である」「（名詞）でない」は助動詞ではなく、それぞれ「補助動詞」「補助形容詞」
+- (BOOL) patch_DEARU_DENAI {
+    
+    Node *lastNode = nil;
+    Node *nextNode = nil;
+    BOOL asked = NO;
+    
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
+        if (node.visible == NO) {
+            continue;
+        }
+        nextNode = [self nextNode:i];
+        
+        if (lastNode && [MecabPatch isTaigen:[lastNode partOfSpeech]] &&
+            [node.surface isEqualToString:@"で"] && [[node partOfSpeech] isEqualToString:@"助動詞"])
+        {
+            if (nextNode && [nextNode.surface isEqualToString:@"ある"] && [[nextNode partOfSpeech] isEqualToString:@"助動詞"])
+            {
+                // 変更する。
+                _modified = YES;
+#if (LOG_PATCH || SHOW_DEMO_OP)
+                DEBUG_LOG(@"補助動詞化： ->  %@", _sentence);
+#endif
+                [node setPartOfSpeech:@"助詞"];
+                [node setPartOfSpeechSubtype1:@"格助詞"];
+                [node setPartOfSpeechSubtype2:@""];
+                [node setInflection:@""];
+                [node setOriginalForm:@"で"];
+                [node setUseOfType:@""];
+                node.modified = YES;
+
+                [nextNode setPartOfSpeech:@"動詞"];
+                [nextNode setPartOfSpeechSubtype1:@"補助動詞"];
+                [nextNode setPartOfSpeechSubtype2:@""];
+                [nextNode setInflection:@""];
+                nextNode.modified = YES;
+            } else if (nextNode && [nextNode.surface isEqualToString:@"ない"] && [[nextNode partOfSpeech] isEqualToString:@"助動詞"])
+            {
+                // 変更する。
+                _modified = YES;
+#if (LOG_PATCH || SHOW_DEMO_OP)
+                DEBUG_LOG(@"（補助形容詞化： ->  %@", _sentence);
+#endif
+                [node setPartOfSpeech:@"助詞"];
+                [node setPartOfSpeechSubtype1:@"格助詞"];
+                [node setPartOfSpeechSubtype2:@""];
+                [node setInflection:@""];
+                [node setOriginalForm:@"で"];
+                [node setUseOfType:@""];
+                node.modified = YES;
+
+                [nextNode setPartOfSpeech:@"形容詞"];
+                [nextNode setPartOfSpeechSubtype1:@"補助形容詞"];
+                [nextNode setPartOfSpeechSubtype2:@""];
+                [nextNode setInflection:@""];
+                nextNode.modified = YES;
+}
+        }
+        lastNode = node;
+    }
+    return asked;
+}
+
 #pragma mark - Patch (単なる用語の置換)
 // 【終止形／連体形／連用形】
 - (void) postProcess {

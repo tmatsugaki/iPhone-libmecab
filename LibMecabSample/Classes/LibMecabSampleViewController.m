@@ -103,6 +103,7 @@
             [mecabPatcher patch_FIX_HEIRITSU_DEMO];
             [mecabPatcher patch_DONNA];
             [mecabPatcher patch_TATOEBA];
+            [mecabPatcher patch_DEARU_DENAI];
             // 用語置換
             [mecabPatcher postProcess];
 
@@ -160,6 +161,7 @@
             [mecabPatcher patch_FIX_HEIRITSU_DEMO];
             [mecabPatcher patch_DONNA];
             [mecabPatcher patch_TATOEBA];
+            [mecabPatcher patch_DEARU_DENAI];
             // 用語置換
             [mecabPatcher postProcess];
         }
