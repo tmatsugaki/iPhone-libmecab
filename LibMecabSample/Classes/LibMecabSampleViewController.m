@@ -85,6 +85,7 @@
             //
             [mecabPatcher patch_FUKUGO_KEIYO_SHI];          // 語幹のマージ後、名詞マージの前！！
             [mecabPatcher patch_HASEI_KEIYO_SHI];           // 語幹のマージ後、名詞マージの前！！
+            [mecabPatcher patch_HASEI_KEIYO_DO_SHI];        // 語幹のマージ後、名詞マージの前！！
             //
             [mecabPatcher patch_merge_MEISHI];              // 原則的に、名詞の連結は語幹連結の後にしないとダメ！！
             // パッチ
@@ -104,6 +105,7 @@
             [mecabPatcher patch_DONNA];
             [mecabPatcher patch_TATOEBA];
             [mecabPatcher patch_DEARU_DENAI];
+            [mecabPatcher patch_JYA];
             // 用語置換
             [mecabPatcher postProcess];
 
@@ -143,6 +145,7 @@
             //
             [mecabPatcher patch_FUKUGO_KEIYO_SHI];          // 語幹のマージ後、名詞マージの前！！
             [mecabPatcher patch_HASEI_KEIYO_SHI];           // 語幹のマージ後、名詞マージの前！！
+            [mecabPatcher patch_HASEI_KEIYO_DO_SHI];        // 語幹のマージ後、名詞マージの前！！
             //
             [mecabPatcher patch_merge_MEISHI];              // 原則的に、名詞の連結は語幹連結の後にしないとダメ！！
             // パッチ
@@ -162,6 +165,7 @@
             [mecabPatcher patch_DONNA];
             [mecabPatcher patch_TATOEBA];
             [mecabPatcher patch_DEARU_DENAI];
+            [mecabPatcher patch_JYA];
             // 用語置換
             [mecabPatcher postProcess];
         }

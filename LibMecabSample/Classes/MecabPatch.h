@@ -47,6 +47,7 @@
 //
 - (BOOL) patch_FUKUGO_KEIYO_SHI;            // 語幹のマージ後、名詞マージの前！！
 - (BOOL) patch_HASEI_KEIYO_SHI;             // 語幹のマージ後、名詞マージの前！！
+- (BOOL) patch_HASEI_KEIYO_DO_SHI;          // 語幹のマージ後、名詞マージの前！！
 //
 - (void) patch_merge_MEISHI;                // 語幹のマージ実施後に実施すること！！
 - (void) patch_detect_FUKUSHI;              // 語幹のマージ実施後に実施すること！！
@@ -65,5 +66,6 @@
 - (BOOL) patch_DONNA;                       // 語幹のマージ実施後に実施すること！！
 - (BOOL) patch_TATOEBA;                     // 語幹のマージ実施後に実施すること！！
 - (BOOL) patch_DEARU_DENAI;                 // 語幹のマージ実施後に実施すること！！
+- (void) patch_JYA;                        // 語幹のマージ実施後に実施すること！！
 - (void) postProcess;                       // 語幹のマージ実施後に実施すること！！
 @end

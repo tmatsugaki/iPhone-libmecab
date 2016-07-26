@@ -441,11 +441,11 @@ static MecabPatch *sharedManager = nil;
                 if ([[lastNode partOfSpeech] isEqualToString:@"動詞"])
                 {// 動詞
                     if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
-                    {// 動詞＆動詞（接尾辞）である。
+                    {// [派生動詞]動詞＆動詞（接尾辞）である。
                         suffix = YES;
                     }
                 } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"]) {
-                    {// 接頭詞（名詞接続？）＆動詞である。
+                    {// [派生動詞]接頭詞（名詞接続？）＆動詞である。
                         prefix = YES;
                     }
                 }
@@ -512,9 +512,12 @@ static MecabPatch *sharedManager = nil;
             continue;
         }
         
-        if ([[lastNode partOfSpeech] isEqualToString:@"動詞"]) {
-            if ([[node partOfSpeech] isEqualToString:@"動詞"] && [[node partOfSpeechSubtype1] isEqualToString:@"非自立"])
+        if ([[lastNode partOfSpeech] isEqualToString:@"動詞"] && [[node partOfSpeech] isEqualToString:@"動詞"]) {
+            if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"] || [[lastNode useOfType] isEqualToString:@"連用形"])
             {//
+                if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"] == NO && [[lastNode useOfType] isEqualToString:@"連用形"]) {
+                    DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+                }
                 lastNode.visible = NO;
                 
                 // マージする。
@@ -643,7 +646,7 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
-// 名詞の接尾辞「〜がち」（形容動詞）「〜ぎみ」（形容動詞）「〜やすい」（形容詞）の連結
+// [派生形容動詞]名詞の接尾辞「〜がち」（形容動詞）「〜ぎみ」（形容動詞）「〜やすい」（形容詞）の連結
 // 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_GACHI_GIMI_YASUI {
 
@@ -758,7 +761,7 @@ static MecabPatch *sharedManager = nil;
     }
 }
 
-// 複合動詞の連結（名詞＋動詞）
+// [派生動詞]複合動詞の連結（名詞＋動詞）
 // 名詞に連なる動詞の（事実上の）接尾辞「〜じみる」の連結（複合動詞化）
 // 【注意】語幹の連結前に実行すること！！
 - (void) patch_merge_JIMI {
@@ -1029,6 +1032,7 @@ static MecabPatch *sharedManager = nil;
 // 【注意】語幹の連結後、名詞連結の前に実行すること！！
 - (BOOL) patch_HASEI_KEIYO_SHI {
     Node *lastNode = nil;
+//    BOOL retainOriginalForm = _appDelegate.developmentMode; 単に接頭詞のマージなので、この処理は不要。
     BOOL asked = NO;
     
     for (NSInteger i = 0; i < [_nodes count]; i++) {
@@ -1037,9 +1041,7 @@ static MecabPatch *sharedManager = nil;
             continue;
         }
         if (lastNode && [[node partOfSpeech] isEqualToString:@"形容詞"]) {
-            BOOL type1 = [[lastNode partOfSpeech] isEqualToString:@"接頭詞"];
-            
-            if (type1)
+            if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"])
             {
                 lastNode.visible = NO;
                 
@@ -1055,6 +1057,43 @@ static MecabPatch *sharedManager = nil;
                 [node setPartOfSpeechSubtype1:@"派生形容詞"];
                 [node setPartOfSpeechSubtype2:@""];
                 [node setInflection:[@"" stringByAppendingString:[node inflection]]];
+                node.modified = YES;
+            }
+        }
+        lastNode = node;
+    }
+    return asked;
+}
+
+// 【派生形容動詞化】
+// 【注意】語幹の連結後、名詞連結の前に実行すること！！
+- (BOOL) patch_HASEI_KEIYO_DO_SHI {
+    Node *lastNode = nil;
+//    BOOL retainOriginalForm = _appDelegate.developmentMode; 単に接頭詞のマージなので、この処理は不要。
+    BOOL asked = NO;
+    
+    for (NSInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
+        if (node.visible == NO) {
+            continue;
+        }
+        if (lastNode && [[node partOfSpeech] isEqualToString:@"形容動詞"]) {
+            if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"])
+            {
+                lastNode.visible = NO;
+                
+                // マージする。
+                _modified = YES;
+#if LOG_PATCH
+                DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+#endif
+                [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
+                [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:[node pronunciation]]];
+                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                
+                [node setPartOfSpeechSubtype1:@"派生形容動詞"];
+//                [node setPartOfSpeechSubtype2:@""];
+//                [node setInflection:[@"" stringByAppendingString:[node inflection]]];
                 node.modified = YES;
             }
         }
@@ -1084,9 +1123,11 @@ static MecabPatch *sharedManager = nil;
                 BOOL retainLastSubtype = NO;
                 BOOL adverb = NO;
                 BOOL noun = NO;
+                BOOL terminate = NO;
                 NSString *lastPartOfSpeech = [lastNode partOfSpeech];
+                NSString *lastPartOfSpeechSubtype2 = [lastNode partOfSpeechSubtype2];
 
-                if ([lastPartOfSpeech isEqualToString:@"名詞"] ||
+                if (([lastPartOfSpeech isEqualToString:@"名詞"] && [lastPartOfSpeechSubtype2 isEqualToString:@"終端"] == NO) ||
                     [lastPartOfSpeech isEqualToString:@"動詞"] ||
                     [lastPartOfSpeech isEqualToString:@"形容詞"]
                 )
@@ -1096,6 +1137,7 @@ static MecabPatch *sharedManager = nil;
                      //（名詞｜動詞｜形容詞）＆名詞（接尾辞）である。
                         merge = YES;
                         retainLastSubtype = YES;
+                        terminate = YES;
                     } else if ([lastPartOfSpeech isEqualToString:@"名詞"])
                     {// 複合名詞
                      // 名詞が連続している。
@@ -1160,19 +1202,18 @@ static MecabPatch *sharedManager = nil;
                     @catch (NSException *exception) {
                         [node setPronunciation:@"?"];
                     }
-//                    if (noun) {
-                        if (retainOriginalForm) {
-                            [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", [lastNode originalForm], mergeDelim, [node originalForm]]];
-                        } else {
-                            [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", lastNode.surface, mergeDelim, [node originalForm]]];
-                        }
-//                    } else {
-//                        [node setOriginalForm:[[lastNode originalForm]       stringByAppendingString:[node originalForm]]];
-//                    }
+                    if (retainOriginalForm) {
+                        [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", [lastNode originalForm], mergeDelim, [node originalForm]]];
+                    } else {
+                        [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", lastNode.surface, mergeDelim, [node originalForm]]];
+                    }
+                    if (terminate) {
+                        [node setPartOfSpeechSubtype2:@"終端"];
+                    }
                     node.modified = YES;
                     
                     if (retainLastSubtype) {
-//                        [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
+                        //                    [node setPartOfSpeechSubtype1:[lastNode partOfSpeechSubtype1]];
                         [node setPartOfSpeechSubtype1:@"派生名詞"];
 #if SHOW_HASEI_MEISHI
                         DEBUG_LOG(@"派生名詞:[%@][%@]", lastNode.surface, node.surface);
@@ -1978,11 +2019,51 @@ static MecabPatch *sharedManager = nil;
                 [nextNode setPartOfSpeechSubtype2:@""];
                 [nextNode setInflection:@""];
                 nextNode.modified = YES;
-}
+            }
         }
         lastNode = node;
     }
     return asked;
+}
+
+// 【助動詞化】末端の「じゃ」は副助詞でなく助動詞。
+- (void) patch_JYA {
+    
+    Node *lastNode = nil;
+    for (NSUInteger i = 0; i < [_nodes count]; i++) {
+        Node *node = _nodes[i];
+        if (node.visible == NO) {
+            continue;
+        }
+        if ([node.surface isEqualToString:@"じゃ"])
+        {
+            // 属性変更された。
+            _modified = YES;
+            
+            if ([[node partOfSpeechSubtype1] isEqualToString:@"副助詞"] && [self isKutouTen:i + 1])
+            {// 末端の副助詞は助動詞にする。
+                [node setPartOfSpeech:@"助動詞"];
+                [node setPartOfSpeechSubtype1:@"*"];
+                [node setPartOfSpeechSubtype2:@"*"];
+                [node setInflection:@"特殊・ジャ"];
+                [node setUseOfType:@"終止形"];
+            }
+            node.modified = YES;
+#if LOG_PATCH
+            DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
+#endif
+            if ([[lastNode partOfSpeech] isEqualToString:@"名詞"] &&
+                [[lastNode partOfSpeechSubtype1] isEqualToString:@"形容動詞語幹"])
+            {// 形容動詞になるのを抑止する。
+                [lastNode setPartOfSpeechSubtype1:@""];
+                lastNode.modified = YES;
+#if LOG_PATCH
+                DEBUG_LOG(@"%s %@:%@", __func__, node.surface, [node partOfSpeech]);
+#endif
+            }
+        }
+        lastNode = node;
+    }
 }
 
 #pragma mark - Patch (単なる用語の置換)
