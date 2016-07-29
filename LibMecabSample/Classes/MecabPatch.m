@@ -515,9 +515,9 @@ static MecabPatch *sharedManager = nil;
         if ([[lastNode partOfSpeech] isEqualToString:@"動詞"] && [[node partOfSpeech] isEqualToString:@"動詞"]) {
             if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"] || [[lastNode useOfType] isEqualToString:@"連用形"])
             {//
-                if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"] == NO && [[lastNode useOfType] isEqualToString:@"連用形"]) {
-                    DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
-                }
+//                if ([[node partOfSpeechSubtype1] isEqualToString:@"非自立"] == NO && [[lastNode useOfType] isEqualToString:@"連用形"]) {
+//                    DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+//                }
                 lastNode.visible = NO;
                 
                 // マージする。
@@ -1127,6 +1127,10 @@ static MecabPatch *sharedManager = nil;
                 NSString *lastPartOfSpeech = [lastNode partOfSpeech];
                 NSString *lastPartOfSpeechSubtype2 = [lastNode partOfSpeechSubtype2];
 
+//                if ([lastPartOfSpeechSubtype2 isEqualToString:@"終端"]) {
+//                    DEBUG_LOG(@"%s 「%@」(%@)+「%@」(%@)", __func__, lastNode.surface, [lastNode partOfSpeech], node.surface, [node partOfSpeech]);
+//                }
+                
                 if (([lastPartOfSpeech isEqualToString:@"名詞"] && [lastPartOfSpeechSubtype2 isEqualToString:@"終端"] == NO) ||
                     [lastPartOfSpeech isEqualToString:@"動詞"] ||
                     [lastPartOfSpeech isEqualToString:@"形容詞"]
@@ -1911,6 +1915,7 @@ static MecabPatch *sharedManager = nil;
 - (BOOL) patch_DONNA {
 
     NSSet *donnaKeiyodoshiSuffixes = [NSSet setWithObjects:@"コンナ", @"ソンナ", @"アンナ", @"ドンナ", @"オナジ", nil];
+    Node *nextNode = nil;
     BOOL asked = NO;
     
     for (NSInteger i = 0; i < [_nodes count]; i++) {
@@ -1918,6 +1923,7 @@ static MecabPatch *sharedManager = nil;
         if (node.visible == NO) {
             continue;
         }
+        nextNode = [self nextNode:i];
         
         if (node && [[node partOfSpeech] isEqualToString:@"連体詞"] && [donnaKeiyodoshiSuffixes member:[node pronunciation]])
         {
@@ -1928,7 +1934,27 @@ static MecabPatch *sharedManager = nil;
 #endif
             [node setPartOfSpeech:@"形容動詞"];
             [node setPartOfSpeechSubtype1:@"連体詞ではない"];
+            [node setOriginalForm:[[node originalForm] stringByAppendingString:@"だ"]];
             node.modified = YES;
+            
+            NSSet *jyodoSuffixes = [NSSet setWithObjects:@"ダロ", @"ダッ", @"デ", @"ダ", @"ナラ", nil];
+            NSSet *jyoshiSuffixes = [NSSet setWithObjects:@"ニ", @"ナ", nil];
+            if ([[nextNode partOfSpeech] isEqualToString:@"助動詞"] && [jyodoSuffixes member:[nextNode pronunciation]])
+            {
+                [node setSurface:[node.surface stringByAppendingString:nextNode.surface]];
+                [node setPronunciation:[[node pronunciation] stringByAppendingString:[nextNode pronunciation]]];
+                [node setUseOfType:[nextNode useOfType]]; // 活用は助動詞のを流用する。
+                nextNode.visible = NO;
+            } else if ([[nextNode partOfSpeech] isEqualToString:@"助詞"] && [jyoshiSuffixes member:[nextNode pronunciation]]) {
+                [node setSurface:[node.surface stringByAppendingString:nextNode.surface]];
+                [node setPronunciation:[[node pronunciation] stringByAppendingString:[nextNode pronunciation]]];
+                if ([[nextNode pronunciation] isEqualToString:@"ニ"]) {
+                    [node setUseOfType:@"連用形"];
+                } else if ([[nextNode pronunciation] isEqualToString:@"ナ"]) {
+                    [node setUseOfType:@"連体形"];
+                }
+                nextNode.visible = NO;
+            }
         }
     }
     return asked;
