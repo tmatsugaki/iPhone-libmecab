@@ -818,6 +818,15 @@ static MecabPatch *sharedManager = nil;
 }
 
 #pragma mark - Patch (マージ2)
+- (void) fix_IKAGA:(Node *)node {
+    [node setPartOfSpeech:@"副詞"];
+    [node setPartOfSpeechSubtype1:@""];
+    node.modified = YES;
+#if LOG_MERGE
+    DEBUG_LOG(@"「%@」副詞の「いかが」。[%@]", _sentence, node.surface);
+#endif
+}
+
 // 語幹の連結（自分の前が語幹の場合）
 - (void) patch_merge_GOKAN {
     Node *lastLastNode = nil;
@@ -825,6 +834,8 @@ static MecabPatch *sharedManager = nil;
     NSSet *keiyoshiSuffixes = [NSSet setWithObjects:@"らしい", nil];
     NSSet *keiyodoshiSuffixes = [NSSet setWithObjects:@"だ", @"で", @"です", @"な", @"に", @"ね", nil];
     NSSet *jyodoshiSuffixes = [NSSet setWithObjects:@"な", @"に", nil];
+    NSSet *ikagaSuffixes = [NSSet setWithObjects:@"だ", @"な", nil];
+    NSUInteger nodeCount = 0;
     
     for (NSUInteger index = 0; index < [_nodes count]; index++) {
         Node *node = _nodes[index];
@@ -832,9 +843,10 @@ static MecabPatch *sharedManager = nil;
             continue;
         }
     start:
-        if (lastNode) {
+        nodeCount++;
+        if (lastNode)
+        {
             NSString *lastGokanStr = [self gokanString:lastNode];
-
             // 語幹の連結は、原則的に付属語が続く場合。
             // 例外：「ない」形容詞
             if ([MecabPatch isFuzokugo:[node partOfSpeech]] ||
@@ -886,6 +898,11 @@ static MecabPatch *sharedManager = nil;
 #if LOG_MERGE
                                 DEBUG_LOG(@"必須「%@」形容動詞の活用ではない。[%@][%@]", _sentence, lastNode.surface, node.surface);
 #endif
+                            } else if ([[lastNode pronunciation] isEqualToString:@"イカガ"] &&
+                                       [ikagaSuffixes member:originalForm] == NO)
+                            {// 「いかがだ」「いかがな」以外の「いかが」は副詞
+                                inhibitKeido = YES;
+                                [self fix_IKAGA:lastNode];
                             }
                         }
                         // 【例外1】ナイ形容詞
@@ -930,12 +947,12 @@ static MecabPatch *sharedManager = nil;
 #endif
                                 [node setOriginalForm:@"だ"];
                             }
-                            [node setSurface:[[lastNode surface]             stringByAppendingString:[node surface]]];
-                            [node setPronunciation:[[lastNode pronunciation] stringByAppendingString:pronunciation]];
+                            [node setSurface:[[lastNode surface]               stringByAppendingString:[node surface]]];
+                            [node setPronunciation:[[lastNode pronunciation]   stringByAppendingString:pronunciation]];
                             if ([lastGokanStr isEqualToString:@"形容動詞"]) {
-                                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:@"だ"]];
+                                [node setOriginalForm:[[lastNode originalForm] stringByAppendingString:@"だ"]];
                             } else {
-                                [node setOriginalForm:[[lastNode originalForm]   stringByAppendingString:[node originalForm]]];
+                                [node setOriginalForm:[[lastNode originalForm] stringByAppendingString:[node originalForm]]];
                             }
                             if ([lastGokanStr isEqualToString:@"ナイ形容詞"]) {
                                 [node setPartOfSpeech:@"形容詞"];
@@ -966,10 +983,19 @@ static MecabPatch *sharedManager = nil;
                         }
                     }
                 }
+            } else {
+                if ([[lastNode pronunciation] isEqualToString:@"イカガ"])
+                {// 独立した「いかが」は副詞
+                    [self fix_IKAGA:lastNode];
+                }
             }
         }
         lastLastNode = lastNode;
         lastNode = node;
+    }
+    if ([[lastNode pronunciation] isEqualToString:@"イカガ"])
+    {// 末端の「いかが」は副詞
+        [self fix_IKAGA:lastNode];
     }
 }
 
