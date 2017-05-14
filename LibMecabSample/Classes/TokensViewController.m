@@ -359,7 +359,7 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
 
     @try {
         if (editingStyle == UITableViewCellEditingStyleDelete) {
-            NSDictionary *dic = [_listItems objectAtIndex:indexPath.row];
+            NSDictionary *dic = [[_listItems objectAtIndex:indexPath.row] retain];
             NSString *searchingToken = [[NSUserDefaults standardUserDefaults] objectForKey:kDefaultsEvaluatingSentence];
             
             if ([dic[@"sentence"] isEqualToString:searchingToken])
@@ -372,6 +372,8 @@ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
             [_listItems removeObject:dic];
             // 文章を削除したので、XML ファイルに反映する。
             [_rawSentences writeToFile:kLibXMLPath atomically:YES];
+            [dic release];
+
 #if ICLOUD_ENABLD
             if (_edit_mode == NO) {
                 // iCloud に反映する。

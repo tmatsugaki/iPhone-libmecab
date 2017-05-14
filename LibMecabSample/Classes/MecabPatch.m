@@ -310,8 +310,8 @@ static MecabPatch *sharedManager = nil;
                 if ([originalForm isEqualToString:@"られる"] ||
                     [originalForm isEqualToString:@"れる"] ||
                     [originalForm isEqualToString:@"せる"] ||
-                    [originalForm isEqualToString:@"させる"] ||
-                    [originalForm isEqualToString:@"がる"]
+                    [originalForm isEqualToString:@"させる"] // ||
+//                    [originalForm isEqualToString:@"がる"]
                    )
                 {// こんな動詞はない。
                     // 属性変更する。
@@ -432,11 +432,17 @@ static MecabPatch *sharedManager = nil;
             continue;
         }
         if (lastNode) {
-            if ([[node partOfSpeech] isEqualToString:@"動詞"])
+            NSString *partOfSpeech = [node partOfSpeech];
+            NSString *partOfSpeechSubtype1 = [node partOfSpeechSubtype1];
+            // patch_fix_RARERU で従来（動詞でない）「がる」を助動詞化させてたのを今回敢えてスルーさせた。
+            BOOL doshitekiSetubiji = [partOfSpeech isEqualToString:@"動詞"] && [partOfSpeechSubtype1 isEqualToString:@"接尾"];
+
+            if ([partOfSpeech isEqualToString:@"動詞"] || doshitekiSetubiji)
             {
                 NSString *originalForm = [node originalForm];
                 BOOL prefix = NO;
                 BOOL suffix = NO;
+                BOOL adjective = NO;
                 
                 if ([[lastNode partOfSpeech] isEqualToString:@"動詞"])
                 {// 動詞
@@ -444,12 +450,18 @@ static MecabPatch *sharedManager = nil;
                     {// [派生動詞]動詞＆動詞（接尾辞）である。
                         suffix = YES;
                     }
+                } else if ([[lastNode partOfSpeech] isEqualToString:@"形容詞"])
+                {// 形容詞（〜がる）
+                    if ([[node partOfSpeechSubtype1] isEqualToString:@"接尾"])
+                    {// [派生動詞]形容詞＆動詞的（接尾辞）である。
+                        adjective = YES;
+                    }
                 } else if ([[lastNode partOfSpeech] isEqualToString:@"接頭詞"]) {
                     {// [派生動詞]接頭詞（名詞接続？）＆動詞である。
                         prefix = YES;
                     }
                 }
-                if (prefix || suffix) {
+                if (prefix || adjective || suffix) {
                     BOOL transitiveVerb = NO;
                     
                     lastNode.visible = NO;
@@ -463,6 +475,9 @@ static MecabPatch *sharedManager = nil;
                     if (suffix && [transitiveVerbSuffixes member:originalForm]) {
                         [node setPartOfSpeechSubtype1:@"他動詞"];
                         transitiveVerb = YES;
+                    } else if (adjective) {
+                        [node setPartOfSpeech:@"動詞"];
+                        [node setPartOfSpeechSubtype1:@"派生動詞"];
                     }
                     [node setSurface:[[lastNode surface]                 stringByAppendingString:[node surface]]];
                     @try {
@@ -485,10 +500,10 @@ static MecabPatch *sharedManager = nil;
                         } else {
                             [node setOriginalForm:[NSString stringWithFormat:@"%@%@%@", lastNode.surface, mergeDelim, originalForm]];
                         }
-//                        if (suffix) {
+                        if (! adjective) {
                             // 「サ変・スル」などを保つ
                             [node setInflection:[lastNode inflection]];
-//                        }
+                        }
                     }
                     node.modified = YES;
                 }
